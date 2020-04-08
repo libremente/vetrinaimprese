@@ -540,17 +540,30 @@ public class AccreditamentoHandler extends AbstractHandler
 				LoggerUtility.info("RICHIESTA PRESENTE");
 				if (accreditamento.getIdStatoRichiesta() != null)
 				{
-					if (IAbstractServiceImpl.STATO_RICHIESTA_ATTESA == accreditamento.getIdStatoRichiesta().intValue())
-						throw new AccreditamentoException(getMessage("accreditamentoEsistenteInAttesa"));
-					else if (IAbstractServiceImpl.STATO_RICHIESTA_NON_VALIDATO == accreditamento.getIdStatoRichiesta().intValue())
+					if (codiceFiscaleUtente.equalsIgnoreCase(accreditamento.getCodFiscaleRichiedente()))
 					{
-						String motivo = accreditamento.getParereAccreditamento();
-						if (motivo == null || motivo.trim().length() <= 0)
-							motivo = getMessage("no_specify");
-						throw new AccreditamentoException(getMessage("accreditamentoNonValitato", new Object[] { motivo }));
+						if (IAbstractServiceImpl.STATO_RICHIESTA_ATTESA == accreditamento.getIdStatoRichiesta().intValue())
+							throw new AccreditamentoException(getMessage("accreditamentoEsistenteInAttesa"));
+						else if (IAbstractServiceImpl.STATO_RICHIESTA_NON_VALIDATO == accreditamento.getIdStatoRichiesta().intValue())
+						{
+							String motivo = accreditamento.getParereAccreditamento();
+							if (motivo == null || motivo.trim().length() <= 0)
+								motivo = getMessage("no_specify");
+							throw new AccreditamentoException(getMessage("accreditamentoNonValitato", new Object[] { motivo }));
+						}
+						else
+							throw new AccreditamentoException(getMessage("accreditamentoValitato"));
 					}
 					else
-						throw new AccreditamentoException(getMessage("accreditamentoValitato"));
+					{
+						String descr = accreditamento.getDescImpresa();
+						if (descr == null || descr.trim().length()<=0)
+							descr = accreditamento.getPartitaIva();
+						if (descr == null || descr.trim().length()<=0)
+							descr = accreditamento.getCodFiscale();
+						throw new AccreditamentoException(getMessage("accreditamentoPresenteAltro",new Object[] { descr }));
+					}
+					
 				}
 				LoggerUtility.info("PASSO 1");
 				throw new AccreditamentoException(getMessage("accreditamentoErroreGenerico"));
