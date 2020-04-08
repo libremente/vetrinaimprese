@@ -102,5 +102,4 @@
 * validation-api-1.0.0.GA-redhat-1.jar
 * xmlbeans-2.5.0.jar
 * xstream-1.3.jar
-* yuicompressor-2.4.7.jar
 * yuicompressor-2.4.8.jar
