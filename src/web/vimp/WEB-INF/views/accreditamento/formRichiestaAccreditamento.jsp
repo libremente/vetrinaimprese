@@ -159,22 +159,26 @@
                                             
                                             <div class="col-sm-12">
                                             	<div class="col-sm-1"></div>      
-                                            	<div class="col-sm-6">
-                                            		<div class="checkbox">
-														<label> <input id="checkboxRappresentante"
-															name="checkboxRappresentante" type="checkbox" /> <strong>&nbsp;<spring:message code="form.richiesta.accreditamento.rappresentante" text="Dichiaro di essere Rappresentante Legale dell'impresa"/>&nbsp;</strong>
-														</label>
+                                            	<div class="col-sm-10">
+                                            		<div class="form-group">
+	                                            		<div class="checkbox">
+															<label> <input id="checkboxRappresentante"
+																name="checkboxRappresentante" type="checkbox" /> <strong>&nbsp;<spring:message code="form.richiesta.accreditamento.rappresentante" text="Dichiaro di essere Rappresentante Legale dell'impresa"/>&nbsp;</strong>
+															</label>
+														</div>
 													</div>
                                             	</div>                                 
                                             </div>
                                             
                                             <div class="col-sm-12">
                                             	<div class="col-sm-1"></div>    
-                                            	<div class="col-sm-6">
-                                            		<div class="checkbox">
-														<label> <input id="checkboxIncaricato"
-															name="checkboxIncaricato" type="checkbox" /> <strong>&nbsp;<spring:message code="form.richiesta.accreditamento.incaricato" text="Dichiaro di essere incaricato ad operare per l'impresa"/>&nbsp;</strong>
-														</label>
+                                            	<div class="col-sm-10">
+                                            		<div class="form-group">
+	                                            		<div class="checkbox">
+															<label> <input id="checkboxIncaricato"
+																name="checkboxIncaricato" type="checkbox" /> <strong>&nbsp;<spring:message code="form.richiesta.accreditamento.incaricato" text="Dichiaro di essere incaricato ad operare per l'impresa"/>&nbsp;</strong>
+															</label>
+														</div>
 													</div>
                                             	</div>                                 
                                             </div>
@@ -415,6 +419,8 @@
 	    	errorPlacement: function(error, element) {
 		        if(element.parent('.input-group').length) {
 		            error.insertAfter(element.parent());
+		        } else if(element.parent().parent().parent('.checkbox').length) {
+		            error.insertAfter(element.parent().parent().parent());
 		        } else {
 		            error.insertAfter(element);
 		        }
@@ -435,14 +441,26 @@
 					emailInput: {
 					      required: true,
 				      	  email: true
-					      },					
+					},
+					checkboxRappresentante: {
+						required: function(element) {
+							return $("#incaricato").val() != 'S';
+					      }
+					},
+					checkboxIncaricato: {
+						required: function(element) {
+							return $("#rappresentante").val() != 'S';
+					      }
+					},				
 		        },
 		        messages: {
 		        	checkboxAccept: "Per procedere con la richiesta di accreditamento e' necessario accettare i Termini e le Condizioni",
 		        	partitaIvaInput : "Inserire la partita iva o il codice fiscale dell'impresa",
 		        	codiceFiscaleInput : "Inserire la partita iva o il codice fiscale dell'impresa",
 					idStatoImpresaInput : "Inserire lo stato dell'impresa",
-					emailInput : "Inserire una email di riferimento"
+					emailInput : "Inserire una email di riferimento",
+					checkboxRappresentante : "Selezionare una opzione",
+					checkboxIncaricato : "Selezionare una opzione"
 		        }
 	    });
 

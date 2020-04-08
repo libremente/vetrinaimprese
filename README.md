@@ -47,7 +47,8 @@ Start the JBoss Server with Custom Options. You will need to provide the argumen
 
 ##Build and Deploy VIMP
 
-1. Make sure you have started the JBoss Server as described above.
+1. Import and copy into lib folder necessary [libraries](./libraries.md)
+2. Make sure you have started the JBoss Server as described above.
 2. Open a command line and navigate to the root directory of this project.
 3. Type this command to build the archive:
 
