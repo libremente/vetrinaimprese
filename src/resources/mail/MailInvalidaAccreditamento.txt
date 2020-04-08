@@ -1,0 +1,7 @@
+Buongiorno,
+
+L'impresa %(denominazioneImpresa) non e' stata accreditata alla Vetrina Imprese.
+
+Motivo: %(parere)
+
+Per maggiori dettagli puoi inviare una e-mail a piattaformalavoro.assistenza@comune.genova.it.

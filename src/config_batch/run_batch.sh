@@ -1,0 +1,1 @@
+java -cp "./*" it.interlogic.vimp.batch.BatchMain /home/local/COMGE/einterlogic1/ridotti/pminnovative.xls /home/local/COMGE/einterlogic1/ridotti/startup.xls

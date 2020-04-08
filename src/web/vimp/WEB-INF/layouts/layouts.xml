@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC
+"-//Apache Software Foundation//DTD Tiles Configuration 2.1//EN"
+"http://tiles.apache.org/dtds/tiles-config_2_1.dtd">
+<tiles-definitions>
+	<definition name="default" template="/WEB-INF/layouts/defaultTemplate.jsp">
+		<put-attribute name="header" value="/WEB-INF/template/_header.jsp" />
+		<put-attribute name="menu" value="/WEB-INF/template/_menu.jsp" />
+		<put-attribute name="footer" value="/WEB-INF/template/_footer.jsp" />
+	</definition>
+
+
+	<definition name="minimal" template="/WEB-INF/layouts/minimalTemplate.jsp">
+		<put-attribute name="header" value="/WEB-INF/template/_header.jsp" />
+		
+		<put-attribute name="footer" value="/WEB-INF/template/_footer.jsp" />
+	</definition>
+
+	<!-- ============================================================================================ -->
+	<!-- MOCK LOGIN ================================================================================= -->
+	<definition name="mocklogin" extends="minimal">
+		<put-attribute name="body">
+			<definition template="/WEB-INF/views/utente/mockloginTemplate.jsp">
+				<put-attribute name="mocklogin" value="/WEB-INF/views/utente/mocklogin.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+	<!-- ============================================================================================ -->
+	<!-- ============================================================================================ -->
+
+
+	<!-- ============================================================================================ -->
+	<!-- HOME ======================================================================================= -->
+	<definition name="home" extends="default">
+		<put-attribute name="body">
+			<definition template="/WEB-INF/views/home/homeTemplate.jsp">
+				<put-attribute name="parametri" value="/WEB-INF/views/home/homeForm.jsp" />
+				<put-attribute name="risultato" value="/WEB-INF/views/home/homeList.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+	
+	
+	<definition name="homePersonal" extends="default">
+		<put-attribute name="body">
+			<definition template="/WEB-INF/views/home/homePersonalTemplate.jsp">
+				<put-attribute name="parametri" value="/WEB-INF/views/home/homePersonalForm.jsp" />
+				<put-attribute name="risultato" value="/WEB-INF/views/home/homePersonalList.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+
+	<definition name="contatti" extends="default">
+		<put-attribute name="body">
+			<definition template="/WEB-INF/views/home/contattiTemplate.jsp">
+				<put-attribute name="parametri"
+					value="/WEB-INF/views/home/formContatti.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+
+
+	<definition name="termini" extends="default">
+		<put-attribute name="body">
+			<definition template="/WEB-INF/views/home/terminiTemplate.jsp">
+				<put-attribute name="termini" value="/WEB-INF/views/home/termini.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+	
+	<definition name="cookies_it_IT" extends="default">
+		<put-attribute name="body">
+			<definition template="/WEB-INF/views/home/cookiesTemplate.jsp">
+				<put-attribute name="cookies" value="/WEB-INF/views/home/cookies_it_IT.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+	
+	<definition name="cookies_en_US" extends="default">
+		<put-attribute name="body">
+			<definition template="/WEB-INF/views/home/cookiesTemplate.jsp">
+				<put-attribute name="cookies" value="/WEB-INF/views/home/cookies_en_US.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+	
+
+	<definition name="errorPage" extends="minimal">
+		<put-attribute name="body">
+			<definition template="/WEB-INF/views/home/errorTemplate.jsp">
+				<put-attribute name="error" value="/WEB-INF/views/home/error.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+	<!-- ============================================================================================ -->
+	<!-- ============================================================================================ -->
+	
+	
+	
+	<!-- IMPRESA -->
+	<!-- ============================================================================================ -->
+	<!-- ============================================================================================ -->
+	<definition name="dettaglioImpresa" extends="default">
+		<put-attribute name="body">
+			<definition template="/WEB-INF/views/informazione/informazioneTemplate.jsp">
+				<put-attribute name="informazione"
+					value="/WEB-INF/views/informazione/formDettaglioImpresa.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+	
+	<!-- ============================================================================================ -->
+	<!-- ============================================================================================ -->
+	
+	
+	<!-- NEWS IMPRESA -->
+	<!-- ============================================================================================ -->
+	<!-- ============================================================================================ -->
+	<definition name="dettaglioNewsImpresa" extends="default">
+		<put-attribute name="body">
+			<definition template="/WEB-INF/views/informazione/informazioneTemplate.jsp">
+				<put-attribute name="informazione"
+					value="/WEB-INF/views/informazione/formDettaglioNewsImpresa.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+	
+	<definition name="nuovaNewsImpresa" extends="default">
+		<put-attribute name="body">
+			<definition template="/WEB-INF/views/informazione/informazioneTemplate.jsp">
+				<put-attribute name="informazione"
+					value="/WEB-INF/views/informazione/formNuovaNewsImpresa.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+	<!-- ============================================================================================ -->
+	<!-- ============================================================================================ -->
+	
+	
+	
+	<!-- OPPORTUNITA -->
+	<!-- ============================================================================================ -->
+	<!-- ============================================================================================ -->
+	<definition name="dettaglioOpportunita" extends="default">
+		<put-attribute name="body">
+			<definition template="/WEB-INF/views/informazione/informazioneTemplate.jsp">
+				<put-attribute name="informazione"
+					value="/WEB-INF/views/informazione/formDettaglioOpportunita.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+	
+	<definition name="nuovaOpportunita" extends="default">
+		<put-attribute name="body">
+			<definition template="/WEB-INF/views/informazione/informazioneTemplate.jsp">
+				<put-attribute name="informazione"
+					value="/WEB-INF/views/informazione/formNuovaOpportunita.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+	<!-- ============================================================================================ -->
+	<!-- ============================================================================================ -->
+	
+	<!-- PROGETTI PRODOTTI -->
+	<!-- ============================================================================================ -->
+	<!-- ============================================================================================ -->
+	<definition name="dettaglioProgetto" extends="default">
+		<put-attribute name="body">
+			<definition template="/WEB-INF/views/informazione/informazioneTemplate.jsp">
+				<put-attribute name="informazione"
+					value="/WEB-INF/views/informazione/formDettaglioProgetto.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+	
+	<definition name="nuovoProgetto" extends="default">
+		<put-attribute name="body">
+			<definition template="/WEB-INF/views/informazione/informazioneTemplate.jsp">
+				<put-attribute name="informazione"
+					value="/WEB-INF/views/informazione/formNuovoProgetto.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+	<!-- ============================================================================================ -->
+	<!-- ============================================================================================ -->
+	
+	
+	
+	<!-- SERVIZI -->
+	<!-- ============================================================================================ -->
+	<!-- ============================================================================================ -->
+
+	<definition name="dettaglioServizi" extends="default">
+		<put-attribute name="body">
+			<definition template="/WEB-INF/views/informazione/informazioneTemplate.jsp">
+				<put-attribute name="informazione"
+							   value="/WEB-INF/views/informazione/formDettaglioServizi.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+
+	<definition name="nuovoServizi" extends="default">
+		<put-attribute name="body">
+			<definition template="/WEB-INF/views/informazione/informazioneTemplate.jsp">
+				<put-attribute name="informazione"
+							   value="/WEB-INF/views/informazione/formNuovoServizi.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+
+	<!-- ============================================================================================ -->
+	<!-- ============================================================================================ -->
+
+	<!-- PACCHETTI SERVIZI -->
+	<!-- ============================================================================================ -->
+	<!-- ============================================================================================ -->
+
+	<definition name="dettaglioPacchettoServizi" extends="default">
+		<put-attribute name="body">
+			<definition template="/WEB-INF/views/informazione/informazioneTemplate.jsp">
+				<put-attribute name="informazione"
+							   value="/WEB-INF/views/informazione/formDettaglioPacchettoServizi.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+
+	<definition name="nuovoPacchettoServizi" extends="default">
+		<put-attribute name="body">
+			<definition template="/WEB-INF/views/informazione/informazioneTemplate.jsp">
+				<put-attribute name="informazione"
+							   value="/WEB-INF/views/informazione/formNuovoPacchettoServizi.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+
+	<!-- ============================================================================================ -->
+	<!-- ============================================================================================ -->
+	
+	<!-- RICERCA ESTESA IMPRESA -->
+	<!-- ============================================================================================ -->
+	<!-- ============================================================================================ -->
+	<definition name="ricercaImpresa" extends="default">
+		<put-attribute name="body">
+			<definition template="/WEB-INF/views/backoffice/ricercaImpresaTemplate.jsp">
+				<put-attribute name="parametri" value="/WEB-INF/views/backoffice/ricercaImpresaForm.jsp" />
+				<put-attribute name="risultato" value="/WEB-INF/views/backoffice/ricercaImpresaList.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+	<!-- ============================================================================================ -->
+	<!-- ============================================================================================ -->
+	
+	<!-- BATCH LOG LIST -->
+	<!-- ============================================================================================ -->
+	<!-- ============================================================================================ -->
+	<definition name="batchlog" extends="default">
+		<put-attribute name="body">
+			<definition template="/WEB-INF/views/backoffice/batchlogTemplate.jsp">
+				<put-attribute name="risultato" value="/WEB-INF/views/backoffice/batchlogList.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+	<!-- ============================================================================================ -->
+	<!-- ============================================================================================ -->
+	
+	
+	<!-- TRADUZIONE CODIFICHE DA BACKOFFICE -->
+	<!-- ============================================================================================ -->
+	<!-- ============================================================================================ -->
+	<definition name="translateCodifiche" extends="default">
+		<put-attribute name="body">
+			<definition template="/WEB-INF/views/backoffice/translateCodificheTemplate.jsp">
+				<put-attribute name="risultato" value="/WEB-INF/views/backoffice/translateCodificheForm.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+	
+	
+	<definition name="translateAteco" extends="default">
+		<put-attribute name="body">
+			<definition template="/WEB-INF/views/backoffice/translateCodificheTemplate.jsp">
+				<put-attribute name="risultato" value="/WEB-INF/views/backoffice/translateAtecoForm.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+	<!-- ============================================================================================ -->
+	<!-- ============================================================================================ -->
+	
+		
+	<!-- ACCREDITAMENTO -->
+	<!-- ============================================================================================ -->
+	<!-- ============================================================================================ -->
+	
+	<definition name="richiestaAccreditamento" extends="default">
+		<put-attribute name="body">
+			<definition template="/WEB-INF/views/accreditamento/accreditamentoTemplate.jsp">
+				<put-attribute name="accreditamento"
+					value="/WEB-INF/views/accreditamento/formRichiestaAccreditamento.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+	
+	<definition name="ricercaAccreditamenti" extends="default">
+		<put-attribute name="body">
+			<definition template="/WEB-INF/views/accreditamento/ricercaAccreditamentiTemplate.jsp">
+				<put-attribute name="parametri" value="/WEB-INF/views/accreditamento/ricercaAccreditamentiForm.jsp" />
+				<put-attribute name="risultato" value="/WEB-INF/views/accreditamento/ricercaAccreditamentiList.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+	
+
+	<definition name="dettaglioRichiestaAccreditamento" extends="default">
+		<put-attribute name="body">
+			<definition template="/WEB-INF/views/accreditamento/dettaglioRichiestaAccreditamentoTemplate.jsp">
+				<put-attribute name="dettaglio"
+					value="/WEB-INF/views/accreditamento/formDettaglioRichiestaAccreditamento.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+	
+	
+	<!-- ============================================================================================ -->
+	<!-- ============================================================================================ -->
+
+	<definition name="gestioneRuoli" extends="default">
+		<put-attribute name="body">
+			<definition
+				template="/WEB-INF/views/backoffice/gestioneRuoliTemplate.jsp">
+				<put-attribute name="risultato"
+					value="/WEB-INF/views/backoffice/gestioneRuoli.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+
+
+	<!-- ============================================================================================ -->
+	<!-- ============================================================================================ -->
+
+	<definition name="formDelegato" extends="default">
+		<put-attribute name="body">
+			<definition
+					template="/WEB-INF/views/impresa/gestioneDelegatiTemplate.jsp">
+				<put-attribute name="risultato"
+							   value="/WEB-INF/views/impresa/formDelegato.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+
+	<definition name="gestioneDelegati" extends="default">
+		<put-attribute name="body">
+			<definition
+					template="/WEB-INF/views/impresa/gestioneDelegatiTemplate.jsp">
+				<put-attribute name="risultato"
+							   value="/WEB-INF/views/impresa/gestioneDelegati.jsp" />
+			</definition>
+		</put-attribute>
+	</definition>
+
+
+</tiles-definitions>

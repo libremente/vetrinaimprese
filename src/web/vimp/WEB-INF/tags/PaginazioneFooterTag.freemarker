@@ -1,0 +1,45 @@
+<!-- DAL TAG!!!!!! -->
+
+<#if totalePagine &gt; 1 >
+	<div class="row">
+		<div class="col-md-5">
+			<ul class="pagination">
+				<#if disabilitatoIndietro>
+					<li class="disabled"><a>&laquo;</a></li>
+				<#else>
+					<li><a href="javascript:cambiaPagina(${paginaCorrente-1});">&laquo;</a></li>
+				</#if>
+				
+				<#list listapulsanti  as pulsante>
+					<li <#if pulsante.corrente> class="active" </#if>><a href="javascript:cambiaPagina(${pulsante_index+1});">${pulsante.label}</a></li>
+				</#list>
+				<#if disabilitatoAvanti>
+					<li class="disabled"><a>&raquo;</a></li>
+				<#else>
+					<li><a href="javascript:cambiaPagina(${paginaCorrente+1});">&raquo;</a></li>
+				</#if>
+			</ul>
+		</div>
+		
+		<div class="col-md-3">
+			<#if numeroRisultatoVisibile>
+				<h3 class="pull-right"><small>${risultati}</small></h3>
+			</#if>
+		</div>
+		
+		<div class="col-md-4">
+			<ul class="pager pull-right">
+				<#if disabilitatoIndietro>
+					<li class="disabled"><a>${indietro}</a></li>
+				<#else>
+					<li><a href="javascript:cambiaPagina(${paginaCorrente-1});">${indietro}</a></li>
+				</#if>
+				<#if disabilitatoAvanti>
+					<li class="disabled"><a>${avanti}</a></li>
+				<#else>
+					<li><a href="javascript:cambiaPagina(${paginaCorrente+1});">${avanti}</a></li>
+				</#if>
+			</ul>
+		</div>
+	</div>
+</#if>

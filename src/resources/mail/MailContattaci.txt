@@ -1,0 +1,5 @@
+VIMP - Vetrina Imprese
+
+In data: %(data) il sig. %(nomeCognome) scrive:
+
+%(messaggio)

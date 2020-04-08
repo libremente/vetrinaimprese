@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<datasources>
+                <datasource jta="true" jndi-name="java:/vimp/vimpDS" pool-name="vimpds" enabled="true" use-java-context="true" use-ccm="true">
+                    <connection-url>@@datasource.url@@</connection-url>
+                    <driver>sqljdbc41.jar</driver>
+                    <security>
+                        <user-name>vimp</user-name>
+                        <password>vimp$1</password>
+                    </security>
+                    
+                     <validation>
+      					<valid-connection-checker class-name="org.jboss.jca.adapters.jdbc.extensions.mssql.MSSQLValidConnectionChecker"></valid-connection-checker>
+				    </validation>
+                </datasource>
+</datasources>

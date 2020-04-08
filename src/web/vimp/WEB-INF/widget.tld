@@ -1,0 +1,89 @@
+<taglib version="2.0"
+   xmlns="http://java.sun.com/xml/ns/j2ee"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="
+              http://java.sun.com/xml/ns/j2ee 
+              http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd">
+              
+	<description>
+		Componenti grafici applicativi
+	</description>
+
+	<display-name>WidgetApplicativi</display-name>
+	<tlib-version>1.0</tlib-version>
+	<short-name>widget</short-name>
+	<uri>/WEB-INF/widget.tld</uri>
+
+	<tag>
+		<description>
+        Barra di paginazione
+    	</description>
+		<name>paginazione</name>
+		<tag-class>it.interlogic.vimp.web.tags.PaginazioneTag</tag-class>
+		<body-content>empty</body-content>
+		<attribute>
+			<name>paginaCorrente</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>totalePagine</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>numeroRisultatoVisibile</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>numeroRecordTotale</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>numeroRecordPerPagina</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		
+	</tag>
+	
+	<tag>
+		<description>
+        Barra di paginazione footer
+    	</description>
+		<name>paginazioneFooter</name>
+		<tag-class>it.interlogic.vimp.web.tags.PaginazioneFooterTag</tag-class>
+		<body-content>empty</body-content>
+		<attribute>
+			<name>paginaCorrente</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>totalePagine</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>numeroRisultatoVisibile</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>numeroRecordTotale</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>numeroRecordPerPagina</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		
+	</tag>
+
+	<!-- <tag> <name>paginazione</name> <tag-class>it.interlogic.vimp.web.tags.PaginazioneTag</tag-class> 
+		<bodycontent>empty</bodycontent> </tag> -->
+</taglib>

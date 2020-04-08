@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/context
+                        http://www.springframework.org/schema/context/spring-context.xsd
+                        http://www.springframework.org/schema/util
+                        http://www.springframework.org/schema/util/spring-util.xsd
+                        http://www.springframework.org/schema/mvc 
+                        http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+	<!-- Scan for spring annotated components -->
+	
+	<!-- 
+	<context:component-scan base-package="it.interlogic.vimp" />
+	 -->
+	
+	<context:component-scan base-package="it.interlogic.vimp">
+        <context:exclude-filter type="assignable" expression="it.interlogic.vimp.batch.AppConfig"/>		        
+	</context:component-scan>  
+
+	<!-- Process annotations on registered beans like @Autowired... -->
+	<context:annotation-config />
+
+	<mvc:annotation-driven />
+
+	<mvc:interceptors>
+
+		<bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+			<property name="paramName" value="lang" />
+		</bean>
+			
+		<bean
+			class="it.interlogic.vimp.web.interceptors.ConfigurazioneAmbienteInterceptor"
+			autowire="constructor" />
+			
+		<bean class="it.interlogic.vimp.web.interceptors.CheckUserInterceptor"
+			autowire="constructor" />
+		
+	</mvc:interceptors>
+	
+	
+	<bean id="multipartResolver"
+        class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- max upload size in bytes -->
+        <property name="maxUploadSize" value="20971520" /> <!-- 20MB -->
+    </bean>
+
+	<bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+	    <property name="viewResolvers">
+	        <list>
+	            <bean class="org.springframework.web.servlet.view.BeanNameViewResolver"
+	                  p:order="1"
+	                  />
+	            <bean class="org.springframework.web.servlet.view.UrlBasedViewResolver"
+	                  p:viewClass="org.springframework.web.servlet.view.tiles2.TilesView"
+	                  p:order="2"
+	                  />
+	        </list>
+	    </property>
+	</bean>
+
+	<bean class="org.springframework.web.servlet.view.tiles2.TilesConfigurer"
+		id="tilesConfigurer">
+		<property name="definitions">
+			<list>
+				<value>/WEB-INF/layouts/layouts.xml</value>
+			</list>
+		</property>
+		<property name="checkRefresh" value="true" />
+	</bean>
+
+
+
+	<!-- This tag allows for mapping the DispatcherServlet to "/" -->
+	<mvc:default-servlet-handler />
+
+
+	<!-- resources exclusions from servlet mapping -->
+	<mvc:resources mapping="/vimp/local_resources/**" location="/vimp/local_resources/"/>
+	
+
+	<bean id="messageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basenames">
+	        <list>
+	        	<value>classpath:i18n/generics/generics</value>
+	        	<value>classpath:i18n/labels/labels</value>
+	        	<value>classpath:i18n/messages/messages</value>
+	        </list>
+	    </property>
+		<property name="defaultEncoding" value="UTF-8" /> <!-- ISO-8859-1 -->
+		<property name="useCodeAsDefaultMessage" value="true"/>
+	</bean>
+
+	<!-- COOKIE BASED RESOLVER -->
+	<bean id="localeResolver"
+		class="org.springframework.web.servlet.i18n.CookieLocaleResolver">
+		<property name="defaultLocale" value="it_IT" />
+		<property name="cookieName" value="vimpLocaleCookie"></property>
+		<property name="cookieMaxAge" value="3600"></property>
+	</bean>
+	 
+    <!-- SESSION BASED RESOLVER -->
+    <!-- <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver">
+	    <property name="defaultLocale" value="it_IT" />
+	</bean> -->
+	
+	
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+	    <property name="host" value="smtpmail.comune.genova.it" />
+	    <property name="port" value="25" />
+	 
+	    <property name="javaMailProperties">
+	        <props>
+	            <prop key="mail.transport.protocol">smtp</prop>
+	            <prop key="mail.smtp.auth">false</prop>
+	            <prop key="mail.smtp.starttls.enable">true</prop>
+	            <prop key="mail.debug">true</prop>
+	        </props>
+	    </property>
+	
+		 
+		 
+	</bean>
+	
+	<!-- 
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+	    <property name="host" value="mailer.mens-net.it" />
+	    <property name="port" value="587" />
+	    <property name="username" value="testgenova@pro-logic.it" />
+	    <property name="password" value="genovatest" />
+	 
+	    <property name="javaMailProperties">
+	        <props>
+	            <prop key="mail.transport.protocol">smtp</prop>
+	            <prop key="mail.smtp.auth">true</prop>
+	            <prop key="mail.smtp.starttls.enable">true</prop>
+	            <prop key="mail.debug">true</prop>
+	        </props>
+	    </property>
+	</bean>
+	 -->
+	 
+</beans>
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,1 @@
+java -cp "./*" it.interlogic.vimp.batch.InizializzatoreStakeholder /Users/Data/job/prologic/genova/doc/batch/stakeholder.xlsx
