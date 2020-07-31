@@ -9,6 +9,7 @@ Next documentation is in Italian because the system has been developed for an It
 L’asse 1 “Agenda Digitale Metropolitano” del Piano Operativo della Città di Genova (PON Metro Genova) ha svolto rilevanti interventi per avanzare l’intero processo di produzione di servizi a cittadini e imprese presenti sul territorio, tra le quali ritroviamo lo sviluppo della piattaforma "Vetrina impresa" volta a garantire funzionalità legate alle tematiche del lavoro, con particolare riguardo agli ambiti dell’innovazione tecnologica, dell’industria creativa, dello sviluppo turistico culturale del territorio, della promozione dell’occupazione, dell’internalizzazione del mondo del lavoro, dello sviluppo di nuove professionalità e nuovi mercati. Il sistema permette, alle imprese accreditate, di inserire informazioni volte a pubblicizzare le proprie attività ed eventi di particolare interesse e di poter ricercare i vari servizi svolti sul territorio dagli stakeholder che hanno aderito al progetto. Si vuole pertanto uniformare le modalità di accesso di imprese, professionisti alle pratiche, ai servizi, ai sistemi, favorire la condivisione dei dati tra i vari stakeholder, ridurre i tempi e semplificare le modalità di espletamento delle varie attività al fine di incrementare la qualità, l’efficienza e l’efficacia del servizio erogato creando un ambiente sempre più favorevole allo sviluppo e alla rapida realizzazione di un’idea imprenditoriale con evidenti ricadute sul tessuto economico e produttivi, in particolare per le più piccole, giovani i in fase di start-up
 Il sistema è stata realizzato dall'impresa [Interlogic S.r.l.](http://www.pro-logic.it).
 
+Link alle pagine relative al progetto:
 
 [Ponmetro Comune di Genova](https://smart.comune.genova.it/ponmetro)
 
@@ -107,9 +108,9 @@ This work is financed by [PON Metro 2014-2020](http://www.ponmetro.it) funding.
 
 La prima versione stabile è stata creata nel marzo 2020 all'atto dell'inserimento del SW nel catalogo del riuso.
 
-Il progetto è stabile al netto di continue migliorie e bug detection che sono possibili attraverso l'uso dell'ambiente in produzione presso la Protezione Civile del Comune di Genova
+Il progetto è stabile al netto di continue migliorie e bug detection che sono possibili attraverso l'uso dell'ambiente in produzione presso il Comune di Genova
 
-
+Il soggetto detentore del software è il Comune di Genova
 
 ## Contatti
 
