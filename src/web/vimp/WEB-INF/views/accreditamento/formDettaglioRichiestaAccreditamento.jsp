@@ -28,7 +28,9 @@
 	<form:hidden id="dataRichiesta" path="dataRichiesta" />
 	<form:hidden id="flagAccreditamento" path="flagAccreditamento" />
 	<form:hidden id="ragioneSociale" path="ragioneSociale" />
-	<form:hidden id="plfTStatoImpresa.id" path="plfTStatoImpresa.id" />
+	<c:if test="${!cambiaStatoImpresa}">
+		<form:hidden id="plfTStatoImpresa.id" path="plfTStatoImpresa.id" />
+	</c:if>
 	<form:hidden id="codFiscale" path="codFiscale" />
 	<form:hidden id="partitaIva" path="partitaIva" />
 	<form:hidden id="emailContatto" path="emailContatto" />
@@ -113,15 +115,13 @@
 						<div class="col-sm-6">
 							<div class="form-group">
 								<label><spring:message code="form.dettaglio.accreditamento.enterprise_status" text="Stato impresa"/>:</label>
-								
-								
 								<c:choose>
 									<c:when test="${modifica}">
 										<form:select id="selectStatoImpresa"
-													 title="${selectStatusCompanyTitleAttr}"
-													 data-live-search="true" data-live-search-style="contains"
-													 path="plfTStatoImpresa.id"
-													 cssClass="selectpicker">
+												 title="${selectStatusCompanyTitleAttr}"
+												 data-live-search="true" data-live-search-style="contains"
+												 path="plfTStatoImpresa.id"
+												 cssClass="selectpicker">
 											<form:options items="${statoImpresaList}" />
 										</form:select>
 									</c:when>
@@ -129,9 +129,6 @@
 										<br><label><b>${dettaglio.plfTStatoImpresa.descrizione}</b></label>
 									</c:otherwise>
 								</c:choose>
-								
-								
-								
 							</div>
 						</div>
 					</div>

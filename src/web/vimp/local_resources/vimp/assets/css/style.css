@@ -10,7 +10,7 @@ body {
     margin:0;
     font-size:14px;
     line-height: 28px;
-    color: #777;
+    color: #402757;
     background: #fff; 
     position: relative;
 }
@@ -73,7 +73,7 @@ p{
     line-height: 1.6180em;
 }
 h1 small, h2 small, h3 small, h4 small, h5 small, h6 small, .h1 small, .h2 small, .h3 small, .h4 small, .h5 small, .h6 small, h1 .small, h2 .small, h3 .small, h4 .small, h5 .small, h6 .small, .h1 .small, .h2 .small, .h3 .small, .h4 .small, .h5 .small, .h6 .small {
-    color: #999999;
+    color: #402757;
     font-weight: 300;
     line-height: 1;
 }
@@ -224,6 +224,16 @@ input[type="search"]::-webkit-search-decoration {
 .btn-success{
     color: #05AE0E;
     border-color: #05AE0E;
+}
+.btn-delete{
+    color: #ffffff;
+    border-color: #a60809;
+    background-color: #a60809;
+}
+.btn-restore{
+    color: #ffffff;
+    border-color: #05AE0E;
+    background-color: #05AE0E;
 }
 .btn-warning{
     color: #00AEA5;
@@ -425,7 +435,7 @@ input[type="search"]::-webkit-search-decoration {
     padding: 6px 12px;
     font-size: 13px;
     line-height: 1.42857;
-    color: #838383;
+    color: #402757;
     background-color: #FFF;
     background-image: none;
     border: 1px solid #00AEA5;
@@ -473,7 +483,7 @@ input[type="search"]::-webkit-search-decoration {
 }
 .form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
     background-color: #EEEEEE;
-    color: #999999;
+    color: #402757;
     cursor: not-allowed;
 }
 .has-success .form-control, 
@@ -534,7 +544,7 @@ label.error{
 }
 
 label small{
-    color: #999999;
+    color: #402757;
 }
 
 .label.label-fill{
@@ -568,7 +578,7 @@ label small{
     display: block;
     font-size: 13px;
     line-height: 1.42857;
-    color: #ADADAD;
+    color: #402757;
     background-color: #FFF;
     background-image: none;
     border: 1px solid #00AEA5;
@@ -3715,5 +3725,47 @@ ul.footer-blog li {
     margin: 12px 0px -0px -40px;
 }
 
+.label-scaduto-small {
+    background: #40275D;
+    padding: 3px 6px 18px 6px;
+    margin-top: -10px;
+    color: white;
+    height: 18px;
+    font-weight: bold;
+    min-height: 18px;
+    font-size: 13px;
+}
+
+.label-scaduto-container {
+    top: -10px;
+}
+
+.label-scaduto {
+    background: #40275D;
+    padding: 3px 5px 18px 5px;
+    margin-top: -10px;
+    font-weight: bold;
+    color: white;
+    height: 30px;
+    min-height: 30px;
+    font-size: 22px;
+    text-transform: uppercase;
+    position: absolute;
+    right: 0px;
+}
 
 
+.my-info-label-bungee {
+    background: #40275D;
+    padding: 0 5px 0 5px;
+    color: white;
+    height: 44px;
+    min-height: 44px;
+    font-size: 22px;
+}
+
+
+
+.note-btn {
+	background-color: #9fd2cd;
+}

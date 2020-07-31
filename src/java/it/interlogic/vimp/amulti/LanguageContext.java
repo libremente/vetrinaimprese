@@ -132,6 +132,11 @@ public class LanguageContext
 			matcher.appendTail(stringBuffer);
 			sql = stringBuffer.toString();
 		}
+		/*
+		System.out.println("=========================================================");
+		System.out.println(sql);
+		System.out.println("=========================================================");
+		*/
 		return sql;
 	}
 

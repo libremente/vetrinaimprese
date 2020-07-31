@@ -493,4 +493,9 @@ public class PLFProgettiProdottiEntity implements Serializable, TagEntityInterfa
 	public void setElencoIdTags(List<BigDecimal> elencoIdTags) {
 		this.elencoIdTags = elencoIdTags;
 	}
+	
+	public boolean isScaduto()
+	{
+		return (dataScadenza != null && dataScadenza.before(new Date()));
+	}
 }

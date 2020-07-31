@@ -1087,13 +1087,13 @@ public class IDecodificheServiceImpl implements IDecodificheService
 	@Override
 	public List<PLFTSettoreProgettiProdottiEntity> getSettoriProgettiProdotti()
 	{
-		return (List<PLFTSettoreProgettiProdottiEntity>) settoreProgettiProdottiRepository.findAll();
+		return (List<PLFTSettoreProgettiProdottiEntity>) settoreProgettiProdottiRepository.findAllOrderer();
 	}
 
 	@Override
 	public List<PLFTSettoreTecnologieEntity> getSettoriTecnologie()
 	{
-		return (List<PLFTSettoreTecnologieEntity>) settoreTecnologieJpaRepository.findAll();
+		return (List<PLFTSettoreTecnologieEntity>) settoreTecnologieJpaRepository.findAllOrderer();
 	}
 
 	@Override

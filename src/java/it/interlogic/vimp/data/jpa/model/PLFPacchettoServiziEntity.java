@@ -293,6 +293,9 @@ public class PLFPacchettoServiziEntity implements Serializable, TagEntityInterfa
 		this.dataCancellazione = dataCancellazione;
 	}
 	
-	
+	public boolean isScaduto()
+	{
+		return (dataFine != null && dataFine.before(new Date()));
+	}
 	
 }

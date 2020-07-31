@@ -47,6 +47,27 @@ public class IArisServiceImpl implements IArisService
 		}
 		return null;
 	}
+	
+	
+	@Override
+	public it.interlogic.vimp.service.ws.aris.uisearchall.UlSearchAllResult getULAll(String url, String authorization, String codiceFiscalePartitaIva)
+	{
+		it.interlogic.vimp.service.ws.aris.uisearchall.EnterprisePortTypeProxy service = new it.interlogic.vimp.service.ws.aris.uisearchall.EnterprisePortTypeProxy(url);
+		service.addToHeader("Authorization", authorization);
+
+		LoggerUtility.info("ARIS getULAll(url:"+ url +", "+ "codiceFiscalePartitaIva:" + codiceFiscalePartitaIva + ")");
+		try
+		{
+			it.interlogic.vimp.service.ws.aris.uisearchall.UlSearchAllResult res = service.getULAll(codiceFiscalePartitaIva);
+			return res;
+		}
+		catch (RemoteException e)
+		{
+			LoggerUtility.error("ARIS getULAll error:RemoteException " + e.getMessage());
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 	@Override
 	public it.interlogic.vimp.service.ws.aris.rlmultisearch.RLSearchResult getMultiRL(String codiceFiscalePartitaIva)

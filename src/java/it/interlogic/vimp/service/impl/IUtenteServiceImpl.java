@@ -8,6 +8,7 @@ import it.interlogic.vimp.data.jpa.model.PLFTTipoImpresaEntity;
 import it.interlogic.vimp.data.jpa.model.PLFTUtenteEntity;
 import it.interlogic.vimp.data.jpa.model.PLFVUtenteEntity;
 import it.interlogic.vimp.data.jpa.model.relation.PLFRUtenteImpresaEntity;
+import it.interlogic.vimp.data.jpa.model.relation.PLFRUtenteImpresaEntityKey;
 import it.interlogic.vimp.data.jpa.repository.PLFParameterJpaRepository;
 import it.interlogic.vimp.data.jpa.repository.PLFTLogAuditJpaRepository;
 import it.interlogic.vimp.data.jpa.repository.PLFTUtenteJpaRepository;
@@ -18,10 +19,8 @@ import it.interlogic.vimp.data.jpa.repository.specs.QueryBuilder;
 import it.interlogic.vimp.domain.UtenteDto;
 import it.interlogic.vimp.service.IUtenteService;
 import it.interlogic.vimp.service.exception.AuthenticationException;
-import it.interlogic.vimp.service.exception.InformazioneDuplicataException;
 import it.interlogic.vimp.service.exception.PasswordExpiredException;
 import it.interlogic.vimp.service.exception.PasswordTemporanyException;
-import it.interlogic.vimp.utils.LoggerUtility;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -219,6 +218,21 @@ public class IUtenteServiceImpl implements IUtenteService
 			return findUtente(entity.getIdUtente());
 		}
 		
+		return utente;
+	}
+	
+	
+	@Override
+	public PLFTUtenteEntity deleteUtenteImpresa(PLFTUtenteEntity utente, BigDecimal idImpresa,Date dataCancellazione)
+	{	
+		PLFRUtenteImpresaEntityKey utenteImpresaKey = new PLFRUtenteImpresaEntityKey();
+		utenteImpresaKey.setIdUtente(utente.getIdUtente());
+		utenteImpresaKey.setIdImpresa(idImpresa);
+		PLFRUtenteImpresaEntity utenteImpresa = utenteImpresaRepository.findOne(utenteImpresaKey);
+		if (utenteImpresa != null && utenteImpresa.getIdImpresa()!= null && utenteImpresa.getIdImpresa().intValue()>0)
+		{
+			utenteImpresa.setDataCancellazione(dataCancellazione);
+		}
 		return utente;
 	}
 }

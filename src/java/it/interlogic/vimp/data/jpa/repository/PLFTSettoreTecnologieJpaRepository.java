@@ -20,5 +20,9 @@ public interface PLFTSettoreTecnologieJpaRepository extends PagingAndSortingRepo
             "JOIN PLF_R_PROGETTO_SETTORE_TECNOLOGIE r ON spt.ID = r.ID_PLF_T_SETTORE_TECNOLOGIE " +
             "WHERE r.ID_PLF_PROGETTI_PRODOTTI = :idProgetto", nativeQuery = true)
     List<PLFTSettoreTecnologieEntity> findByProgetto(@Param("idProgetto") BigDecimal idProgetto);
+    
+    
+    @Query(value = "SELECT spt.* FROM PLF_T_SETTORE_TECNOLOGIE spt order by spt.DESCRIZIONE", nativeQuery = true)
+    List<PLFTSettoreTecnologieEntity> findAllOrderer();
 
 }

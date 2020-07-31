@@ -68,6 +68,15 @@ public class PLFVInformazioneEntity implements Serializable
 	@Column(name = "PUBBLICATO")
 	private boolean pubblicato;
 
+	@Column(name = "SCADENZA")
+	private Date scadenza;
+
+	@Column(name = "SORT_SCADENZA")
+	private BigDecimal sortScadenza;
+	
+	@Column(name = "DATA_CANCELLAZIONE")
+	private Date dataCancellazione;
+
 	// ----------------------------------------------------------------------
 	// ENTITY LINKS ( RELATIONSHIP )
 	// ----------------------------------------------------------------------
@@ -138,7 +147,7 @@ public class PLFVInformazioneEntity implements Serializable
 			String s = Jsoup.parse(titolo).text();
 			return HtmlUtils.htmlEscape(s);
 		}
-		
+
 		return titolo;
 	}
 
@@ -184,7 +193,7 @@ public class PLFVInformazioneEntity implements Serializable
 			String s = Jsoup.parse(prima).text();
 			return HtmlUtils.htmlEscape(s);
 		}
-		
+
 		return prima;
 	}
 
@@ -200,7 +209,7 @@ public class PLFVInformazioneEntity implements Serializable
 			String s = Jsoup.parse(seconda).text();
 			return HtmlUtils.htmlEscape(s);
 		}
-		
+
 		return seconda;
 	}
 
@@ -216,7 +225,7 @@ public class PLFVInformazioneEntity implements Serializable
 			String s = Jsoup.parse(terza).text();
 			return HtmlUtils.htmlEscape(s);
 		}
-		
+
 		return terza;
 	}
 
@@ -255,12 +264,51 @@ public class PLFVInformazioneEntity implements Serializable
 		this.dataUltimaVisita = dataUltimaVisita;
 	}
 
-	public boolean isPubblicato() {
+	public boolean isPubblicato()
+	{
 		return pubblicato;
 	}
 
-	public void setPubblicato(boolean pubblicato) {
+	public void setPubblicato(boolean pubblicato)
+	{
 		this.pubblicato = pubblicato;
+	}
+
+	public Date getScadenza()
+	{
+		return scadenza;
+	}
+
+	public void setScadenza(Date scadenza)
+	{
+		this.scadenza = scadenza;
+	}
+
+	public boolean isScaduto()
+	{
+		return (scadenza != null && scadenza.before(new Date()));
+	}
+
+	public BigDecimal getSortScadenza()
+	{
+		return sortScadenza;
+	}
+
+	public void setSortScadenza(BigDecimal sortScadenza)
+	{
+		this.sortScadenza = sortScadenza;
+	}
+	
+	
+
+	public Date getDataCancellazione()
+	{
+		return dataCancellazione;
+	}
+
+	public void setDataCancellazione(Date dataCancellazione)
+	{
+		this.dataCancellazione = dataCancellazione;
 	}
 
 	// ----------------------------------------------------------------------

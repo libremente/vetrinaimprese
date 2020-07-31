@@ -75,6 +75,9 @@ public class PLFVImpresaEntity implements Serializable
 
 	@Column(name = "STAKEHOLDER")
 	private String stakeholder;
+	
+	@Column(name = "ACCREDITATA")
+	private String accreditata;
 
 	// ----------------------------------------------------------------------
 	// ENTITY LINKS ( RELATIONSHIP )
@@ -273,6 +276,8 @@ public class PLFVImpresaEntity implements Serializable
 	{
 		this.stakeholder = stakeholder;
 	}
+	
+	
 
 	// ----------------------------------------------------------------------
 	// GETTERS & SETTERS FOR LINKS
@@ -282,13 +287,23 @@ public class PLFVImpresaEntity implements Serializable
 	// toString METHOD
 	// ----------------------------------------------------------------------
 
+	public String getAccreditata()
+	{
+		return accreditata;
+	}
+
+	public void setAccreditata(String accreditata)
+	{
+		this.accreditata = accreditata;
+	}
+
 	@Override
 	public String toString()
 	{
 		return "PLFVImpresaEntity [idImpresa=" + idImpresa + ", ragioneSociale=" + ragioneSociale + ", codiceFiscale=" + codiceFiscale + ", partitaIva=" + partitaIva
 				+ ", idSettore=" + idSettore + ", settore=" + settore + ", idProvincia=" + idProvincia + ", provincia=" + provincia + ", idComune=" + idComune + ", comune="
 				+ comune + ", idStatoImpresa=" + idStatoImpresa + ", statoImpresa=" + statoImpresa + ", brevetto=" + brevetto + ", iscrizioneRegistro=" + iscrizioneRegistro
-				+ ", iscrizioneSpeciale=" + iscrizioneSpeciale + ", mercati=" + mercati + ", innovazione=" + innovazione + ", stakeholder=" + stakeholder + "]";
+				+ ", iscrizioneSpeciale=" + iscrizioneSpeciale + ", mercati=" + mercati + ", innovazione=" + innovazione + ", stakeholder=" + stakeholder + ", accreditata=" + accreditata +"]";
 	}
 
 }

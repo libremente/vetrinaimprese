@@ -351,8 +351,12 @@ public class PacchettoServiziHandler extends AbstractHandler
 				dettaglio.setImageData(Base64.encodeBase64String(image));
 		}
 
+		boolean isModifica = false;
 		if (checkModify(dettaglio))
+		{
 			model.addAttribute("modifica", true);
+			isModifica = true;
+		}
 		else
 			model.addAttribute("modifica", false);
 	
@@ -427,9 +431,9 @@ public class PacchettoServiziHandler extends AbstractHandler
 		if (serviziGenerali != null)
 			numeroServizi += serviziGenerali.size();
 		
-		if (numeroServizi<2)
+		if (isModifica && numeroServizi<2 && dettaglio.isPubblicato())
 		{
-			// TODO MESSAGGIO 
+			model.addAttribute("warningMessage",getMessage("pacchettoMenoDiDueServizi"));	
 		}
 
 		modelTags(dettaglio, model);

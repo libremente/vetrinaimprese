@@ -3,6 +3,7 @@ package it.interlogic.vimp.web.page;
 import it.interlogic.vimp.data.jpa.model.PLFImpresaAllegatiEntity;
 import it.interlogic.vimp.data.jpa.model.PLFImpresaAllegatiTranslationEntity;
 import it.interlogic.vimp.data.jpa.model.PLFImpresaEntity;
+import it.interlogic.vimp.data.jpa.model.PLFLogEntity;
 import it.interlogic.vimp.data.jpa.model.PLFServiziEntity;
 import it.interlogic.vimp.data.jpa.model.PLFTAtecoEntity;
 import it.interlogic.vimp.data.jpa.model.PLFTClasseAddettiEntity;
@@ -30,6 +31,7 @@ import it.interlogic.vimp.data.jpa.model.relation.PLFRServiziImpresaEntity;
 import it.interlogic.vimp.service.IDecodificheService;
 import it.interlogic.vimp.service.IDelegatoService;
 import it.interlogic.vimp.service.IImpresaService;
+import it.interlogic.vimp.service.ILogService;
 import it.interlogic.vimp.service.INewsImpresaService;
 import it.interlogic.vimp.service.IProgettoService;
 import it.interlogic.vimp.service.IServiziService;
@@ -41,6 +43,7 @@ import it.interlogic.vimp.utils.LoggerUtility;
 import it.interlogic.vimp.web.AbstractHandler;
 import it.interlogic.vimp.web.dto.EditableResult;
 import it.interlogic.vimp.web.dto.ParametriRicerca;
+import it.interlogic.vimp.web.security.AmbienteContext;
 import it.interlogic.vimp.web.security.UtenteContext;
 
 import java.io.ByteArrayInputStream;
@@ -51,20 +54,25 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.text.StrSubstitutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -105,6 +113,15 @@ public class ImpresaHandler extends AbstractHandler
 	@Autowired
 	protected ITagService tagService;
 
+	@Autowired
+	protected ILogService logService;
+
+	@Autowired
+	private JavaMailSender mailSender;
+
+	@Autowired
+	protected ServletContext context;
+
 	/**
 	 * @param binder
 	 */
@@ -118,7 +135,9 @@ public class ImpresaHandler extends AbstractHandler
 		binder.registerCustomEditor(BigDecimal.class, "numUltimoFatturato", new CustomNumberEditor(BigDecimal.class, numberFormatter, true));
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see it.interlogic.vimp.web.AbstractHandler#getPageName()
 	 */
 	@Override
@@ -201,6 +220,8 @@ public class ImpresaHandler extends AbstractHandler
 		return detail(parametri, numero, model, session, IAbstractServiceImpl.TIPO_INFO_STAKEHOLDER);
 	}
 
+	
+
 	/**
 	 * @param request
 	 * @param session
@@ -240,7 +261,6 @@ public class ImpresaHandler extends AbstractHandler
 				impresaService.updateImageImpresa(dettaglio.getIdPlfImpresa(), dettaglio.getImageData());
 			else if (dettaglio.getTipoInformazione() == IAbstractServiceImpl.TIPO_INFO_STAKEHOLDER)
 				impresaService.updateImageStakeholder(dettaglio.getIdPlfImpresa(), dettaglio.getImageData());
-
 		}
 		catch (InformazioneDuplicataException err)
 		{
@@ -264,13 +284,12 @@ public class ImpresaHandler extends AbstractHandler
 		if (aggiornamento)
 		{
 			model.addAttribute("successMessage", getMessage("aggiornamentoAvvenuto"));
-			
+
 			int tipoInformazione = IAbstractServiceImpl.TIPO_INFO_IMPRESA;
 			if (dettaglio.getPlfTTipoImpresa() != null && dettaglio.getPlfTTipoImpresa().getId() != null
 					&& dettaglio.getPlfTTipoImpresa().getId().intValue() == IAbstractServiceImpl.TIPO_IMPRESA_STAKEHOLDER)
 				tipoInformazione = IAbstractServiceImpl.TIPO_INFO_STAKEHOLDER;
-			
-			
+
 			dettaglio = impresaService.find(dettaglio.getIdPlfImpresa());
 			dettaglio.setTipoInformazione(tipoInformazione);
 			loadModel(session, dettaglio, model, dettaglio.getTipoInformazione());
@@ -430,7 +449,7 @@ public class ImpresaHandler extends AbstractHandler
 	 */
 	private void loadModel(HttpSession session, PLFImpresaEntity dettaglio, Model model, int tipoInformazione)
 	{
-	
+
 		if (dettaglio != null)
 		{
 			byte[] image = impresaService.getImage(dettaglio.getIdPlfImpresa());
@@ -457,8 +476,26 @@ public class ImpresaHandler extends AbstractHandler
 
 		}
 
+		model.addAttribute("cancellaRipristinaImpresa", false);
+		model.addAttribute("cambiaStatoImpresa", false);
 		if (checkModify(dettaglio, model))
+		{
 			model.addAttribute("modifica", true);
+
+			if (UtenteContext.getCurrentUser().isBackoffice())
+			{
+				PLFLogEntity log = logService.getLogImpresa(dettaglio.getIdPlfImpresa());
+				if (log != null && log.getIdLog() != null && log.getIdLog().intValue() > 0)
+				{
+					int idMessaggioLog = log.getLogMessaggi().getId().intValue();
+					if (idMessaggioLog == IAbstractServiceImpl.LOG_IMPRESA_PRESENTE_VERTINA_CANCELLATA_ARIS || 
+							idMessaggioLog == IAbstractServiceImpl.LOG_IMPRESA_PRSENTE_VETRINA_NO_ARIS)
+					{
+						model.addAttribute("cancellaRipristinaImpresa", true);
+					}
+				}
+			}
+		}
 		else
 		{
 			model.addAttribute("modifica", false);
@@ -527,20 +564,20 @@ public class ImpresaHandler extends AbstractHandler
 			}
 			else
 				model.addAttribute("comuneList", new TreeMap<String, String>());
-			
+
 			if (IAbstractServiceImpl.COD_COMUNE_GENOVA.equalsIgnoreCase(comune.getCodiceIstat()))
 			{
 				dettaglio.setNumeroCivicoTopo(dettaglio.getNumeroCivico());
 				dettaglio.setIndirizzoTopo(dettaglio.getDescIndirizzo());
-				
-				if (dettaglio.getDescIndirizzo() != null && dettaglio.getDescIndirizzo().trim().length()>0)
+
+				if (dettaglio.getDescIndirizzo() != null && dettaglio.getDescIndirizzo().trim().length() > 0)
 				{
 					Map<String, String> strada = new TreeMap<String, String>();
 					strada.put(dettaglio.getDescIndirizzo(), dettaglio.getDescIndirizzo());
 					model.addAttribute("indirizzoTopolist", strada);
 				}
-				
-				if (dettaglio.getNumeroCivico() != null && dettaglio.getNumeroCivico().trim().length()>0)
+
+				if (dettaglio.getNumeroCivico() != null && dettaglio.getNumeroCivico().trim().length() > 0)
 				{
 					Map<String, String> civico = new TreeMap<String, String>();
 					civico.put(dettaglio.getNumeroCivico(), dettaglio.getNumeroCivico());
@@ -550,11 +587,10 @@ public class ImpresaHandler extends AbstractHandler
 		}
 		else
 			model.addAttribute("comuneList", new TreeMap<String, String>());
-		
-		
-		PLFTComuneEntity comuneGenova =  decodificheService.getComuneByCodiceIstat(IAbstractServiceImpl.COD_COMUNE_GENOVA);
+
+		PLFTComuneEntity comuneGenova = decodificheService.getComuneByCodiceIstat(IAbstractServiceImpl.COD_COMUNE_GENOVA);
 		if (comuneGenova != null && comuneGenova.getIdComune() != null)
-			model.addAttribute("idComuneGenova", ""+ comuneGenova.getIdComune().intValue());
+			model.addAttribute("idComuneGenova", "" + comuneGenova.getIdComune().intValue());
 
 		// tags
 		List<PLFTTagEntity> allTags = tagService.findTags();
@@ -611,14 +647,148 @@ public class ImpresaHandler extends AbstractHandler
 			if (UtenteContext.getCurrentUser().isStakeholder() && UtenteContext.getCurrentUser().getPlfImpresas() != null
 					&& UtenteContext.getCurrentUser().getPlfImpresas().size() > 0)
 			{
-				BigDecimal idStakeholder = UtenteContext.getCurrentUser().getPlfImpresas().get(0).getIdPlfImpresa();
-				if (idStakeholder != null && idStakeholder.intValue() > 0 && dettaglio != null && dettaglio.getIdPlfImpresa() != null
-						&& idStakeholder.intValue() == dettaglio.getIdPlfImpresa().intValue())
-					return true;
+				for (PLFImpresaEntity stakes : UtenteContext.getCurrentUser().getPlfImpresas())
+				{
+					BigDecimal idStakeholder = stakes.getIdPlfImpresa();
+					if (idStakeholder != null && idStakeholder.intValue() > 0 && dettaglio != null && dettaglio.getIdPlfImpresa() != null
+							&& idStakeholder.intValue() == dettaglio.getIdPlfImpresa().intValue())
+						return true;
+				}
 			}
 		}
 
 		return false;
+	}
+
+	@RequestMapping(value = "/secure/cancellaImpresa", method = RequestMethod.POST)
+	public String delete(HttpServletRequest request, HttpSession session, PLFImpresaEntity dettaglio, Model model)
+	{
+		if (dettaglio != null && dettaglio.getIdPlfImpresa() != null)
+		{
+			try
+			{
+				dettaglio = clearNullableReferences(dettaglio);
+				impresaService.delete(dettaglio);
+				sendMailCancellaRipristina(dettaglio, false);
+			}
+			catch (Exception err)
+			{
+				err.printStackTrace();
+				model.addAttribute("errorMessage", getMessage("erroreCancellazione"));
+				loadModel(session, dettaglio, model, dettaglio.getTipoInformazione());
+				return VIEW_DETTAGLIO;
+			}
+		}
+
+		// return
+		model.addAttribute("successMessage", getMessage("aggiornamentoAvvenuto"));
+		int tipoInformazione = IAbstractServiceImpl.TIPO_INFO_IMPRESA;
+		if (dettaglio.getPlfTTipoImpresa() != null && dettaglio.getPlfTTipoImpresa().getId() != null
+				&& dettaglio.getPlfTTipoImpresa().getId().intValue() == IAbstractServiceImpl.TIPO_IMPRESA_STAKEHOLDER)
+			tipoInformazione = IAbstractServiceImpl.TIPO_INFO_STAKEHOLDER;
+
+		dettaglio = impresaService.find(dettaglio.getIdPlfImpresa());
+		dettaglio.setTipoInformazione(tipoInformazione);
+		loadModel(session, dettaglio, model, dettaglio.getTipoInformazione());
+		return VIEW_DETTAGLIO;
+	}
+
+	@RequestMapping(value = "/secure/ripristinaImpresa", method = RequestMethod.POST)
+	public String restore(HttpServletRequest request, HttpSession session, PLFImpresaEntity dettaglio, Model model)
+	{
+		if (dettaglio != null && dettaglio.getIdPlfImpresa() != null)
+		{
+			try
+			{
+				dettaglio = clearNullableReferences(dettaglio);
+				impresaService.restore(dettaglio);
+				sendMailCancellaRipristina(dettaglio, true);
+			}
+			catch (Exception err)
+			{
+				err.printStackTrace();
+				model.addAttribute("errorMessage", getMessage("erroreCancellazione"));
+				loadModel(session, dettaglio, model, dettaglio.getTipoInformazione());
+				return VIEW_DETTAGLIO;
+			}
+		}
+
+		// return
+		model.addAttribute("successMessage", getMessage("aggiornamentoAvvenuto"));
+		int tipoInformazione = IAbstractServiceImpl.TIPO_INFO_IMPRESA;
+		if (dettaglio.getPlfTTipoImpresa() != null && dettaglio.getPlfTTipoImpresa().getId() != null
+				&& dettaglio.getPlfTTipoImpresa().getId().intValue() == IAbstractServiceImpl.TIPO_IMPRESA_STAKEHOLDER)
+			tipoInformazione = IAbstractServiceImpl.TIPO_INFO_STAKEHOLDER;
+
+		dettaglio = impresaService.find(dettaglio.getIdPlfImpresa());
+		dettaglio.setTipoInformazione(tipoInformazione);
+		loadModel(session, dettaglio, model, dettaglio.getTipoInformazione());
+		return VIEW_DETTAGLIO;
+	}
+	
+	
+	private void sendMailCancellaRipristina(PLFImpresaEntity dettaglio, boolean ripristina)
+	{
+		try
+		{
+			// TODO MAIL a che indirizzo la mando??????
+			String toMail = dettaglio.getEmailContatto();
+						
+			if (toMail != null && toMail.trim().length()>0)
+			{
+				String theString = null;
+				if (ripristina)
+				{
+					theString = IOUtils.toString(context.getResourceAsStream("/WEB-INF/classes/mail/" + "MailRipristinaImpresa.txt"), "UTF-8");
+				}
+				else
+				{
+					PLFLogEntity log = logService.getLogImpresa(dettaglio.getIdPlfImpresa());
+					if (log != null && log.getIdLog() != null && log.getIdLog().intValue() > 0)
+					{
+						int idMessaggioLog = log.getLogMessaggi().getId().intValue();
+						if (idMessaggioLog == IAbstractServiceImpl.LOG_IMPRESA_PRESENTE_VERTINA_CANCELLATA_ARIS)
+						{
+							theString = IOUtils.toString(context.getResourceAsStream("/WEB-INF/classes/mail/" + "MailCancellaImpresa6.txt"), "UTF-8");
+						}
+						else if (idMessaggioLog == IAbstractServiceImpl.LOG_IMPRESA_PRSENTE_VETRINA_NO_ARIS)
+						{
+							theString = IOUtils.toString(context.getResourceAsStream("/WEB-INF/classes/mail/" + "MailCancellaImpresa11.txt"), "UTF-8");
+						}
+					}
+				}
+				
+				if (theString != null)
+				{
+					Map<String, String> values = new Hashtable<String, String>();
+					values.put("denominazioneImpresa", dettaglio.getDescImpresa());
+					String codiceFiscalePartitaIva = null;
+					if (dettaglio.getPartitaIva() != null && dettaglio.getPartitaIva().trim().length()>0)
+						codiceFiscalePartitaIva = dettaglio.getPartitaIva();
+					else if (dettaglio.getCodFiscale() != null && dettaglio.getCodFiscale().trim().length()>0)
+						codiceFiscalePartitaIva = dettaglio.getCodFiscale();
+					else codiceFiscalePartitaIva = "--";
+					values.put("codiceFiscale", codiceFiscalePartitaIva);
+					
+					StrSubstitutor sub = new StrSubstitutor(values, "%(", ")");
+					String body = sub.replace(theString);
+					String from = AmbienteContext.getMailNoReplay();
+					
+					
+					String subject = null;
+					if (ripristina)
+						subject = "Vetrina imprese: ripristino impresa " + dettaglio.getDescImpresa();
+					else
+						subject = "Vetrina imprese: cancellazione impresa " + dettaglio.getDescImpresa();
+					doSendEmail(mailSender, from, toMail, subject, body);
+				}
+			}
+			
+		}
+		catch (Exception err)
+		{
+			err.printStackTrace();
+		}
 	}
 
 	// ===================================================
@@ -839,7 +1009,6 @@ public class ImpresaHandler extends AbstractHandler
 	public EditableResult collegaServiziStandard(@RequestParam(value = "idImpresa", required = true) String idImpresa,
 			@RequestParam(value = "idServizi", required = true) String idServizi, @RequestParam(value = "linkCollegamentoImpresa", required = false) String linkCollegamentoImpresa)
 	{
-		// FIXME REF_SIMP
 		try
 		{
 			PLFRServiziImpresaEntity impresaServizi = new PLFRServiziImpresaEntity();

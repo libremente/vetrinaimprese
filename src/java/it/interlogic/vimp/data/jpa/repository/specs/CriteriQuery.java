@@ -52,6 +52,18 @@ public class CriteriQuery
 		CriterioQuery cq = new CriterioQuery(nome, valore, CriterioQuery.Tipo.EQUAL);
 		criteri.add(cq);
 	}
+	
+	public void addParametroIsNull(String nome)
+	{
+		CriterioQuery cq = new CriterioQuery(nome,CriterioQuery.Tipo.ISNULL);
+		criteri.add(cq);
+	}
+	
+	public void addParametroIsNotNull(String nome)
+	{
+		CriterioQuery cq = new CriterioQuery(nome,CriterioQuery.Tipo.ISNOTNULL);
+		criteri.add(cq);
+	}
 
 	public void addParametroLike(String nome, String valore)
 	{

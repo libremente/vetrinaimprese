@@ -22,7 +22,7 @@ public interface PLFNewsImpresaJpaRepository extends PagingAndSortingRepository<
 	@Query(value = "SELECT p from PLFNewsImpresaEntity p where p.newsImpresaTranslation.descrizione =:nome ")
 	public List<PLFNewsImpresaEntity> findNewsImpresaByDescrizione(@Param("nome") String nome);
 
-	@Query(value = "SELECT p from PLFNewsImpresaEntity p where p.plfImpresa.idPlfImpresa =:id ")
+	@Query(value = "SELECT * from PLF_NEWS_IMPRESA NEWS where NEWS.ID_PLF_IMPRESA =:id ", nativeQuery = true)
 	public List<PLFNewsImpresaEntity> findNewsImpresaByImpresa(@Param("id") BigDecimal id);
 	
 	
@@ -40,4 +40,6 @@ public interface PLFNewsImpresaJpaRepository extends PagingAndSortingRepository<
 			"LEFT JOIN PLF_R_SERVIZI_IMPRESA ris ON ris.ID_PLF_IMPRESA = n.ID_PLF_IMPRESA or ris.ID_SERVIZI = n.ID_SERVIZI_IMPRESA " +
 			"where ris.ID_PLF_IMPRESA =:id OR n.ID_PLF_IMPRESA = :id ", nativeQuery = true)
 	public List<PLFNewsImpresaEntity> findNewsImpresaByServizi(@Param("id") BigDecimal id);
+	
+
 }

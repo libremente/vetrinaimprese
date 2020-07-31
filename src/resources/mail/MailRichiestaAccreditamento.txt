@@ -3,3 +3,6 @@ Buongiorno,
 A seguito della richiesta di accreditamento fatta da %(codiceFiscale) e' stata accreditata in data %(data) alla vetrina la seguente impresa: 
 %(ragioneSociale), 
 stato= %(stato), partita iva=%(partitaIva), codice fiscale= %(codiceFiscale), sita in %(comune)
+
+
+Per maggiori dettagli puoi inviare una e-mail a piattaformalavoro.assistenza@comune.genova.it.

@@ -41,6 +41,10 @@ public class ConfigurazioneAmbiente implements Serializable
 
 	@Value("${wsArisUiSearchUrl}")
 	String wsArisUiSearchUrl;
+	
+	@Value("${wsArisUiSearchAllUrl}")
+	String wsArisUiSearchAllUrl;
+
 
 	@Value("${wsArisRlMultiSearchUrl}")
 	String wsArisRlMultiSearchUrl;
@@ -168,6 +172,17 @@ public class ConfigurazioneAmbiente implements Serializable
 	public void setWsArisUiSearchUrl(String wsArisUiSearchUrl)
 	{
 		this.wsArisUiSearchUrl = wsArisUiSearchUrl;
+	}
+
+	
+	public String getWsArisUiSearchAllUrl()
+	{
+		return wsArisUiSearchAllUrl;
+	}
+
+	public void setWsArisUiSearchAllUrl(String wsArisUiSearchAllUrl)
+	{
+		this.wsArisUiSearchAllUrl = wsArisUiSearchAllUrl;
 	}
 
 	public String getWsArisRlMultiSearchUrl()

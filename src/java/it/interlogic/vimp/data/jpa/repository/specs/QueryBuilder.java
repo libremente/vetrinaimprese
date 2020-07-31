@@ -124,6 +124,10 @@ public class QueryBuilder
 				return buildInDecimal(entityClass, root, criteriaQuery, cb, criterio.nome, criterio.valori);
 			case IN_STRING:
 				return buildInString(entityClass, root, criteriaQuery, cb, criterio.nome, criterio.valori);
+			case ISNULL:
+				return buildIsNull(entityClass, root, criteriaQuery, cb, criterio.nome);
+			case ISNOTNULL:
+				return buildIsNotNull(entityClass, root, criteriaQuery, cb, criterio.nome);
 			default:
 				throw new RuntimeException("Tipo criterio di ricerca non supportato " + tipo.toString());
 		}
@@ -170,6 +174,16 @@ public class QueryBuilder
 	private static <T> Predicate buildInString(Class<T> entityClass, Root<T> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb, String nomeColonna, Object valori[])
 	{
 		return root.<String> get(nomeColonna).in(valori);
+	}
+	
+	private static <T> Predicate buildIsNull(Class<T> entityClass, Root<T> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb, String nomeColonna)
+	{
+		return root.get(nomeColonna).isNull();
+	}
+	
+	private static <T> Predicate buildIsNotNull(Class<T> entityClass, Root<T> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb, String nomeColonna)
+	{
+		return root.get(nomeColonna).isNotNull();
 	}
 
 }

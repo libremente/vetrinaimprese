@@ -30,8 +30,18 @@ public interface PLFProgettiProdottiJpaRepository extends PagingAndSortingReposi
 	public List<PLFProgettiProdottiEntity> findProgettiByNome(@Param("nome") String nome);
 	
 	
+	@Query(value = "SELECT p.* from PLF_PROGETTI_PRODOTTI p " +
+			"JOIN PLF_PROGETTI_PRODOTTI_TRANSLATION pt ON p.ID_PLF_PROGETTI_PRODOTTI = pt.ID_PLF_PROGETTI_PRODOTTI " +
+			"where NOME_PROGETTO_PRODOTTO = :nome AND DATA_CANCELLAZIONE IS NULL", nativeQuery = true)
+	public List<PLFProgettiProdottiEntity> findProgettiByNomeNonCancellati(@Param("nome") String nome);
+	
+	
+	@Query(value = "SELECT p from PLFProgettiProdottiEntity p where p.plfImpresa.idPlfImpresa =:idImpresa and p.plfTTipoProgettiProdotti.id =:idTipoProgettoProdotto")
+	public List<PLFProgettiProdottiEntity> findProgettiByIdImpresaTipo(@Param("idImpresa") BigDecimal idImpresa,@Param("idTipoProgettoProdotto") BigDecimal idTipoProgettoProdotto);
+	
 	@Query(value = "SELECT p from PLFProgettiProdottiEntity p where p.plfImpresa.idPlfImpresa =:idImpresa ")
 	public List<PLFProgettiProdottiEntity> findProgettiByIdImpresa(@Param("idImpresa") BigDecimal idImpresa);
+	
 
 	@Query(value = "SELECT p from PLFProgettiProdottiEntity p where p.idPlfProgettiProdotti =:idProgettoProdotto ")
 	public List<PLFProgettiProdottiEntity> findProgettiByIdProgettoProdotto(@Param("idProgettoProdotto") BigDecimal idProgettoProdotto);

@@ -45,6 +45,18 @@
 	<div class="content-area user-profiel">
 		&nbsp;
 		<div class="container">
+		
+			<c:if test="${dettaglio.isScaduto()}">
+				<div class="col-sm-12 label-scaduto-container">
+					<div class="col-sm-10">
+						&nbsp;
+					</div>
+					<div class="col-sm-2">
+						<label class="label-scaduto"><spring:message code="expired" text="Scaduto"/></label>
+					</div>
+				</div>
+			</c:if>
+			
 			<c:if test="${!empty successMessage}">
 				<div class="alert alert-success fade in">
 					<button type="button" class="close" data-dismiss="alert"
@@ -355,7 +367,7 @@
 											<br>
 											<c:choose>
 												<c:when test="${utils.checkLinkUrl(dettaglio.descLink)}">
-													<a class="wow fadeInUp animated" target="_blank" href="http://${dettaglio.descLink}" data-wow-delay="0.5s">${dettaglio.descLink}</a>
+													<a class="wow fadeInUp animated" target="_blank" href="${utils.anchor(dettaglio.descLink)}" data-wow-delay="0.5s">${dettaglio.descLink}</a>
 												</c:when>
 												<c:otherwise>
 													<label><b>${dettaglio.descLink}</b></label>
@@ -529,9 +541,9 @@
 
 								<div class="col-sm-12">
 									<div class="col-sm-6 save-btns">
-										<a href="#" class="btn btn-finish btn-primary"
+										<a id="deleteButton" href="#" class="btn btn-finish btn-primary"
 										   data-toggle="modal" data-target="#chiudiModal"><spring:message code="form.dettaglio.opportunita.delete.link" text="CANCELLA L'OPPORTUNITA"/></a>
-										<button class='btn btn-default' type="button" onClick="javascript:resetForm();"><spring:message code="common_texts.reset" text="ANNULLA"/></button>
+										<button id="cancelButton" class='btn btn-default' type="button" onClick="javascript:resetForm();"><spring:message code="common_texts.reset" text="ANNULLA"/></button>
 									</div>
 
 									<div class="col-sm-6 save-btns">
@@ -674,7 +686,7 @@
 <script type="text/javascript" src="${evn_urlRisorseStatiche}/vimp/assets/js/jquery.tablesorter.js"></script>
 <script type="text/javascript" src="${evn_urlRisorseStatiche}/vimp/assets/js/jquery.tablecloth.js"></script>
 
-
+<script src="${evn_urlRisorseStatiche}/vimp/assets/js/checkModify.js"></script>
 
 <script>
 	var uploadImage = false;
@@ -777,6 +789,15 @@
 					$('input[name="pubblicato"]').iCheck('check');
 				}
 
+
+				<!-- CONTROLLO USCITA PAGINA MODIFICATA SENZA SALVARE-->
+				<!-- checkModify.js -->
+				if (${modifica})
+				{
+					setCheckModify('saveButton','cancelButton','deleteButton',
+							['pubblicato'],
+							null);
+				}
 			});
 
 
@@ -828,7 +849,7 @@
 	function toggleTagSelection(e, id) {
 		var startClass = $(e).attr('class');
 
-		$(e).toggleClass('tag-selected');
+		$(e).toggleClass('tag-selected').trigger('classChange');
 
 		$('#selectTags > option[value="'+ id +'"]').each(function() {
 

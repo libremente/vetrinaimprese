@@ -26,10 +26,14 @@ import it.interlogic.vimp.service.INewsImpresaService;
 import it.interlogic.vimp.service.IPacchettoServiziService;
 import it.interlogic.vimp.service.IRicercaService;
 import it.interlogic.vimp.service.IServiziService;
+import it.interlogic.vimp.web.dto.ParametriRicercaMyInfo;
 import it.interlogic.vimp.web.security.UtenteContext;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,223 +84,28 @@ public class IRicercaServiceImpl implements IRicercaService
 	@Override
 	public Page<PLFVInformazioneEntity> findInformazioni(int numPage, int pageSize, String ricerca, boolean onlyPublic)
 	{
-		/*
-		 * Pageable pageable = new PageRequest(numPage, pageSize, new Sort(new
-		 * Order(Direction.DESC, "dataAggiornamento"), new Order(Direction.DESC,
-		 * "numeroVisite"), new Order( Direction.DESC, "dataUltimaVisita")));
-		 * CriteriQuery filtri = new CriteriQuery();
-		 * 
-		 * filtri.addParametroEqual("pubblicato", new BigDecimal(1));
-		 * 
-		 * if (ricerca != null && ricerca.trim().length() > 0)
-		 * filtri.addParametroLike("ricerca", "%" + ricerca + "%"); else { //
-		 * LIMIT 8 pageable = new PageRequest(numPage, 8, new Sort(new
-		 * Order(Direction.DESC, "dataAggiornamento"), new Order(Direction.DESC,
-		 * "numeroVisite"), new Order(Direction.DESC, "dataUltimaVisita"))); }
-		 * 
-		 * if(onlyPublic) { filtri.addParametroEqual("pubblicato", new
-		 * BigDecimal(1)); }
-		 * 
-		 * Page<PLFVInformazioneEntity> result =
-		 * informazioneRepository.findAll(QueryBuilder.buildQuery(filtri,
-		 * PLFVInformazioneEntity.class), pageable); return result;
-		 */
-
 		return findInformazioni(numPage, pageSize, null, ricerca, onlyPublic);
-	}
-
-	@Override
-	public List<PLFVInformazioneEntity> findInformazioniPersonal()
-	{
-		List<PLFVInformazioneEntity> ret = new ArrayList<PLFVInformazioneEntity>();
-		if (UtenteContext.getCurrentUser() != null && (UtenteContext.getCurrentUser().isImpresa() || UtenteContext.getCurrentUser().isStakeholder())
-				&& UtenteContext.getCurrentUser().getPlfImpresas() != null && UtenteContext.getCurrentUser().getPlfImpresas().size() > 0)
-		{
-			for (PLFImpresaEntity impresa : UtenteContext.getCurrentUser().getPlfImpresas())
-			{
-
-				// IMPRESE - STAKEHOLDER
-				List<PLFVInformazioneEntity> list = null;
-				if (UtenteContext.getCurrentUser().isImpresa())
-					list = informazioneRepository.findInformazioni(new BigDecimal(IAbstractServiceImpl.TIPO_INFO_IMPRESA), impresa.getIdPlfImpresa());
-				else if (UtenteContext.getCurrentUser().isStakeholder())
-					list = informazioneRepository.findInformazioni(new BigDecimal(IAbstractServiceImpl.TIPO_INFO_STAKEHOLDER), impresa.getIdPlfImpresa());
-				if (list != null && list.size() > 0)
-					ret.addAll(list);
-
-				// SERVIZI
-				List<PLFServiziEntity> servizi = serviziStandardRepository.findAllByImpresa(impresa.getIdPlfImpresa());
-				if (servizi != null && servizi.size() > 0)
-				{
-					List<BigDecimal> ids = new ArrayList<BigDecimal>();
-
-					for (PLFServiziEntity servizio : servizi)
-					{
-						List<PLFVInformazioneEntity> listInfo = informazioneRepository.findInformazioni(new BigDecimal(IAbstractServiceImpl.TIPO_INFO_SERVIZIO),
-								servizio.getIdServizi());
-						if (listInfo != null && listInfo.size() > 0)
-							ret.addAll(listInfo);
-						else
-						{
-							// QUESTA EVOLUTIVA PER VEDERE I SERVIZI SCADUTI
-							// NELLE MIE INFO
-
-							// non presente nella vista quindi lo carico a mano
-							PLFVInformazioneEntity e = new PLFVInformazioneEntity();
-							e.setIdInformazione(servizio.getIdServizi());
-							e.setIdTipoInformazione(new BigDecimal(IAbstractServiceImpl.TIPO_INFO_SERVIZIO));
-
-							PLFInformazioneImmagineEntityKey key = new PLFInformazioneImmagineEntityKey(servizio.getIdServizi(), new BigDecimal(IAbstractServiceImpl.TIPO_INFO_SERVIZIO));
-							PLFInformazioneImmagineEntity entity = immagineRepository.findOne(key);
-							if (entity != null)
-								e.setImmagine(entity.getImmagine());
-
-							if ("S".equalsIgnoreCase(servizio.getServiziStandard()))
-							{
-								if (servizio.getDenominazioneServizio() != null)
-									e.setTitolo(servizio.getDenominazioneServizio().getDescrizione());
-								else
-									e.setTitolo(servizio.getDescrizione());
-							}
-							else
-								e.setTitolo(servizio.getTitolo());
-
-							e.setPrima(servizio.getDescrizione());
-
-							if (servizio.getPlfTAreeCompetenza() != null && servizio.getPlfTAreeCompetenza().getDescrizione() != null)
-								e.setSeconda(servizio.getPlfTAreeCompetenza().getDescrizione());
-
-							List<PLFTTipoErogazioneServizioEntity> erogazioni = tipoErogazioneServizioRepository.findByServizio(servizio.getIdServizi());
-							if (erogazioni != null)
-							{
-								String erogazioneStr = "";
-
-								for (PLFTTipoErogazioneServizioEntity erogazione : erogazioni)
-									erogazioneStr += erogazione.getDescrizione() + ", ";
-								if (erogazioneStr.length()>2)
-									erogazioneStr = erogazioneStr.substring(0,erogazioneStr.length()-2);
-								e.setTerza(erogazioneStr);
-							}
-
-							ret.add(e);
-						}
-
-						ids.add(servizio.getIdServizi());
-					}
-
-					// pacchetti servizi
-					List<PLFPacchettoServiziEntity> pacchetti = pacchettoServiziRepository.findByIdsServiziCompleto(ids);
-					if (pacchetti != null && pacchetti.size() > 0)
-					{
-						for (PLFPacchettoServiziEntity pacchetto : pacchetti)
-						{
-							List<PLFVInformazioneEntity> listInfo = informazioneRepository.findInformazioni(new BigDecimal(IAbstractServiceImpl.TIPO_INFO_PACCHETTO_SERVIZI),
-									pacchetto.getIdPacchettoServizi());
-							if (listInfo != null && listInfo.size() > 0)
-								ret.addAll(listInfo);
-						}
-					}
-				}
-
-				// progetti prodotti
-				List<PLFProgettiProdottiEntity> progettiProdotti = progettiProdottiRepository.findProgettiByIdImpresa(impresa.getIdPlfImpresa());
-				if (progettiProdotti != null && progettiProdotti.size() > 0)
-				{
-					for (PLFProgettiProdottiEntity progettoProdotto : progettiProdotti)
-					{
-						List<PLFVInformazioneEntity> listInfo = informazioneRepository.findInformazioni(new BigDecimal(IAbstractServiceImpl.TIPO_INFO_PROGETTO_PRODOTTO),
-								progettoProdotto.getIdPlfProgettiProdotti());
-						if (listInfo != null && listInfo.size() > 0)
-							ret.addAll(listInfo);
-					}
-				}
-
-				// news
-				// by impresa
-				List<PLFNewsImpresaEntity> news = newsRepository.findByImpresa(impresa.getIdPlfImpresa());
-				if (news != null && news.size() > 0)
-				{
-					for (PLFNewsImpresaEntity n : news)
-					{
-						List<PLFVInformazioneEntity> listInfo = informazioneRepository.findInformazioni(new BigDecimal(IAbstractServiceImpl.TIPO_INFO_NEWS), n.getIdNewsImpresa());
-						if (listInfo != null && listInfo.size() > 0)
-						{
-							addOnlyNew(ret, listInfo);
-						}
-					}
-				}
-
-				// by progetto
-				List<PLFNewsImpresaEntity> newsProj = newsRepository.findByProgettoImpresa(impresa.getIdPlfImpresa());
-				if (newsProj != null && newsProj.size() > 0)
-				{
-					for (PLFNewsImpresaEntity n : newsProj)
-					{
-						List<PLFVInformazioneEntity> listInfo = informazioneRepository.findInformazioni(new BigDecimal(IAbstractServiceImpl.TIPO_INFO_NEWS), n.getIdNewsImpresa());
-						if (listInfo != null && listInfo.size() > 0)
-						{
-							addOnlyNew(ret, listInfo);
-						}
-					}
-				}
-
-				// by servizio
-				List<PLFNewsImpresaEntity> newServizi = newsRepository.findByServizi(impresa.getIdPlfImpresa());
-				if (newServizi != null && newServizi.size() > 0)
-				{
-					for (PLFNewsImpresaEntity n : newServizi)
-					{
-						List<PLFVInformazioneEntity> listInfo = informazioneRepository.findInformazioni(new BigDecimal(IAbstractServiceImpl.TIPO_INFO_NEWS), n.getIdNewsImpresa());
-						if (listInfo != null && listInfo.size() > 0)
-						{
-							addOnlyNew(ret, listInfo);
-						}
-					}
-				}
-			}
-		}
-		return ret;
-	}
-
-	private void addOnlyNew(List<PLFVInformazioneEntity> listaInfos, List<PLFVInformazioneEntity> toAddList)
-	{
-
-		for (PLFVInformazioneEntity objToAdd : toAddList)
-		{
-			boolean found = false;
-			for (PLFVInformazioneEntity informazione : listaInfos)
-			{
-				if (informazione.getIdInformazione().equals(objToAdd.getIdInformazione()) && informazione.getIdTipoInformazione().equals(objToAdd.getIdTipoInformazione()))
-				{
-					found = true;
-				}
-			}
-			if (!found)
-			{
-				listaInfos.add(objToAdd);
-			}
-		}
 	}
 
 	@Override
 	public Page<PLFVInformazioneEntity> findInformazioni(int numPage, int pageSize, BigDecimal tipoInformazione, String ricerca, boolean onlyPublic)
 	{
-		Pageable pageable = new PageRequest(numPage, pageSize, new Sort(new Order(Direction.DESC, "dataAggiornamento"), new Order(Direction.DESC, "numeroVisite"), new Order(
-				Direction.DESC, "dataUltimaVisita")));
+		Pageable pageable = new PageRequest(numPage, pageSize, new Sort(new Order(Direction.DESC, "sortScadenza"), new Order(Direction.DESC, "scadenza"), new Order(Direction.DESC,
+				"dataAggiornamento"), new Order(Direction.DESC, "numeroVisite"), new Order(Direction.DESC, "dataUltimaVisita")));
+
 		CriteriQuery filtri = new CriteriQuery();
 
 		if (tipoInformazione != null && IAbstractServiceImpl.TIPO_INFO_SERVIZIO == tipoInformazione.intValue())
 			filtri.addEmbeddedFieldIn("compositePrimaryKey", "idTipoInformazione", new BigDecimal[] { tipoInformazione, new BigDecimal(IAbstractServiceImpl.TIPO_INFO_SERVIZIO) });
-		else
+		else if (tipoInformazione != null)
 			filtri.addEmbeddedFieldEquals("compositePrimaryKey", "idTipoInformazione", tipoInformazione);
 
 		if (ricerca != null && ricerca.trim().length() > 0)
 			filtri.addParametroLike("ricerca", "%" + ricerca + "%");
 		else
 		{
-			// LIMIT 8
-			pageable = new PageRequest(numPage, 8, new Sort(new Order(Direction.DESC, "dataAggiornamento"), new Order(Direction.DESC, "numeroVisite"), new Order(Direction.DESC,
-					"dataUltimaVisita")));
+			pageable = new PageRequest(numPage, 8, new Sort(new Order(Direction.DESC, "sortScadenza"), new Order(Direction.DESC, "scadenza"), new Order(Direction.DESC,
+					"dataAggiornamento"), new Order(Direction.DESC, "numeroVisite"), new Order(Direction.DESC, "dataUltimaVisita")));
 		}
 
 		Page<PLFVInformazioneEntity> result;
@@ -304,6 +113,11 @@ public class IRicercaServiceImpl implements IRicercaService
 		if (onlyPublic)
 		{
 			filtri.addParametroEqual("pubblicato", new BigDecimal(1));
+		}
+		
+		if (!UtenteContext.getCurrentUser().isBackoffice())
+		{
+			filtri.addParametroIsNull("dataCancellazione");
 		}
 
 		result = informazioneRepository.findAll(QueryBuilder.buildQuery(filtri, PLFVInformazioneEntity.class), pageable);
@@ -315,8 +129,8 @@ public class IRicercaServiceImpl implements IRicercaService
 	public Page<PLFVInformazioneEntity> findInformazioniByStato(int numPage, int pageSize, BigDecimal tipoInformazione, String ricerca, BigDecimal[] stato, boolean onlyPublic)
 	{
 
-		Pageable pageable = new PageRequest(numPage, pageSize, new Sort(new Order(Direction.DESC, "dataAggiornamento"), new Order(Direction.DESC, "numeroVisite"), new Order(
-				Direction.DESC, "dataUltimaVisita")));
+		Pageable pageable = new PageRequest(numPage, pageSize, new Sort(new Order(Direction.DESC, "sortScadenza"), new Order(Direction.DESC, "scadenza"), new Order(Direction.DESC,
+				"dataAggiornamento"), new Order(Direction.DESC, "numeroVisite"), new Order(Direction.DESC, "dataUltimaVisita")));
 
 		CriteriQuery filtri = new CriteriQuery();
 
@@ -339,13 +153,18 @@ public class IRicercaServiceImpl implements IRicercaService
 		else
 		{
 			// LIMIT 8
-			pageable = new PageRequest(numPage, 8, new Sort(new Order(Direction.DESC, "dataAggiornamento"), new Order(Direction.DESC, "numeroVisite"), new Order(Direction.DESC,
-					"dataUltimaVisita")));
+			pageable = new PageRequest(numPage, 8, new Sort(new Order(Direction.DESC, "sortScadenza"), new Order(Direction.DESC, "scadenza"), new Order(Direction.DESC,
+					"dataAggiornamento"), new Order(Direction.DESC, "numeroVisite"), new Order(Direction.DESC, "dataUltimaVisita")));
 		}
 
 		if (onlyPublic)
 		{
 			filtri.addParametroEqual("pubblicato", new BigDecimal(1));
+		}
+		
+		if (!UtenteContext.getCurrentUser().isBackoffice())
+		{
+			filtri.addParametroIsNull("dataCancellazione");
 		}
 
 		Page<PLFVInformazioneEntity> result = informazioneRepository.findAll(QueryBuilder.buildQuery(filtri, PLFVInformazioneEntity.class), pageable);
@@ -357,8 +176,8 @@ public class IRicercaServiceImpl implements IRicercaService
 	public Page<PLFVInformazioneEntity> findInformazioniByTipo(int numPage, int pageSize, BigDecimal[] tipoInformazione, String ricerca, boolean onlyPublic)
 	{
 
-		Pageable pageable = new PageRequest(numPage, pageSize, new Sort(new Order(Direction.DESC, "dataAggiornamento"), new Order(Direction.DESC, "numeroVisite"), new Order(
-				Direction.DESC, "dataUltimaVisita")));
+		Pageable pageable = new PageRequest(numPage, pageSize, new Sort(new Order(Direction.DESC, "sortScadenza"), new Order(Direction.DESC, "scadenza"), new Order(Direction.DESC,
+				"dataAggiornamento"), new Order(Direction.DESC, "numeroVisite"), new Order(Direction.DESC, "dataUltimaVisita")));
 
 		CriteriQuery filtri = new CriteriQuery();
 
@@ -372,13 +191,18 @@ public class IRicercaServiceImpl implements IRicercaService
 			else
 			{
 				// LIMIT 8
-				pageable = new PageRequest(numPage, 8, new Sort(new Order(Direction.DESC, "dataAggiornamento"), new Order(Direction.DESC, "numeroVisite"), new Order(
-						Direction.DESC, "dataUltimaVisita")));
+				pageable = new PageRequest(numPage, 8, new Sort(new Order(Direction.DESC, "sortScadenza"), new Order(Direction.DESC, "scadenza"), new Order(Direction.DESC,
+						"dataAggiornamento"), new Order(Direction.DESC, "numeroVisite"), new Order(Direction.DESC, "dataUltimaVisita")));
 			}
 
 			if (onlyPublic)
 			{
 				filtri.addParametroEqual("pubblicato", new BigDecimal(1));
+			}
+			
+			if (!UtenteContext.getCurrentUser().isBackoffice())
+			{
+				filtri.addParametroIsNull("dataCancellazione");
 			}
 
 			Page<PLFVInformazioneEntity> result = informazioneRepository.findAll(QueryBuilder.buildQuery(filtri, PLFVInformazioneEntity.class), pageable);
@@ -392,8 +216,8 @@ public class IRicercaServiceImpl implements IRicercaService
 	@Override
 	public Page<PLFVInformazioneEntity> findInformazioniByTipoStato(int numPage, int pageSize, BigDecimal[] tipoInformazione, String ricerca, BigDecimal[] stato, boolean onlyPublic)
 	{
-		Pageable pageable = new PageRequest(numPage, pageSize, new Sort(new Order(Direction.DESC, "dataAggiornamento"), new Order(Direction.DESC, "numeroVisite"), new Order(
-				Direction.DESC, "dataUltimaVisita")));
+		Pageable pageable = new PageRequest(numPage, pageSize, new Sort(new Order(Direction.DESC, "sortScadenza"), new Order(Direction.DESC, "scadenza"), new Order(Direction.DESC,
+				"dataAggiornamento"), new Order(Direction.DESC, "numeroVisite"), new Order(Direction.DESC, "dataUltimaVisita")));
 
 		CriteriQuery filtri = new CriteriQuery();
 
@@ -412,13 +236,18 @@ public class IRicercaServiceImpl implements IRicercaService
 			else
 			{
 				// LIMIT 8
-				pageable = new PageRequest(numPage, 8, new Sort(new Order(Direction.DESC, "dataAggiornamento"), new Order(Direction.DESC, "numeroVisite"), new Order(
-						Direction.DESC, "dataUltimaVisita")));
+				pageable = new PageRequest(numPage, 8, new Sort(new Order(Direction.DESC, "sortScadenza"), new Order(Direction.DESC, "scadenza"), new Order(Direction.DESC,
+						"dataAggiornamento"), new Order(Direction.DESC, "numeroVisite"), new Order(Direction.DESC, "dataUltimaVisita")));
 			}
 
 			if (onlyPublic)
 			{
 				filtri.addParametroEqual("pubblicato", new BigDecimal(1));
+			}
+			
+			if (!UtenteContext.getCurrentUser().isBackoffice())
+			{
+				filtri.addParametroIsNull("dataCancellazione");
 			}
 
 			Page<PLFVInformazioneEntity> result = informazioneRepository.findAll(QueryBuilder.buildQuery(filtri, PLFVInformazioneEntity.class), pageable);
@@ -493,6 +322,353 @@ public class IRicercaServiceImpl implements IRicercaService
 		Page<PLFVRichiestaAccreditamentoEntity> result = vistaRichiestaAccreditamentoRepository.findAll(QueryBuilder.buildQuery(filtri, PLFVRichiestaAccreditamentoEntity.class),
 				pageable);
 		return result;
+	}
+
+	// ==============================================================================================================
+	// MY INFO
+	// ==============================================================================================================
+
+	@Override
+	public List<PLFVInformazioneEntity> findInformazioniPersonal(ParametriRicercaMyInfo parametri)
+	{
+		List<PLFVInformazioneEntity> ret = new ArrayList<PLFVInformazioneEntity>();
+
+		if (UtenteContext.getCurrentUser() != null && (UtenteContext.getCurrentUser().isImpresa() || UtenteContext.getCurrentUser().isStakeholder())
+				&& UtenteContext.getCurrentUser().getPlfImpresas() != null && UtenteContext.getCurrentUser().getPlfImpresas().size() > 0)
+		{
+
+			List<PLFVInformazioneEntity> imprese = getMyInfoImpresa();
+
+			List<PLFVInformazioneEntity> sortedList = new ArrayList<PLFVInformazioneEntity>();
+
+			boolean scadute = "S".equalsIgnoreCase(parametri.getFindScadute());
+			
+			List<PLFVInformazioneEntity> servizi = getMyInfoServizi(parametri.getTextRicerca(), scadute);
+			if ("S".equalsIgnoreCase(parametri.getFindServizi()))
+				sortedList.addAll(servizi);
+			if ("S".equalsIgnoreCase(parametri.getFindPacchetti()))
+				sortedList.addAll(getMyInfoPacchettiServizi(servizi, parametri.getTextRicerca(),scadute));
+
+
+			if ("S".equalsIgnoreCase(parametri.getFindProgetti()))
+				sortedList.addAll(getMyInfoProgettoProdotti(parametri.getTextRicerca(),scadute, IAbstractServiceImpl.TIPO_PROGETTO));
+			if ("S".equalsIgnoreCase(parametri.getFindProdotti()))
+				sortedList.addAll(getMyInfoProgettoProdotti(parametri.getTextRicerca(),scadute, IAbstractServiceImpl.TIPO_PRODOTTO));
+			if ("S".equalsIgnoreCase(parametri.getFindTecnologie()))
+				sortedList.addAll(getMyInfoProgettoProdotti(parametri.getTextRicerca(),scadute, IAbstractServiceImpl.TIPO_TECNOLOGIA));
+			
+			
+
+			if ("S".equalsIgnoreCase(parametri.getFindNews()))
+				sortedList.addAll(getMyInfoNews(parametri.getTextRicerca(),scadute));
+
+			ret.addAll(imprese);
+			Collections.sort(sortedList, new InformazioneComparator());
+			ret.addAll(sortedList);
+		}
+		return ret;
+	}
+
+	public class InformazioneComparator implements Comparator<PLFVInformazioneEntity>
+	{
+		@Override
+		public int compare(PLFVInformazioneEntity o1, PLFVInformazioneEntity o2)
+		{
+			int ret = 0;
+
+			if (o1.isScaduto() && !o2.isScaduto())
+				ret = 1;
+			else if (!o1.isScaduto() && o2.isScaduto())
+				ret = -1;
+			else
+			{
+				Date date1 = o1.getDataAggiornamento();
+				if (o1.getDataUltimaVisita() != null)
+					date1 = o1.getDataUltimaVisita();
+				
+				Date date2 = o2.getDataAggiornamento();
+				if (o2.getDataUltimaVisita() != null)
+					date2 = o2.getDataUltimaVisita();
+				
+				if (date1 != null && date2 != null)
+					ret = date2.compareTo(date1);
+				
+				if (date1 != null && date2 != null)
+					ret = date2.compareTo(date1);
+				if (date1 != null && date2 == null)
+					return -1;
+				if (date1 == null && date2 != null)
+					return 1;
+			}
+			return ret;
+		}
+	}
+
+	private List<PLFVInformazioneEntity> getMyInfoImpresa()
+	{
+		List<PLFVInformazioneEntity> ret = new ArrayList<PLFVInformazioneEntity>();
+		for (PLFImpresaEntity impresa : UtenteContext.getCurrentUser().getPlfImpresas())
+		{
+			List<PLFVInformazioneEntity> list = null;
+			if (UtenteContext.getCurrentUser().isImpresa())
+				list = informazioneRepository.findInformazioni(new BigDecimal(IAbstractServiceImpl.TIPO_INFO_IMPRESA), impresa.getIdPlfImpresa());
+			else if (UtenteContext.getCurrentUser().isStakeholder())
+				list = informazioneRepository.findInformazioni(new BigDecimal(IAbstractServiceImpl.TIPO_INFO_STAKEHOLDER), impresa.getIdPlfImpresa());
+			if (list != null && list.size() > 0)
+				ret.addAll(list);
+		}
+		return ret;
+	}
+
+	private List<PLFVInformazioneEntity> getMyInfoServizi(String ricerca, boolean scadute)
+	{
+		List<PLFVInformazioneEntity> ret = new ArrayList<PLFVInformazioneEntity>();
+		for (PLFImpresaEntity impresa : UtenteContext.getCurrentUser().getPlfImpresas())
+		{
+			List<PLFServiziEntity> servizi = null;
+			if (ricerca != null && ricerca.trim().length() > 0)
+				servizi = serviziStandardRepository.findAllByImpresa(impresa.getIdPlfImpresa(), "%" + ricerca.toUpperCase() + "%");
+			else
+				servizi = serviziStandardRepository.findAllByImpresa(impresa.getIdPlfImpresa());
+			if (servizi != null && servizi.size() > 0)
+			{
+				List<BigDecimal> ids = new ArrayList<BigDecimal>();
+
+				for (PLFServiziEntity servizio : servizi)
+				{
+					List<PLFVInformazioneEntity> listInfo = null;
+					if (ricerca != null && ricerca.trim().length() > 0)
+						listInfo = informazioneRepository.findInformazioni(new BigDecimal(IAbstractServiceImpl.TIPO_INFO_SERVIZIO), servizio.getIdServizi(),
+								"%" + ricerca.toUpperCase() + "%");
+					else
+						listInfo = informazioneRepository.findInformazioni(new BigDecimal(IAbstractServiceImpl.TIPO_INFO_SERVIZIO), servizio.getIdServizi());
+
+					if (listInfo != null && listInfo.size() > 0)
+						ret.addAll(listInfo);
+					else
+					{
+						// QUESTA EVOLUTIVA PER VEDERE I SERVIZI SCADUTI
+						// NELLE MIE INFO
+
+						// non presente nella vista quindi lo carico a mano
+						PLFVInformazioneEntity e = new PLFVInformazioneEntity();
+						e.setIdInformazione(servizio.getIdServizi());
+						e.setIdTipoInformazione(new BigDecimal(IAbstractServiceImpl.TIPO_INFO_SERVIZIO));
+
+						PLFInformazioneImmagineEntityKey key = new PLFInformazioneImmagineEntityKey(servizio.getIdServizi(),
+								new BigDecimal(IAbstractServiceImpl.TIPO_INFO_SERVIZIO));
+						PLFInformazioneImmagineEntity entity = immagineRepository.findOne(key);
+						if (entity != null)
+							e.setImmagine(entity.getImmagine());
+
+						if ("S".equalsIgnoreCase(servizio.getServiziStandard()))
+						{
+							if (servizio.getDenominazioneServizio() != null)
+								e.setTitolo(servizio.getDenominazioneServizio().getDescrizione());
+							else
+								e.setTitolo(servizio.getDescrizione());
+						}
+						else
+							e.setTitolo(servizio.getTitolo());
+
+						e.setPrima(servizio.getDescrizione());
+
+						if (servizio.getPlfTAreeCompetenza() != null && servizio.getPlfTAreeCompetenza().getDescrizione() != null)
+							e.setSeconda(servizio.getPlfTAreeCompetenza().getDescrizione());
+
+						e.setScadenza(servizio.getDataFine());
+						e.setDataAggiornamento(servizio.getDataInizio());
+
+						List<PLFTTipoErogazioneServizioEntity> erogazioni = tipoErogazioneServizioRepository.findByServizio(servizio.getIdServizi());
+						if (erogazioni != null)
+						{
+							String erogazioneStr = "";
+
+							for (PLFTTipoErogazioneServizioEntity erogazione : erogazioni)
+								erogazioneStr += erogazione.getDescrizione() + ", ";
+							if (erogazioneStr.length() > 2)
+								erogazioneStr = erogazioneStr.substring(0, erogazioneStr.length() - 2);
+							e.setTerza(erogazioneStr);
+						}
+
+						ret.add(e);
+					}
+
+					ids.add(servizio.getIdServizi());
+				}
+			}
+		}
+		
+		
+		if (!scadute)
+		{
+			List<PLFVInformazioneEntity> newRet = new ArrayList<PLFVInformazioneEntity>();
+			for (PLFVInformazioneEntity e: ret)
+				if (!e.isScaduto())
+					newRet.add(e);
+			return newRet;
+		}
+		return ret;
+	}
+
+	private List<PLFVInformazioneEntity> getMyInfoPacchettiServizi(List<PLFVInformazioneEntity> servizi, String ricerca, boolean scadute)
+	{
+		List<PLFVInformazioneEntity> ret = new ArrayList<PLFVInformazioneEntity>();
+		if (servizi != null && servizi.size() > 0)
+		{
+			List<BigDecimal> ids = new ArrayList<BigDecimal>();
+			for (PLFVInformazioneEntity servizio : servizi)
+				ids.add(servizio.getIdInformazione());
+
+			List<PLFPacchettoServiziEntity> pacchetti = pacchettoServiziRepository.findByIdsServiziCompleto(ids);
+			if (pacchetti != null && pacchetti.size() > 0)
+			{
+				for (PLFPacchettoServiziEntity pacchetto : pacchetti)
+				{
+					List<PLFVInformazioneEntity> listInfo = null;
+					if (ricerca != null && ricerca.trim().length() > 0)
+						listInfo = informazioneRepository.findInformazioni(new BigDecimal(IAbstractServiceImpl.TIPO_INFO_PACCHETTO_SERVIZI), pacchetto.getIdPacchettoServizi(), "%"
+								+ ricerca.toUpperCase() + "%");
+					else
+						listInfo = informazioneRepository.findInformazioni(new BigDecimal(IAbstractServiceImpl.TIPO_INFO_PACCHETTO_SERVIZI), pacchetto.getIdPacchettoServizi());
+					if (listInfo != null && listInfo.size() > 0)
+						ret.addAll(listInfo);
+				}
+			}
+		}
+		if (!scadute)
+		{
+			List<PLFVInformazioneEntity> newRet = new ArrayList<PLFVInformazioneEntity>();
+			for (PLFVInformazioneEntity e: ret)
+				if (!e.isScaduto())
+					newRet.add(e);
+			return newRet;
+		}
+		return ret;
+	}
+
+	private List<PLFVInformazioneEntity> getMyInfoProgettoProdotti(String ricerca, boolean scadute, int tipoProgettoProdotto)
+	{
+		List<PLFVInformazioneEntity> ret = new ArrayList<PLFVInformazioneEntity>();
+		for (PLFImpresaEntity impresa : UtenteContext.getCurrentUser().getPlfImpresas())
+		{
+			List<PLFProgettiProdottiEntity> progettiProdotti = progettiProdottiRepository.findProgettiByIdImpresaTipo(impresa.getIdPlfImpresa(), new BigDecimal(tipoProgettoProdotto));
+			if (progettiProdotti != null && progettiProdotti.size() > 0)
+			{
+				for (PLFProgettiProdottiEntity progettoProdotto : progettiProdotti)
+				{
+					List<PLFVInformazioneEntity> listInfo = null;
+					if (ricerca != null && ricerca.trim().length() > 0)
+						listInfo = informazioneRepository.findInformazioni(new BigDecimal(IAbstractServiceImpl.TIPO_INFO_PROGETTO_PRODOTTO),
+								progettoProdotto.getIdPlfProgettiProdotti(), "%" + ricerca.toUpperCase() + "%");
+					else
+						listInfo = informazioneRepository.findInformazioni(new BigDecimal(IAbstractServiceImpl.TIPO_INFO_PROGETTO_PRODOTTO),
+								progettoProdotto.getIdPlfProgettiProdotti());
+					if (listInfo != null && listInfo.size() > 0)
+						ret.addAll(listInfo);
+				}
+			}
+		}
+		if (!scadute)
+		{
+			List<PLFVInformazioneEntity> newRet = new ArrayList<PLFVInformazioneEntity>();
+			for (PLFVInformazioneEntity e: ret)
+				if (!e.isScaduto())
+					newRet.add(e);
+			return newRet;
+		}
+		return ret;
+	}
+
+	private List<PLFVInformazioneEntity> getMyInfoNews(String ricerca, boolean scadute)
+	{
+		List<PLFVInformazioneEntity> ret = new ArrayList<PLFVInformazioneEntity>();
+		for (PLFImpresaEntity impresa : UtenteContext.getCurrentUser().getPlfImpresas())
+		{
+			// news by impresa
+			List<PLFNewsImpresaEntity> news = newsRepository.findByImpresa(impresa.getIdPlfImpresa());
+			if (news != null && news.size() > 0)
+			{
+				for (PLFNewsImpresaEntity n : news)
+				{
+					List<PLFVInformazioneEntity> listInfo = null;
+					if (ricerca != null && ricerca.trim().length() > 0)
+						listInfo = informazioneRepository.findInformazioni(new BigDecimal(IAbstractServiceImpl.TIPO_INFO_NEWS), n.getIdNewsImpresa(), "%" + ricerca.toUpperCase() + "%");
+					else
+						listInfo = informazioneRepository.findInformazioni(new BigDecimal(IAbstractServiceImpl.TIPO_INFO_NEWS), n.getIdNewsImpresa());
+					
+					if (listInfo != null && listInfo.size() > 0)
+					{
+						addOnlyNew(ret, listInfo);
+					}
+				}
+			}
+
+			// news by progetto
+			List<PLFNewsImpresaEntity> newsProj = newsRepository.findByProgettoImpresa(impresa.getIdPlfImpresa());
+			if (newsProj != null && newsProj.size() > 0)
+			{
+				for (PLFNewsImpresaEntity n : newsProj)
+				{
+					List<PLFVInformazioneEntity> listInfo = null;
+					if (ricerca != null && ricerca.trim().length() > 0)
+						listInfo = informazioneRepository.findInformazioni(new BigDecimal(IAbstractServiceImpl.TIPO_INFO_NEWS), n.getIdNewsImpresa(), "%" + ricerca.toUpperCase() + "%");
+					else
+						listInfo = informazioneRepository.findInformazioni(new BigDecimal(IAbstractServiceImpl.TIPO_INFO_NEWS), n.getIdNewsImpresa());
+					if (listInfo != null && listInfo.size() > 0)
+					{
+						addOnlyNew(ret, listInfo);
+					}
+				}
+			}
+
+			// news by servizio
+			List<PLFNewsImpresaEntity> newServizi = newsRepository.findByServizi(impresa.getIdPlfImpresa());
+			if (newServizi != null && newServizi.size() > 0)
+			{
+				for (PLFNewsImpresaEntity n : newServizi)
+				{
+					List<PLFVInformazioneEntity> listInfo = null;
+					if (ricerca != null && ricerca.trim().length() > 0)
+						listInfo = informazioneRepository.findInformazioni(new BigDecimal(IAbstractServiceImpl.TIPO_INFO_NEWS), n.getIdNewsImpresa(), "%" + ricerca.toUpperCase() + "%");
+					else
+						listInfo = informazioneRepository.findInformazioni(new BigDecimal(IAbstractServiceImpl.TIPO_INFO_NEWS), n.getIdNewsImpresa());
+					if (listInfo != null && listInfo.size() > 0)
+					{
+						addOnlyNew(ret, listInfo);
+					}
+				}
+			}
+		}
+		if (!scadute)
+		{
+			List<PLFVInformazioneEntity> newRet = new ArrayList<PLFVInformazioneEntity>();
+			for (PLFVInformazioneEntity e: ret)
+				if (!e.isScaduto())
+					newRet.add(e);
+			return newRet;
+		}
+		return ret;
+	}
+
+	private void addOnlyNew(List<PLFVInformazioneEntity> listaInfos, List<PLFVInformazioneEntity> toAddList)
+	{
+
+		for (PLFVInformazioneEntity objToAdd : toAddList)
+		{
+			boolean found = false;
+			for (PLFVInformazioneEntity informazione : listaInfos)
+			{
+				if (informazione.getIdInformazione().equals(objToAdd.getIdInformazione()) && informazione.getIdTipoInformazione().equals(objToAdd.getIdTipoInformazione()))
+				{
+					found = true;
+				}
+			}
+			if (!found)
+			{
+				listaInfos.add(objToAdd);
+			}
+		}
 	}
 
 }

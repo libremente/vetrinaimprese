@@ -261,6 +261,9 @@ public class PLFNewsImpresaEntity implements Serializable, TagEntityInterface
 		this.dataCancellazione = dataCancellazione;
 	}
 	
-	
+	public boolean isScaduto()
+	{
+		return (dataFine != null && dataFine.before(new Date()));
+	}
 	
 }

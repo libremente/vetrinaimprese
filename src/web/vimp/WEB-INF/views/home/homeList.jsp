@@ -92,22 +92,30 @@
 												<!-- <h6>&nbsp;&nbsp;IMPRESA</h6> -->
 												<h6 class="card-title">
 													<span class="card-title-left-text"><spring:message code="home.list.enterprise" text="Impresa"/></span>
-													<span class="card-title-right-text">
-														<c:choose>
-										    				<c:when test="${riga.stato == 1 || riga.stato == 2}">
-																Spin off
-															</c:when>
-															<c:when test="${riga.stato == 3 || riga.stato == 6}">
-																Start up
-															</c:when>
-															<c:when test="${riga.stato == 4 || riga.stato == 5}">
-																PMI
-															</c:when>
-															<c:when test="${riga.stato == 7}">
-																<spring:message code="home.form.bigEnterprises"/>
-															</c:when>
-														</c:choose>
-													</span>
+													
+													<c:choose>
+														<c:when test="${riga.dataCancellazione != null}">
+															<span class="card-title-right-text"><label class="label-scaduto-small"><spring:message code="deleted" text="Cancellata"/></label></span>
+														</c:when>
+														<c:otherwise>
+															<span class="card-title-right-text">
+																<c:choose>
+												    				<c:when test="${riga.stato == 1 || riga.stato == 2}">
+																		Spin off
+																	</c:when>
+																	<c:when test="${riga.stato == 3 || riga.stato == 6}">
+																		Start up
+																	</c:when>
+																	<c:when test="${riga.stato == 4 || riga.stato == 5}">
+																		PMI
+																	</c:when>
+																	<c:when test="${riga.stato == 7}">
+																		<spring:message code="home.form.bigEnterprises"/>
+																	</c:when>
+																</c:choose>
+															</span>
+														</c:otherwise>
+													</c:choose>
 												</h6>
 													<a href="/vimp/detail/${riga.idTipoInformazione}/${riga.idInformazione}">
 													<c:choose>
@@ -136,7 +144,12 @@
 											</c:when>
 
 											<c:when test="${riga.idTipoInformazione == 3}">
-												<h6 class="card-title">&nbsp;&nbsp;<spring:message code="home.list.services" text="Servizi"/></h6>
+												<h6 class="card-title">
+													<span class="card-title-left-text"><spring:message code="home.list.services" text="Servizi"/></span>
+													<c:if test="${riga.isScaduto()}">
+														<span class="card-title-right-text"><label class="label-scaduto-small"><spring:message code="expired" text="Scaduto"/></label></span>
+													</c:if>
+												</h6>
 												<a href="/vimp/detail/${riga.idTipoInformazione}/${riga.idInformazione}"><c:choose>
 														<c:when test="${!empty riga.immagine}">
 															<img src="data:image/jpg;base64,${riga.getImageString()}">
@@ -149,7 +162,12 @@
 											
 											
 											<c:when test="${riga.idTipoInformazione == 7}">
-												<h6 class="card-title">&nbsp;&nbsp;<spring:message code="home.list.pacchetto_servizi"/></h6>
+												<h6 class="card-title">
+													<span class="card-title-left-text"><spring:message code="home.list.pacchetto_servizi" text="Pacchetto servizi"/></span>
+													<c:if test="${riga.isScaduto()}">
+														<span class="card-title-right-text"><label class="label-scaduto-small"><spring:message code="expired" text="Scaduto"/></label></span>
+													</c:if>
+												</h6>
 												<a href="/vimp/detail/${riga.idTipoInformazione}/${riga.idInformazione}"><c:choose>
 														<c:when test="${!empty riga.immagine}">
 															<img src="data:image/jpg;base64,${riga.getImageString()}">
@@ -161,20 +179,25 @@
 											</c:when>
 
 											<c:when test="${riga.idTipoInformazione == 4}">
-												<c:choose>
-													<c:when test="${riga.stato == 1}">
-														<h6 class="card-title">&nbsp;&nbsp;<spring:message code="home.list.project" text="Progetto"/></h6>
-													</c:when>
-													<c:when test="${riga.stato == 2}">
-														<h6 class="card-title">&nbsp;&nbsp;<spring:message code="home.list.product" text="Prodotto"/></h6>
-													</c:when>
-													<c:when test="${riga.stato == 3}">
-														<h6 class="card-title">&nbsp;&nbsp;<spring:message code="home.list.technology" text="Tecnologia"/></h6>
-													</c:when>
-													<c:when test="${riga.stato == 4}">
-														<h6 class="card-title">&nbsp;&nbsp;<spring:message code="home.list.innovation" text="Innvazione"/></h6>
-													</c:when>
-												</c:choose>
+												<h6 class="card-title">
+													<c:choose>
+														<c:when test="${riga.stato == 1}">
+															<span class="card-title-left-text"><spring:message code="home.list.project" text="Progetto"/></span>
+														</c:when>
+														<c:when test="${riga.stato == 2}">
+															<span class="card-title-left-text"><spring:message code="home.list.product" text="Prodotto"/></span>
+														</c:when>
+														<c:when test="${riga.stato == 3}">
+															<span class="card-title-left-text"><spring:message code="home.list.technology" text="Tecnologia"/></span>
+														</c:when>
+														<c:when test="${riga.stato == 4}">
+															<span class="card-title-left-text"><spring:message code="home.list.innovation" text="Innvazione"/></span>
+														</c:when>
+													</c:choose>
+													<c:if test="${riga.isScaduto()}">
+														<span class="card-title-right-text"><label class="label-scaduto-small"><spring:message code="expired" text="Scaduto"/></label></span>
+													</c:if>
+												</h6>
 												<a
 													href="/vimp/detail/${riga.idTipoInformazione}/${riga.idInformazione}"><c:choose>
 														<c:when test="${!empty riga.immagine}">
@@ -198,7 +221,12 @@
 
 
 											<c:when test="${riga.idTipoInformazione == 5}">
-												<h6 class="card-title">&nbsp;&nbsp;<spring:message code="home.list.opportunity" text="Opportunita"/></h6>
+												<h6 class="card-title">
+													<span class="card-title-left-text"><spring:message code="home.list.opportunity" text="Opportunita"/></span>
+													<c:if test="${riga.isScaduto()}">
+														<span class="card-title-right-text"><label class="label-scaduto-small"><spring:message code="expired" text="Scaduto"/></label></span>
+													</c:if>
+												</h6>
 												<a
 													href="/vimp/detail/${riga.idTipoInformazione}/${riga.idInformazione}"><c:choose>
 														<c:when test="${!empty riga.immagine}">
@@ -213,7 +241,12 @@
 
 
 											<c:when test="${riga.idTipoInformazione == 6}">
-												<h6 class="card-title">&nbsp;&nbsp;<spring:message code="home.list.news" text="News"/></h6>
+												<h6 class="card-title">
+													<span class="card-title-left-text"><spring:message code="home.list.news" text="News"/></span>
+													<c:if test="${riga.isScaduto()}">
+														<span class="card-title-right-text"><label class="label-scaduto-small"><spring:message code="expired" text="Scaduto"/></label></span>
+													</c:if>
+												</h6>
 												<a
 													href="/vimp/detail/${riga.idTipoInformazione}/${riga.idInformazione}"><c:choose>
 														<c:when test="${!empty riga.immagine}">

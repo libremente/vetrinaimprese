@@ -1,5 +1,5 @@
 <!-- =========================================================================================== -->
-<!-- BEGIN PARAMETRI RICERCA -->
+<!-- BEGIN RICERCA -->
 
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
@@ -29,9 +29,9 @@
 
 <script>
 	function cambiaPagina(numeroPagina) {
-		$("#frmParametri").get(0).setAttribute('action', '/vimp/homePersonal');
-		$("#paginaCorrente").val(numeroPagina);
-		$("#frmParametri").submit();
+		$("#frmparametriRicerca").get(0).setAttribute('action', '/vimp/secure/homePersonal');
+		$('#paginaCorrente').val(numeroPagina);
+		$("#frmparametriRicerca").submit();
 	}
 
 	function setCambiaPagina(e) {
@@ -63,7 +63,7 @@
 			recognition.onresult = function(e) {
 				document.getElementById('textRicerca').value = e.results[0][0].transcript;
 				recognition.stop();
-				document.getElementById('frmParametri').submit();
+				document.getElementById('frmparametriRicerca').submit();
 			};
 
 			recognition.onerror = function(e) {
@@ -74,63 +74,130 @@
 	}
 </script>
 
-<%--PAGINAZIONE NON GESTITA LATO HANDLER
-<div class="content-area home-area-1 recent-property"
-	 style="background-color: #FCFCFC; padding-bottom: 0px; padding-top: 20px;">
-	<div class="container">
-		<div class="row">
-			<div class="proerty-th">
-				<div class="col-sm-12 col-md-12 p0">
 
-					<div class="col-sm-5 col-md-5" style="padding-bottom: 20px;">
-						<input type="text" class="form-control" placeholder="<spring:message code="search" text="Cerca"/>"
-							   value="${parametriRicerca.textRicerca}" id="shownText" onchange="setTextRicerca()">
-					</div>--%>
-
-					<form:form id="frmParametri" method="post" action="/vimp/homePersonal"
-						role="form" modelAttribute="parametriRicerca">
-
-						<form:hidden id="textRicerca" path="textRicerca" value="${parametriRicerca.textRicerca}"/>
-
-						<form:hidden id="paginaCorrente" path="paginaCorrente" />
-						<form:hidden id="numeroRecord" path="numeroRecord" />
-						<form:hidden id="tipoInformazione" path="tipoInformazione" />
-
-
-						<form:hidden id="findStartup" path="findStartup" />
-						<form:hidden id="findPmi" path="findPmi" />
-						<form:hidden id="findSpinoff" path="findSpinoff" />
-						<form:hidden id="findGrandi" path="findGrandi" />
-
-
-						<form:hidden id="findServizi" path="findServizi" />
-						<form:hidden id="findPacchettiServizi" path="findPacchettiServizi" />
-
-
-						<form:hidden id="findProdotti" path="findProdotti" />
-						<form:hidden id="findTecnologie" path="findTecnologie" />
-						<form:hidden id="findInnovazione" path="findInnovazione" />
-						<form:hidden id="findProgetti" path="findProgetti" />
-
-					<%-- PAGINAZIONE NON GESTITA LATO HANDLER
-					<div class="col-sm-1 col-md-1" style="margin-right: -10px;">
-						<button class="btn search-btn" type="button" onclick="cambiaPagina(0); return false;">
-							<i class="fa fa-search"></i>
-						</button>
-					</div>--%>
+<div class="content-area home-area-1 recent-property" style="padding-bottom: 0px;">
+	<div class="container home-form-container">
 	
-					</form:form>
-
-<%--				</div>
+		<div class="row">
+			<div class="col-md-10 col-md-offset-1 col-sm-12 text-center homemt" style="padding-bottom: 30px; padding-top: 0px;">
+				<span class="my-info-label-bungee"><spring:message code="home.personal.list.my_info" text="Le Mie informazioni"/></span>
 			</div>
 		</div>
+	
+
+		<div class="col-md-6 row home-search-row">
+			<div class="search-bar col-md-10 col-sm-5 p0">
+				<input type="text" class="form-control home-form-control" placeholder="<spring:message code="search" text="Cerca"/>"
+					   value="${parametriRicerca.textRicerca}" id="shownText" onchange="setTextRicerca()">
+			</div>
+
+			
+				<button class="btn search-btn col-md-2 col-sm-1 p0" type="button" onclick="cambiaPagina(0); return false;">
+					<i class="fa fa-search"></i>
+				</button>
+			
+		</div>
+
+		<form:form id="frmparametriRicerca" method="get" action="/vimp/secure/homePersonal"
+			role="form" modelAttribute="parametriRicerca">
+
+			<form:hidden id="textRicerca" path="textRicerca" value="${parametriRicerca.textRicerca}"/>
+
+			<form:hidden id="paginaCorrente" path="paginaCorrente" />
+			<form:hidden id="numeroRecord" path="numeroRecord" />
+
+			<form:hidden id="findServizi" path="findServizi" />
+			<form:hidden id="findPacchetti" path="findPacchetti" />
+			<form:hidden id="findProgetti" path="findProgetti" />
+			<form:hidden id="findProdotti" path="findProdotti" />
+			<form:hidden id="findTecnologie" path="findTecnologie" />
+			<form:hidden id="findNews" path="findNews" />
+			<form:hidden id="findScadute" path="findScadute" />
+
+			<div class="col-md-6 col-sm-12" >
+
+				<c:if test="${utente.isStakeholder()}">
+					<div class="col-sm-2 col-md-2 home-form-single-check-section">
+						<div class="checkbox">
+							<label class="center homecheckbox"> <input
+									id="checkboxServizi" name="checkboxServizi" type="checkbox" />
+								<strong class="check-home-form">
+									<spring:message code="home.personal.services" text="Servizi"/>
+								</strong>
+							</label>
+						</div>
+					</div>
+					<div class="col-sm-2 col-md-2 home-form-single-check-section">
+						<div class="checkbox">
+							<label class="center homecheckbox"> <input
+									id="checkboxPacchetti" name="checkboxPacchetti" type="checkbox" />
+								<strong class="check-home-form">
+									<spring:message code="home.personal.package" text="Pacchetti"/>
+								</strong>
+							</label>
+						</div>
+					</div>
+				</c:if>
+				<div class="col-sm-2 col-md-2 home-form-single-check-section">
+					<div class="checkbox">
+						<label class="center homecheckbox"> <input
+								id="checkboxProgetti" name="checkboxProgetti" type="checkbox" />
+							<strong class="check-home-form">
+								<spring:message code="home.personal.project.filter" text="Progetti"/>
+							</strong>
+						</label>
+					</div>
+				</div>
+				<div class="col-sm-2 col-md-2 home-form-single-check-section">
+					<div class="checkbox">
+						<label class="center homecheckbox"> <input
+								id="checkboxProdotti" name="checkboxProdotti" type="checkbox" />
+							<strong class="check-home-form">
+								<spring:message code="home.personal.product.filter" text="Prodotti"/>
+							</strong>
+						</label>
+					</div>
+				</div>
+				<div class="col-sm-2 col-md-2 home-form-single-check-section">
+					<div class="checkbox">
+						<label class="center homecheckbox"> <input
+								id="checkboxTecnologie" name="checkboxTecnologie" type="checkbox" />
+							<strong class="check-home-form">
+								<spring:message code="home.personal.tecnologies.filter" text="Tecnologie"/>
+							</strong>
+						</label>
+					</div>
+				</div>
+				<div class="col-sm-2 col-md-2 home-form-single-check-section">
+					<div class="checkbox">
+						<label class="center homecheckbox"> <input
+								id="checkboxNews" name="checkboxNews" type="checkbox" />
+							<strong class="check-home-form">
+								<spring:message code="home.personal.news" text="News"/>
+							</strong>
+						</label>
+					</div>
+				</div>
+
+			</div>
+			
+			
+			<div class="col-md-6 col-sm-12" >
+				<div class="checkbox" style="margin-top: -1px;margin-left: -40px;">
+					<label class="homecheckbox"> <input
+							id="checkboxScadute" name="checkboxScadute" type="checkbox" />
+						<strong class="check-home-form">
+							<spring:message code="home.personal.expired" text="Visualizza info scadute"/>
+						</strong>
+					</label>
+				</div>
+			</div>
+			
+		</form:form>
 	</div>
-</div>--%>
+</div>
 
 
-
-<script
-	src="${evn_urlRisorseStatiche}/vimp/assets/js/jquery-1.10.2.min.js"></script>
 <script
 	src="${evn_urlRisorseStatiche}/vimp/bootstrap/js/bootstrap.min.js"></script>
 <script
@@ -150,66 +217,16 @@
 <script>
 	$(document).ready(function() {
 
-		$('#shownText').keypress(function(e) {
+		$('#shownText').keypress( function(e) {
 			if(e.keyCode === 13) {
 				setTextRicerca();
 				cambiaPagina(0);
 			}
-		});
-
-		// IMPRESE
-
-		if (${parametriRicerca.findStartup == 'S'})
-			$('#checkboxStartup').iCheck('check');
-		else 
-			$('#checkboxStartup').iCheck('uncheck');
-		$('#checkboxStartup').on('ifChecked', function(event) {
-			$("#findStartup").val("S");
-		});
-		$('#checkboxStartup').on('ifUnchecked', function(event) {
-			$("#findStartup").val("N");
-		});
-
-		if (${parametriRicerca.findPmi == 'S'})
-			$('#checkboxPmi').iCheck('check');
-		else 
-			$('#checkboxPmi').iCheck('uncheck');
-		$('#checkboxPmi').on('ifChecked', function(event) {
-			$("#findPmi").val("S");
-		});
-		$('#checkboxPmi').on('ifUnchecked', function(event) {
-			$("#findPmi").val("N");
-		});
-
-		if (${parametriRicerca.findSpinoff == 'S'})
-			$('#checkboxSpinoff').iCheck('check');
-		else 
-			$('#checkboxSpinoff').iCheck('uncheck');
-		$('#checkboxSpinoff').on('ifChecked', function(event) {
-			$("#findSpinoff").val("S");
-		});
-		$('#checkboxSpinoff').on('ifUnchecked', function(event) {
-			$("#findSpinoff").val("N");
-		});
-
-		if (${parametriRicerca.findGrandi == 'S'})
-			$('#checkboxGrandi').iCheck('check');
-		else 
-			$('#checkboxGrandi').iCheck('uncheck');
-		$('#checkboxGrandi').on('ifChecked', function(event) {
-			$("#findGrandi").val("S");
-		});
-		$('#checkboxGrandi').on('ifUnchecked', function(event) {
-			$("#findGrandi").val("N");
-		});
-
-
-		// SERVIZI
-
+		})
 
 		if (${parametriRicerca.findServizi == 'S'})
 			$('#checkboxServizi').iCheck('check');
-		else
+		else 
 			$('#checkboxServizi').iCheck('uncheck');
 		$('#checkboxServizi').on('ifChecked', function(event) {
 			$("#findServizi").val("S");
@@ -218,19 +235,27 @@
 			$("#findServizi").val("N");
 		});
 
-		if (${parametriRicerca.findPacchettiServizi == 'S'})
-			$('#checkboxPacchettiServizi').iCheck('check');
-		else
-			$('#checkboxPacchettiServizi').iCheck('uncheck');
-		$('#checkboxPacchettiServizi').on('ifChecked', function(event) {
-			$("#findPacchettiServizi").val("S");
+		if (${parametriRicerca.findPacchetti == 'S'})
+			$('#checkboxPacchetti').iCheck('check');
+		else 
+			$('#checkboxPacchetti').iCheck('uncheck');
+		$('#checkboxPacchetti').on('ifChecked', function(event) {
+			$("#findPacchetti").val("S");
 		});
-		$('#checkboxPacchettiServizi').on('ifUnchecked', function(event) {
-			$("#findPacchettiServizi").val("N");
+		$('#checkboxPacchetti').on('ifUnchecked', function(event) {
+			$("#findPacchetti").val("N");
 		});
 
-
-		// PROGETTI PROGOTTI
+		if (${parametriRicerca.findProgetti == 'S'})
+			$('#checkboxProgetti').iCheck('check');
+		else 
+			$('#checkboxProgetti').iCheck('uncheck');
+		$('#checkboxProgetti').on('ifChecked', function(event) {
+			$("#findProgetti").val("S");
+		});
+		$('#checkboxProgetti').on('ifUnchecked', function(event) {
+			$("#findProgetti").val("N");
+		});
 
 		if (${parametriRicerca.findProdotti == 'S'})
 			$('#checkboxProdotti').iCheck('check');
@@ -254,22 +279,33 @@
 			$("#findTecnologie").val("N");
 		});
 
-		if (${parametriRicerca.findProgetti == 'S'})
-			$('#checkboxProgetti').iCheck('check');
+		if (${parametriRicerca.findNews == 'S'})
+			$('#checkboxNews').iCheck('check');
 		else 
-			$('#checkboxProgetti').iCheck('uncheck');
-		$('#checkboxProgetti').on('ifChecked', function(event) {
-			$("#findProgetti").val("S");
+			$('#checkboxNews').iCheck('uncheck');
+		$('#checkboxNews').on('ifChecked', function(event) {
+			$("#findNews").val("S");
 		});
-		$('#checkboxProgetti').on('ifUnchecked', function(event) {
-			$("#findProgetti").val("N");
+		$('#checkboxNews').on('ifUnchecked', function(event) {
+			$("#findNews").val("N");
+		});
+
+		if (${parametriRicerca.findScadute == 'S'})
+			$('#checkboxScadute').iCheck('check');
+		else 
+			$('#checkboxScadute').iCheck('uncheck');
+		$('#checkboxScadute').on('ifChecked', function(event) {
+			$("#findScadute").val("S");
+		});
+		$('#checkboxScadute').on('ifUnchecked', function(event) {
+			$("#findScadute").val("N");
 		});
 		
-
 	})
+
 </script>
 
 
 
-<!-- END PARAMETRI RICERCA -->
+<!-- END  RICERCA -->
 <!-- =========================================================================================== -->

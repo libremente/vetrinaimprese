@@ -388,6 +388,9 @@ public class BackofficeHandler extends AbstractHandler
 				cq.addParametroLike("innovazione", toString(parametri.getElementiInnovazione()));
 			if (parametri.getMercatiRiferimento() != null && parametri.getMercatiRiferimento().trim().length() > 0)
 				cq.addParametroLike("mercati", toString(parametri.getMercatiRiferimento()));
+			
+			if (parametri.getAccreditata() != null && parametri.getAccreditata().trim().length() > 0 && "S".equalsIgnoreCase(parametri.getAccreditata().trim()))
+				cq.addParametroEqual("accreditata", parametri.getAccreditata().trim());
 
 		}
 		return cq;

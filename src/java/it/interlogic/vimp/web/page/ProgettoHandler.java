@@ -251,7 +251,7 @@ public class ProgettoHandler extends AbstractHandler
 		}
 		else
 		{
-			model.addAttribute("successMessage", getMessage("inserimentoAvvenuto"));
+			model.addAttribute("successMessage", getMessage("inserimentoAvvenuto") + " " + getMessage("info.progetto.allegati"));
 			loadModel(session, progettoService.find(dettaglio.getIdPlfProgettiProdotti()), model);
 			return VIEW_DETTAGLIO;
 		}
@@ -360,7 +360,7 @@ public class ProgettoHandler extends AbstractHandler
 		else
 			model.addAttribute("modifica", false);
 
-		model.addAttribute("impresaList", IDecodificheServiceImpl.toMap(PLFImpresaEntity.class, impresaService.getImprese(), "idPlfImpresa", "descImpresa", null, true));
+		//model.addAttribute("impresaList", IDecodificheServiceImpl.toMap(PLFImpresaEntity.class, impresaService.getImprese(), "idPlfImpresa", "descImpresa", null, true));
 
 		model.addAttribute("nazioneList", IDecodificheServiceImpl.toMap(PLFTNazioneEntity.class, decodificheService.getNazione(), "codNazione", "descrizione", null, false));
 		model.addAttribute("regioneList", new TreeMap<String, String>());
@@ -372,17 +372,23 @@ public class ProgettoHandler extends AbstractHandler
 		model.addAttribute("dettaglio", dettaglio);
 		
 		
-		model.addAttribute("impresaList",IDecodificheServiceImpl.toMap(PLFImpresaEntity.class, UtenteContext.getCurrentUser().getPlfImpresas(), "idPlfImpresa", "descImpresa", null, false));
-
+		
+		List<PLFImpresaEntity> imprese = new ArrayList<PLFImpresaEntity>();
+		List<PLFImpresaEntity> impreseUser = UtenteContext.getCurrentUser().getPlfImpresas();
+		List<PLFImpresaEntity> impreseDelegate = delegatoService.findImpreseDelegato(UtenteContext.getCurrentUser().getIdUtente());
+		if (impreseUser != null) imprese.addAll(impreseUser);
+		if (impreseDelegate != null) imprese.addAll(impreseDelegate);
+		model.addAttribute("impresaList",
+				IDecodificheServiceImpl.toMap(PLFImpresaEntity.class, imprese, "idPlfImpresa", "descImpresa", null, false));
+		
+		
 		
 		model.addAttribute("tipologiaProgettoList",
 				IDecodificheServiceImpl.toMap(PLFTTipologiaProgettoEntity.class, decodificheService.getTipologiaProgetto(), "id", "descrizione", null, false));
 
 		model.addAttribute("listaSettoriProgetto", decodificheService.getSettoriProgettiProdotti());
-				// IDecodificheServiceImpl.toMap(PLFTSettoreProgettiProdottiEntity.class, decodificheService.getSettoriProgettiProdotti(), "id", "descrizione", null, false));
-
+				
 		model.addAttribute("listaSettoriTecnologie", decodificheService.getSettoriTecnologie());
-				// IDecodificheServiceImpl.toMap(PLFTSettoreProgettiProdottiEntity.class, decodificheService.getSettoriProgettiProdotti(), "id", "descrizione", null, false));
 
 		model.addAttribute("tipoProgettoList", IDecodificheServiceImpl.toMap(PLFTTipoProgettiProdottiEntity.class, decodificheService.getTipoProgettiProdotti(),
 				"id", "descrizione", null, false));

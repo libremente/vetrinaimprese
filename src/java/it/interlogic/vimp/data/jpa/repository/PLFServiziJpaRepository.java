@@ -31,7 +31,30 @@ public interface PLFServiziJpaRepository extends PagingAndSortingRepository<PLFS
 	
 	@Query(value = "SELECT * FROM PLF_SERVIZI PR,PLF_R_SERVIZI_IMPRESA RPR WHERE PR.ID_SERVIZI = RPR.ID_SERVIZI AND RPR.ID_PLF_IMPRESA = :idImpresa AND PR.DATA_CANCELLAZIONE IS NULL ", nativeQuery = true)
 	List<PLFServiziEntity> findAllByImpresa(@Param("idImpresa") BigDecimal idImpresa);
+	
+	
+	@Query(value = "SELECT * FROM PLF_SERVIZI PR,PLF_R_SERVIZI_IMPRESA RPR WHERE PR.ID_SERVIZI = RPR.ID_SERVIZI AND RPR.ID_PLF_IMPRESA = :idImpresa", nativeQuery = true)
+	List<PLFServiziEntity> findAllAndCancellatiByImpresa(@Param("idImpresa") BigDecimal idImpresa);
 
+
+	@Query(value = "SELECT * FROM PLF_SERVIZI SERVIZI " +
+	"JOIN PLF_R_SERVIZI_IMPRESA RPR ON SERVIZI.ID_SERVIZI = RPR.ID_SERVIZI " +
+	"JOIN PLF_T_TIPO_SERVIZIO TIPO ON SERVIZI.ID_TIPO_SERVIZIO = TIPO.ID " +
+	"LEFT OUTER JOIN PLF_T_AREE_COMPETENZA COMPETENZA ON SERVIZI.ID_PLF_T_AREE_COMPETENZA = COMPETENZA.ID " + 
+	"LEFT OUTER JOIN PLF_T_DENOMINAZIONE_SERVIZI DS ON SERVIZI.ID_DENOMINAZIONE_SERVIZIO = DS.ID " +
+    "LEFT OUTER JOIN PLF_SERVIZI_TRANSLATION TRANS ON TRANS.ID_SERVIZI = SERVIZI.ID_SERVIZI " +
+    "WHERE RPR.ID_PLF_IMPRESA = :idImpresa " +
+	"AND SERVIZI.DATA_CANCELLAZIONE IS NULL " +
+	"AND UPPER((ISNULL(TIPO.DESCRIZIONE,'')+' '+ " +
+  	      "ISNULL(TRANS.TITOLO,'')+' '+ " +
+  	      "ISNULL(DS.DESCRIZIONE,'')+' '+ " +
+	      "ISNULL(TRANS.DESCRIZIONE,'')+' '+ " +
+	      "ISNULL(COMPETENZA.DESCRIZIONE,'') +' '+ " +
+		  "ISNULL(STUFF((SELECT ',' + TAG.DESCRIZIONE FROM PLF_T_TAG TAG JOIN PLF_R_INFORMAZIONE_TAG RIT on TAG.ID = RIT.ID_TAG WHERE RIT.ID_INFORMAZIONE = SERVIZI.ID_SERVIZI AND RIT.ID_TIPO_INFORMAZIONE = 3 AND (TAG.DATA_FINE IS NULL OR TAG.DATA_FINE> GETDATE()) FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, ''),'') " +
+	      ")) like :ricerca", nativeQuery = true)
+	List<PLFServiziEntity> findAllByImpresa(@Param("idImpresa") BigDecimal idImpresa, @Param("ricerca") String ricerca);
+
+	
 	@Query(value = "SELECT S.* FROM PLF_SERVIZI S " +
 			"JOIN PLF_R_SERVIZI_IMPRESA SI ON SI.ID_SERVIZI = S.ID_SERVIZI " +
 			"JOIN PLF_V_DELEGATO D ON D.ID_PLF_IMPRESA = SI.ID_PLF_IMPRESA " +
@@ -47,6 +70,9 @@ public interface PLFServiziJpaRepository extends PagingAndSortingRepository<PLFS
 	
 	@Query("SELECT COUNT(t) FROM PLFServiziEntity t where t.denominazioneServizio.id = :idDenominazioneServizio and t.serviziStandard = 'S' and t.dataCancellazione is null ")
 	long countServiziByDenominazione(@Param("idDenominazioneServizio") BigDecimal idDenominazioneServizio);
+	
+	
+	
 	
 	
 	

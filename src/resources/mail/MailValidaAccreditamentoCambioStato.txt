@@ -1,0 +1,7 @@
+Buongiorno,
+
+La tua richiesta di accreditamento alla Vetrina e' stata accettata.
+
+A seguito di verifiche effettuate, risulta che lo stato della sua impresa e' %(nuovoStato) e non %(vecchioStato).
+
+Per maggiori dettagli puoi inviare una e-mail a piattaformalavoro.assistenza@comune.genova.it.

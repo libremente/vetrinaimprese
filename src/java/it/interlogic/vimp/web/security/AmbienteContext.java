@@ -35,6 +35,7 @@ public class AmbienteContext
 		mailAssistenza = null;
 		mailNoReplay = null;
 		wsArisUiSearchUrl = null;
+		wsArisUiSearchAllUrl = null;
 		wsArisRlMultiSearchUrl = null;
 		wsArisAuthorization = null;
 		spidLogoutUrl = null;
@@ -45,6 +46,7 @@ public class AmbienteContext
 	String mailAssistenza;
 	String mailNoReplay;
 	String wsArisUiSearchUrl;
+	String wsArisUiSearchAllUrl;
 	String wsArisRlMultiSearchUrl;
 	String wsArisAuthorization;
 	String spidLogoutUrl;
@@ -99,6 +101,16 @@ public class AmbienteContext
 	public void setWsArisUiSearchUrl(String _wsArisUiSearchUrl)
 	{
 		wsArisUiSearchUrl = _wsArisUiSearchUrl;
+	}
+	
+	public static String getWsArisUiSearchAllUrl()
+	{
+		return getInstance().wsArisUiSearchAllUrl;
+	}
+
+	public void setWsArisUiSearchAllUrl(String _wsArisUiSearchAllUrl)
+	{
+		wsArisUiSearchAllUrl = _wsArisUiSearchAllUrl;
 	}
 
 	public static String getWsArisRlMultiSearchUrl()

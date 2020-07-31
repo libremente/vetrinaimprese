@@ -14,6 +14,8 @@ import org.codehaus.jackson.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.ui.Model;
 
 public abstract class AbstractHandler
@@ -78,7 +80,6 @@ public abstract class AbstractHandler
 
 	public String getMessage(String key, Object[] args)
 	{
-
 		try
 		{
 			return messageSource.getMessage(key, args, LocaleContextHolder.getLocale());
@@ -151,5 +152,36 @@ public abstract class AbstractHandler
 			mapper = new ObjectMapper();
 		}
 		return mapper;
+	}
+	
+	
+	
+	protected void doSendEmail(JavaMailSender mailSender,String from, String to, String subject, String body)
+	{
+		LoggerUtility.error("----------------- Send mail begin");
+		try
+		{
+			LoggerUtility.error("from:" + from);
+			LoggerUtility.error("to:" + to);
+			LoggerUtility.error("subject:" + subject);
+			LoggerUtility.error("body:");
+			LoggerUtility.error(body);
+
+			// creates a simple e-mail object
+			SimpleMailMessage email = new SimpleMailMessage();
+			email.setFrom(from);
+			email.setTo(to);
+			email.setSubject(subject);
+			email.setText(body);
+
+			// sends the e-mail
+			// TODO SEND MAIL
+			mailSender.send(email);
+		}
+		catch (Exception err)
+		{
+			LoggerUtility.error("Impostare il server SMPT in servlet.xml", err);
+		}
+		LoggerUtility.error("----------------- Send mail end");
 	}
 }

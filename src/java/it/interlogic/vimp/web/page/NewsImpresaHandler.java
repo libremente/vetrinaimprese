@@ -378,13 +378,18 @@ public class NewsImpresaHandler extends AbstractHandler
 			if (UtenteContext.getCurrentUser().getPlfImpresas() != null && UtenteContext.getCurrentUser().getPlfImpresas().size() > 0)
 			{
 				// IMPRESE
+				List<PLFImpresaEntity> imprese = new ArrayList<PLFImpresaEntity>();
+				List<PLFImpresaEntity> impreseUser = UtenteContext.getCurrentUser().getPlfImpresas();
+				List<PLFImpresaEntity> impreseDelegate = delegatoService.findImpreseDelegato(UtenteContext.getCurrentUser().getIdUtente());
+				if (impreseUser != null) imprese.addAll(impreseUser);
+				if (impreseDelegate != null) imprese.addAll(impreseDelegate);
 				model.addAttribute("impresaList",
-						IDecodificheServiceImpl.toMap(PLFImpresaEntity.class, UtenteContext.getCurrentUser().getPlfImpresas(), "idPlfImpresa", "descImpresa", null, false));
+						IDecodificheServiceImpl.toMap(PLFImpresaEntity.class, imprese, "idPlfImpresa", "descImpresa", null, false));
 
 				
 				// PROGETTI
 				List<PLFProgettiProdottiEntity> progetti = new ArrayList<PLFProgettiProdottiEntity>();
-				for (PLFImpresaEntity impresa : UtenteContext.getCurrentUser().getPlfImpresas())
+				for (PLFImpresaEntity impresa : imprese)
 				{
 					List<PLFProgettiProdottiEntity> subProject = progettoService.findByImpresaAttiviNonScaduti(impresa.getIdPlfImpresa());
 					if (subProject != null)
@@ -404,7 +409,7 @@ public class NewsImpresaHandler extends AbstractHandler
 				
 				// SERVIZI
 				List<PLFServiziEntity> servizi = new ArrayList<PLFServiziEntity>();
-				for (PLFImpresaEntity impresa : UtenteContext.getCurrentUser().getPlfImpresas())
+				for (PLFImpresaEntity impresa : imprese)
 				{
 					List<PLFServiziEntity> subService = serviziService.loadServiziByImpresa(impresa.getIdPlfImpresa(),true);
 					if (subService != null)

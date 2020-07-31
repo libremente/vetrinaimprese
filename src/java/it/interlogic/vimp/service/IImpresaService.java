@@ -40,6 +40,10 @@ public interface IImpresaService
 	 * @throws InformazioneDuplicataException
 	 */
 	PLFImpresaEntity update(PLFImpresaEntity dettaglio) throws InformazioneDuplicataException;
+	
+	
+	PLFImpresaEntity delete(PLFImpresaEntity dettaglio);
+	PLFImpresaEntity restore(PLFImpresaEntity dettaglio);
 
 	/**
 	 * @param dettaglio

@@ -1,0 +1,6 @@
+Buongiorno,
+
+L’impresa denominata %(denominazioneImpresa) con codice fiscale %(codiceFiscale) non risulta piu' presente nella banca dati Registro Impresa della Camera di Commercio. 
+La sua login sulla Vetrina Impresa non e' piu' attiva.
+
+Per maggiori dettagli puoi inviare una e-mail a piattaformalavoro.assistenza@comune.genova.it.

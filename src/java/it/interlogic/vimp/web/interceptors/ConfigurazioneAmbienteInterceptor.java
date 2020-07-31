@@ -44,6 +44,7 @@ public class ConfigurazioneAmbienteInterceptor extends AbstractHandlerIntercepto
 	public static final String MAPS_API_KEY = "mapsApiKey";
 
 	public static final String WS_ARIS_UI_SEARCH_URL = "wsArisUiSearchUrl";
+	public static final String WS_ARIS_UI_SEARCH_ALL_URL = "wsArisUiSearchAllUrl";
 	public static final String WS_ARIS_RL_MULTI_SEARCH_URL = "wsArisRlMultiSearchUrl";
 	public static final String WS_ARIS_AUTHORIZATION = "wsArisAuthorization";
 
@@ -71,6 +72,7 @@ public class ConfigurazioneAmbienteInterceptor extends AbstractHandlerIntercepto
 		AmbienteContext.getInstance().setWsArisAuthorization(configurazioneAmbiente.getWsArisAuthorization());
 		AmbienteContext.getInstance().setWsArisRlMultiSearchUrl(configurazioneAmbiente.getWsArisRlMultiSearchUrl());
 		AmbienteContext.getInstance().setWsArisUiSearchUrl(configurazioneAmbiente.getWsArisUiSearchUrl());
+		AmbienteContext.getInstance().setWsArisUiSearchAllUrl(configurazioneAmbiente.getWsArisUiSearchAllUrl());
 		AmbienteContext.getInstance().setSpidLogoutUrl(configurazioneAmbiente.getSpidLogoutUrl());
 
 		AmbienteContext.getInstance().setToponomasticaAuthorization(configurazioneAmbiente.getToponomasticaAuthorization());

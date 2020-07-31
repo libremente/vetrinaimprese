@@ -2,10 +2,14 @@ package it.interlogic.vimp.data.jpa.model.relation;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "PLF_R_UTENTE_IMPRESA")
@@ -20,6 +24,13 @@ public class PLFRUtenteImpresaEntity implements Serializable
 
 	@EmbeddedId
 	private PLFRUtenteImpresaEntityKey compositePrimaryKey;
+	
+	
+	@Temporal(TemporalType.DATE)
+	@Column(name = "DATA_CANCELLAZIONE")
+	private Date dataCancellazione;
+	
+	
 
 	// ----------------------------------------------------------------------
 	// CONSTRUCTOR(S)
@@ -56,6 +67,17 @@ public class PLFRUtenteImpresaEntity implements Serializable
 	public BigDecimal getIdUtente()
 	{
 		return this.compositePrimaryKey.getIdUtente();
+	}
+	
+
+	public Date getDataCancellazione()
+	{
+		return dataCancellazione;
+	}
+
+	public void setDataCancellazione(Date dataCancellazione)
+	{
+		this.dataCancellazione = dataCancellazione;
 	}
 
 	// ----------------------------------------------------------------------

@@ -282,4 +282,10 @@ public class PLFOpportunitaEntity implements Serializable, TagEntityInterface
 	public void setElencoIdTags(List<BigDecimal> elencoIdTags) {
 		this.elencoIdTags = elencoIdTags;
 	}
+	
+	public boolean isScaduto()
+	{
+		return (dataScadenza != null && dataScadenza.before(new Date()));
+	}
+	
 }

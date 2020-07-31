@@ -6,6 +6,8 @@
 <%@taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
+
+<spring:message var="selectCompanyStatusTitleAttr" code="form.dettaglio.impresa.form.selectCompanyStatusTitleAttr" text="Seleziona lo stato dell\'impresa"/>
 <spring:message var="selectTheLegalNatureOfTheCompanyTitleAttr" code="form.dettaglio.impresa.selectTheLegalNatureOfTheCompanyTitleAttr" text="Seleziona la natura giuridica dell\'impresa"/>
 <spring:message var="selectTheMainSectorOfTheCompanyTitleAttr" code="form.dettaglio.impresa.selectTheMainSectorOfTheCompanyTitleAttr" text="Seleziona il settore principale dell'impresa"/>
 <spring:message var="selectTheOriginOfTheCompanyTitleAttr" code="form.dettaglio.impresa.selectTheOriginOfTheCompanyTitleAttr" text="Seleziona l'origine dell\'impresa"/>
@@ -82,6 +84,7 @@
 	<form:hidden id="terzoRequisitoPmi" path="terzoRequisitoPmi" />
 
 	<form:hidden id="dataAccreditamento" path="dataAccreditamento" />
+	<form:hidden id="dataCancellazione" path="dataCancellazione" />
 	<form:hidden id="plfTStatoImpresa.id" path="plfTStatoImpresa.id" />
 	
 	
@@ -108,6 +111,18 @@
 	<div class="content-area user-profiel">
 		&nbsp;
 		<div class="container">
+		
+		
+			<c:if test="${dettaglio.dataCancellazione != null}">
+				<div class="col-sm-12 label-scaduto-container">
+					<div class="col-sm-10">
+						&nbsp;
+					</div>
+					<div class="col-sm-2">
+						<label class="label-scaduto"><spring:message code="deleted" text="Cancellata"/></label>
+					</div>
+				</div>
+			</c:if>
 
 
 			<c:if test="${!empty successMessage}">
@@ -235,6 +250,7 @@
 					</div>
 
 					<div class="col-sm-12">
+					
 						<div class="col-sm-6" ${!modifica && empty dettaglio.plfTStatoImpresa.id ? 'hidden' : ''}>
 							<div class="form-group">
 								<label><spring:message code="form.richiesta.accreditamento.enterprise_status" text="Stato impresa"/> :</label>
@@ -244,6 +260,7 @@
 								</label>
 							</div>
 						</div>
+					
 						<div class="col-sm-6" ${!modifica && empty dettaglio.plfTNaturaGiuridica.descrizione ? 'hidden' : ''}>
 							<div class="form-group">
 								<label><spring:message code="common_texts.legal_nature" text="Natura giuridica"/> :</label>
@@ -404,6 +421,11 @@
 								<c:choose>
 									<c:when test="${modifica}">
 										<label><spring:message code="site_edit" text="Sito"/> :</label>
+										<input name="descSito" type="text"
+											   class="form-control" placeholder=""
+											   value="${dettaglio.descSito}"
+											   path="descSito" maxlength="1000">
+										<!--
 										<c:choose>
 											<c:when test="${dettaglio.tipoInformazione == 1}">
 												<form:hidden id="descSito" path="descSito" />
@@ -426,6 +448,7 @@
 													   path="descSito" maxlength="1000">
 											</c:otherwise>
 										</c:choose>
+										 -->
 									</c:when>
 									<c:otherwise>
 										<label><spring:message code="site" text="Sito"/> :</label>
@@ -433,7 +456,7 @@
 										
 										<c:choose>
 											<c:when test="${utils.checkLinkUrl(dettaglio.descSito)}">
-												<a target="_blank" href="${dettaglio.descSito}">${dettaglio.descSito}</a>
+												<a target="_blank" href="${utils.anchor(dettaglio.descSito)}">${dettaglio.descSito}</a>
 											</c:when>
 											<c:otherwise>
 												<label><b>${dettaglio.descSito}</b></label>
@@ -513,31 +536,34 @@
 						</div>
 
 
-						<div class="col-sm-12">
-							<div class="col-sm-6" ${!modifica && empty dettaglio.codiceFiscaleLegaleRappresentante ? 'hidden' : ''}>
-								<div class="form-group">
-									<label><spring:message code="form.dettaglio.impresa.solicitor_cf" text="Codice fiscale legale rappresentante"/> :
-											<%--<c:if
-                                                test="${modifica}">
-                                                <small>(<spring:message code="required" text="richiesto"/>)</small>
-                                            </c:if>--%>
-									</label>
-									<c:choose>
-										<c:when test="${modifica && utente.isBackoffice()}">
-											<input name="codiceFiscaleLegaleRappresentante" type="text"
-												   class="form-control" placeholder=""
-												   value="${dettaglio.codiceFiscaleLegaleRappresentante}"
-												   path="codiceFiscaleLegaleRappresentante" maxlength="16">
-										</c:when>
-										<c:otherwise>
-											<br>
-											<label><b>${dettaglio.codiceFiscaleLegaleRappresentante}</b></label>
-										</c:otherwise>
-									</c:choose>
+						<c:if test="${modifica}">
+							<div class="col-sm-12">
+								<div class="col-sm-6" ${!modifica && empty dettaglio.codiceFiscaleLegaleRappresentante ? 'hidden' : ''}>
+									<div class="form-group">
+										<label><spring:message code="form.dettaglio.impresa.solicitor_cf" text="Codice fiscale legale rappresentante"/> :
+												<%--<c:if
+	                                                test="${modifica}">
+	                                                <small>(<spring:message code="required" text="richiesto"/>)</small>
+	                                            </c:if>--%>
+										</label>
+										<c:choose>
+											<c:when test="${modifica && utente.isBackoffice()}">
+												<input name="codiceFiscaleLegaleRappresentante" type="text"
+													   class="form-control" placeholder=""
+													   value="${dettaglio.codiceFiscaleLegaleRappresentante}"
+													   path="codiceFiscaleLegaleRappresentante" maxlength="16">
+											</c:when>
+											<c:otherwise>
+												<br>
+												<label><b>${dettaglio.codiceFiscaleLegaleRappresentante}</b></label>
+											</c:otherwise>
+										</c:choose>
+									</div>
 								</div>
+								<div class="col-sm-6">&nbsp;</div>
 							</div>
-							<div class="col-sm-6">&nbsp;</div>
-						</div>
+						</c:if>
+						
 					</c:if>
 
 
@@ -590,6 +616,7 @@
 						<div class="col-sm-6" ${!modifica && empty dettaglio.plfTSettoreImpresa.descrizione ? 'hidden' : ''}>
 							<div class="form-group">
 								<label><spring:message code="form.dettaglio.impresa.main_sector" text="Settore principale dell'impresa"/> :</label>
+								<a tabindex="0"  role="button" data-toggle="popover" data-trigger="focus" title="Info" data-content="<spring:message code="help.settore" text="Help settore"/>"><span class="pe-7s-info" style="font-size: 32px;"></span></a>
 								<c:choose>
 									<c:when test="${modifica}">
 										<c:choose>
@@ -678,6 +705,15 @@
 								<label><spring:message code="form.dettaglio.impresa.class_employees_last_year" text="Classe addetti ultimo anno"/> :</label>
 								<c:choose>
 									<c:when test="${modifica}">
+										<form:select id="selectClasseAddetti"
+													 title="${selectTheClassOfEmployeesLastYearTitleAttr}"
+													 data-live-search="true" data-live-search-style="contains"
+													 path="plfTClasseAddetti.id"
+													 cssClass="selectpicker">
+											<form:options items="${classeAddettiList}" />
+										</form:select>
+										
+										<!-- 
 										<c:choose>
 											<c:when test="${dettaglio.tipoInformazione == 1}">
 												<form:hidden id="plfTClasseAddetti.id" path="plfTClasseAddetti.id" />
@@ -693,6 +729,7 @@
 												</form:select>
 											</c:otherwise>
 										</c:choose>
+										 -->
 									</c:when>
 									<c:otherwise>
 										<br>
@@ -706,6 +743,14 @@
 								<label><spring:message code="form.dettaglio.impresa.class_of_capital" text="Classe di capitale"/> :</label>
 								<c:choose>
 									<c:when test="${modifica}">
+										<form:select id="selectClasseCapitale"
+													 title="${selectTheCapitalClassTitleAttr}"
+													 data-live-search="true" data-live-search-style="contains"
+													 path="plfTClasseCapitale.id"
+													 cssClass="selectpicker">
+											<form:options items="${classeCapitaleList}" />
+										</form:select>
+										<!-- 
 										<c:choose>
 											<c:when test="${dettaglio.tipoInformazione == 1}">
 												<form:hidden id="plfTClasseCapitale.id" path="plfTClasseCapitale.id" />
@@ -721,6 +766,7 @@
 												</form:select>
 											</c:otherwise>
 										</c:choose>
+										-->
 									</c:when>
 									<c:otherwise>
 										<br>
@@ -736,6 +782,14 @@
 								<label><spring:message code="form.dettaglio.impresa.class_of_production" text="Classe di produzione ultimo anno"/> :</label>
 								<c:choose>
 									<c:when test="${modifica}">
+										<form:select id="selectTipoImpresa"
+													 title="${selectTheProductionClassLastYearTitleAttr}"
+													 data-live-search="true" data-live-search-style="contains"
+													 path="plfTClasseProduzione.id"
+													 cssClass="selectpicker">
+											<form:options items="${classeProduzioneList}" />
+										</form:select>
+										<!-- 
 										<c:choose>
 											<c:when test="${dettaglio.tipoInformazione == 1}">
 												<form:hidden id="plfTClasseProduzione.id" path="plfTClasseProduzione.id" />
@@ -751,6 +805,7 @@
 												</form:select>
 											</c:otherwise>
 										</c:choose>
+										-->
 									</c:when>
 									<c:otherwise>
 										<br>
@@ -941,7 +996,7 @@
 									<c:choose>
 										<c:when test="${modifica}">
 											<textarea name="impresaTranslation.brevetto" id="brevetto"
-													  class="form-control" maxlength="4000">${dettaglio.impresaTranslation.brevetto}</textarea>
+													  class="form-control" maxlength="3950">${dettaglio.impresaTranslation.brevetto}</textarea>
 										</c:when>
 										<c:otherwise>
 											<br>
@@ -960,6 +1015,7 @@
 								<c:if test="${modifica || dettaglio.plfTInnovaziones.size()>0 || !empty dettaglio.impresaTranslation.elementiInnovazioneAltro}">
 									<div class="col-md-12 register-blocks">
 										<h2><spring:message code="form.dettaglio.impresa.innovation_elements" text="Elementi di innovazione"/> :</h2>
+										<a tabindex="0"  role="button" data-toggle="popover" data-trigger="focus" title="Info" data-content="<spring:message code="help.mercati.innovazione" text="Help innovazione"/>"><span class="pe-7s-info" style="font-size: 32px;"></span></a>
 									</div>
 								</c:if>
 								<c:if test="${modifica}">
@@ -1021,6 +1077,7 @@
 										<h2><spring:message code="form.dettaglio.impresa.reference_business" text="Mercati di riferimento"/> :<c:if test="${modifica}">
 											<small>(<spring:message code="required" text="richiesto"/>)</small>
 										</c:if></h2>
+										<a tabindex="0"  role="button" data-toggle="popover" data-trigger="focus" title="Info" data-content="<spring:message code="help.mercati.riferimento" text="Help mercati"/>"><span class="pe-7s-info" style="font-size: 32px;"></span></a>
 									</div>
 								</c:if>
 								<c:if test="${modifica}">
@@ -1245,6 +1302,14 @@
 									<label><spring:message code="form.dettaglio.impresa.female_prevalence" text="Prevalenza femminile"/> :</label>
 									<c:choose>
 										<c:when test="${modifica}">
+											<form:select id="selectPrevalenzaFemminile"
+														 title="${selectTheTypeOfFemalePrevalenceTitleAttr}"
+														 data-live-search="true" data-live-search-style="contains"
+														 path="plfTPrevalenzaFemminile.id"
+														 cssClass="selectpicker">
+												<form:options items="${prevalenzaList}" />
+											</form:select>
+											<!-- 
 											<c:choose>
 												<c:when test="${dettaglio.tipoInformazione == 1}">
 													<form:hidden id="plfTPrevalenzaFemminile.id" path="plfTPrevalenzaFemminile.id" />
@@ -1260,6 +1325,7 @@
 													</form:select>
 												</c:otherwise>
 											</c:choose>
+											 -->
 										</c:when>
 										<c:otherwise>
 											<br>
@@ -1273,6 +1339,14 @@
 									<label><spring:message code="form.dettaglio.impresa.youthful_prevalence" text="Prevalenza giovanile"/> :</label>
 									<c:choose>
 										<c:when test="${modifica}">
+											<form:select id="selectPrevalenzaGiovanile"
+														 title="${selectTheTypeOfJuvenilePrevalenceTitleAttr}"
+														 data-live-search="true" data-live-search-style="contains"
+														 path="plfTPrevalenzaGiovanile.id"
+														 cssClass="selectpicker">
+												<form:options items="${prevalenzaList}" />
+											</form:select>
+											<!-- 
 											<c:choose>
 												<c:when test="${dettaglio.tipoInformazione == 1}">
 													<form:hidden id="plfTPrevalenzaGiovanile.id" path="plfTPrevalenzaGiovanile.id" />
@@ -1288,6 +1362,7 @@
 													</form:select>
 												</c:otherwise>
 											</c:choose>
+											 -->
 										</c:when>
 										<c:otherwise>
 											<br>
@@ -1304,6 +1379,14 @@
 								<label><spring:message code="form.dettaglio.impresa.foreign_prevalence" text="Prevalenza straniera"/> :</label>
 								<c:choose>
 									<c:when test="${modifica}">
+										<form:select id="selectPrevalenzaStraniera"
+													 title="${selectTheTypeOfForeignPrevalenceTitleAttr}"
+													 data-live-search="true" data-live-search-style="contains"
+													 path="plfTPrevalenzaStraniera.id"
+													 cssClass="selectpicker">
+											<form:options items="${prevalenzaList}" />
+										</form:select>
+										<!-- 
 										<c:choose>
 											<c:when test="${dettaglio.tipoInformazione == 1}">
 												<form:hidden id="plfTPrevalenzaStraniera.id" path="plfTPrevalenzaStraniera.id" />
@@ -1319,6 +1402,7 @@
 												</form:select>
 											</c:otherwise>
 										</c:choose>
+										 -->
 									</c:when>
 									<c:otherwise>
 										<br>
@@ -1729,6 +1813,7 @@
 							<div class="col-sm-12">&nbsp;</div>
 							<div class="col-md-12 col-xs-12 register-blocks" style="text-align: center;">
 								<h2><spring:message code="form.dettaglio.impresa.social_channels" text="Canali social"/></h2>
+								<br><small><spring:message code="social_web_site_edit" text="Link social"/></small>
 							</div>
 							<div class="col-sm-12">&nbsp;</div>
 						</c:when>
@@ -2162,11 +2247,23 @@
 
 						<div class="col-sm-12">
 							<div class="col-sm-6 save-btns">
-								<c:if test="${false}">
-									<a href="#" class="btn btn-finish btn-primary"
-									   data-toggle="modal" data-target="#chiudiModal"><spring:message code="form.dettaglio.impresa.erase_enterprise" text="CANCELLA IMPRESA"/></a>
+							
+								<c:if test="${cancellaRipristinaImpresa}">
+									<c:choose>
+										<c:when test="${dettaglio.dataCancellazione != null}">
+											<a href="#" class="btn btn-finish btn-restore"
+									   			data-toggle="modal" data-target="#ripristinaModal"><spring:message code="form.dettaglio.impresa.recove_enterprise" text="RIPRISTINA IMPRESA"/></a>
+										</c:when>
+										<c:otherwise>
+											<a href="#" class="btn btn-finish btn-delete"
+									   			data-toggle="modal" data-target="#chiudiModal"><spring:message code="form.dettaglio.impresa.erase_enterprise" text="CANCELLA IMPRESA"/></a>
+										</c:otherwise>
+									</c:choose>
+									   
 								</c:if>
-								<button class='btn btn-default' type="button" onClick="javascript:resetForm();"><spring:message code="common_texts.reset" text="ANNULLA"/></button>
+								
+								
+								<button id="cancelButton" class='btn btn-default' type="button" onClick="javascript:resetForm();"><spring:message code="common_texts.reset" text="ANNULLA"/></button>
 							</div>
 							<div class="col-sm-6 save-btns">
 
@@ -2208,13 +2305,41 @@
 					<div class="modal-body">
 						<strong><spring:message code="warning" text="Attenzione!"/>
 						</strong> <spring:message code="form.dettaglio.impresa.news_deletion_text" text="Procedere con la cancellazione dell'impresa"/>
-							${dettaglio.impresaTranslation.descImpresa} (id <b>${dettaglio.idPlfImpresa}</b>)?<br>
+							${dettaglio.impresaTranslation.descImpresa}?<br>
 
 					</div>
 					<div class="modal-footer">
 						<a type="button" class="btn btn-default" data-dismiss="modal"><spring:message code="undo.uppercase" text="ANNULLA"/></a>
 						<button type="button" class="btn btn-primary"
 								onClick="javascript:cancella();"><spring:message code="delete.uppercase" text="CANCELLA"/></button>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		
+		<div class="modal fade" id="ripristinaModal" tabindex="-1" role="dialog"
+			 aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+
+
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">
+							<span aria-hidden="true">&times;</span><span class="sr-only"><spring:message code="close" text="Chiudi"/></span>
+						</button>
+						<h4 class="modal-title" id="myModalLabel"><spring:message code="form.dettaglio.impresa.enterprise_recove" text="Ripristino impresa"/></h4>
+					</div>
+					<div class="modal-body">
+						<strong><spring:message code="warning" text="Attenzione!"/>
+						</strong> <spring:message code="form.dettaglio.impresa.enterprise_recove_text" text="Procedere con il ripristino dell'impresa"/>
+							${dettaglio.impresaTranslation.descImpresa}?<br>
+
+					</div>
+					<div class="modal-footer">
+						<a type="button" class="btn btn-default" data-dismiss="modal"><spring:message code="undo.uppercase" text="ANNULLA"/></a>
+						<button type="button" class="btn btn-primary"
+								onClick="javascript:ripristina();"><spring:message code="recove.uppercase" text="RIPRISTINA"/></button>
 					</div>
 				</div>
 
@@ -2354,12 +2479,12 @@
 							</div>
 						</div>
 						<div class="modal-footer">
-							<div class="pull-right">
+							<button type="button" class="btn btn-default" data-dismiss="modal"><spring:message code="undo"/></button>
 								<a id="allegaFileDialogButton"
 								   name="allegaFileDialogButton"
 								   class='btn btn-finish btn-primary'
 								   onClick="javascript:allegaFile();"><spring:message code="attach" text="Allega"/></a>
-							</div>
+							
 						</div>
 					</form>
 				</div>
@@ -2440,7 +2565,7 @@
 <script type="text/javascript"
 		src="${evn_urlRisorseStatiche}/vimp/assets/js/ajax-bootstrap-select.min.js"></script>
 
-
+<script src="${evn_urlRisorseStatiche}/vimp/assets/js/checkModify.js"></script>
 
 <script>
 	var uploadImage = false;
@@ -2452,6 +2577,12 @@
 					$('#frmDettaglio').addClass('safe-reload');
 				else
 					$('#frmDettaglio').removeClass('safe-reload');
+
+
+				$('[data-toggle="popover"]').popover();
+				$('.popover-dismiss').popover({
+					  trigger: 'focus'
+				});
 
 				if (${dettaglio.plfTComune.idComune == idComuneGenova})
 				{
@@ -2994,7 +3125,26 @@
 				if(${dettaglio.pubblicato} === true) {
 					$('input[name="pubblicato"]').iCheck('check');
 				}
+				$('input[name="pubblicato"]').on('ifChecked', function(event) {
+
+					if(${dettaglio.dataAccreditamento == null})
+					{
+						$('#errorModalTitle').text("<spring:message code="impresaPubblicaTitolo" javaScriptEscape="true" text="Pubblicazione dell impresa"/>");
+						$('#errorModalMessage').text("<spring:message code="impresaPubblicaNoAccreditamento" javaScriptEscape="true" text="L impresa verra pubblicata sulla vetrina senza essere accreditata"/>");
+						$('#errorModal').modal('show');
+					}
+				});
+				
 				disableFieldsOnEdit();
+
+				<!-- CONTROLLO USCITA PAGINA MODIFICATA SENZA SALVARE-->
+				<!-- checkModify.js -->
+				if (${modifica})
+				{
+					setCheckModify('saveButton','cancelButton',null,
+							['pubblicato'],
+							['descMissione','descBreveImpresa','descAttivita','brevetto']);
+				}
 			});
 
 	function disableFieldsOnEdit() {
@@ -3065,8 +3215,11 @@
 	}
 
 	function cancella() {
+
+		
 		$("#imageData").val("");
 		$('#frmDettaglio').attr('action', '/vimp/secure/cancellaImpresa');
+		$('#frmDettaglio').validate().settings.ignore = "*";
 
 		var optionComune = $('#selectComune option:selected').val();
 		if (typeof optionComune === "undefined") {
@@ -3084,6 +3237,31 @@
 		
 		$("#frmDettaglio").submit();
 	}
+
+
+	function ripristina() {
+		$("#imageData").val("");
+		$('#frmDettaglio').attr('action', '/vimp/secure/ripristinaImpresa');
+		$('#frmDettaglio').validate().settings.ignore = "*";
+
+		var optionComune = $('#selectComune option:selected').val();
+		if (typeof optionComune === "undefined") {
+			if (${dettaglio.plfTComune.idComune == idComuneGenova})
+			{
+				$("#numeroCivico").val($('#selectNumeroCivicoTopo option:selected').text());
+				$("#descIndirizzo").val($('#indirizzoTopo option:selected').text());
+			}
+		}
+		else if (optionComune == ${idComuneGenova})
+		{
+			$("#numeroCivico").val($('#selectNumeroCivicoTopo option:selected').text());
+			$("#descIndirizzo").val($('#indirizzoTopo option:selected').text());
+		}
+		
+		$("#frmDettaglio").submit();
+	}
+
+	
 
 	function formatNumber(number, c, d, t) {
 		c = isNaN(c = Math.abs(c)) ? 2 : c;
@@ -3705,7 +3883,7 @@
 	function toggleTagSelection(e, id) {
 		var startClass = $(e).attr('class');
 
-		$(e).toggleClass('tag-selected');
+		$(e).toggleClass('tag-selected').trigger('classChange');
 
 		$('#selectTags > option[value="'+ id +'"]').each(function() {
 

@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 public class CriterioQuery 
 {
 	
-	public static enum Tipo {EQUAL,NOT_EQUAL,LIKE,BETWEEN,IN_DECIMAL,IN_STRING};
+	public static enum Tipo {EQUAL,NOT_EQUAL,LIKE,BETWEEN,IN_DECIMAL,IN_STRING,ISNULL,ISNOTNULL};
 	
 	final Object valore;
 	
@@ -16,6 +16,10 @@ public class CriterioQuery
 	
 	final Object[] valori;  //Usato per l'IN
 	
+	public CriterioQuery(String nome,Tipo tipoCriterio)
+	{
+		this(null,nome,null,null,null,tipoCriterio);
+	}
 	
 	public CriterioQuery(String nome,String valore,  Tipo tipoCriterio)
 	{

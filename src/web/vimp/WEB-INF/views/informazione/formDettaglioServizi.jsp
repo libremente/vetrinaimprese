@@ -59,6 +59,17 @@
 	<div class="content-area user-profiel">
 		&nbsp;
 		<div class="container">
+		
+			<c:if test="${dettaglio.isScaduto()}">
+				<div class="col-sm-12 label-scaduto-container">
+					<div class="col-sm-10">
+						&nbsp;
+					</div>
+					<div class="col-sm-2">
+						<label class="label-scaduto"><spring:message code="expired" text="Scaduto"/></label>
+					</div>
+				</div>
+			</c:if>
 
 			<c:if test="${!empty successMessage}">
 				<div class="alert alert-success fade in">
@@ -557,7 +568,7 @@
 											<br>
 											<c:choose>
 												<c:when test="${utils.checkLinkUrl(dettaglio.linkApprofondimento)}">
-													<a target="_blank" href="${dettaglio.linkApprofondimento}">${dettaglio.linkApprofondimento}</a>
+													<a target="_blank" href="${utils.anchor(dettaglio.linkApprofondimento)}">${dettaglio.linkApprofondimento}</a>
 												</c:when>
 												<c:otherwise>
 													<label><b>${dettaglio.linkApprofondimento}</b></label>
@@ -699,10 +710,10 @@
 							<div class="safe-col" style="margin-top: 30px;">
 								<div class="col-sm-6 save-btns">
 
-									<a href="#" class="btn btn-finish btn-primary"
+									<a id="deleteButton" href="#" class="btn btn-finish btn-primary"
 									   data-toggle="modal" data-target="#chiudiModal"><spring:message
 											code="form.dettaglio.servizi.erase_service" /></a>
-									<button class='btn btn-default' type="button"
+									<button id="cancelButton" class='btn btn-default' type="button"
 											onClick="javascript:resetForm();">
 										<spring:message code="common_texts.reset" />
 									</button>
@@ -840,7 +851,7 @@
 <script type="text/javascript"
 		src="${evn_urlRisorseStatiche}/vimp/assets/js/jquery.tablecloth.js"></script>
 
-
+<script src="${evn_urlRisorseStatiche}/vimp/assets/js/checkModify.js"></script>
 
 <script>
 	var uploadImage = false;
@@ -943,14 +954,21 @@
 					$('input[name="pubblicato"]').iCheck('check');
 				}
 
-			
+				<!-- CONTROLLO USCITA PAGINA MODIFICATA SENZA SALVARE-->
+				<!-- checkModify.js -->
+				if (${modifica})
+				{
+					setCheckModify('saveButton','cancelButton','deleteButton',
+							['pubblicato'],
+							null);
+				}
 
 			});
 
 	function toggleTagSelection(e, id) {
 		var startClass = $(e).attr('class');
 
-		$(e).toggleClass('tag-selected');
+		$(e).toggleClass('tag-selected').trigger('classChange');
 
 		$('#selectTags > option[value="'+ id +'"]').each(function() {
 

@@ -11,6 +11,7 @@
 <spring:message var="selectTheServiceLinkedToTheNewsTitleAttr" code="form.nuova.news.impresa.selectTheServiceLinkedToTheNewsTitleAttr" text="Seleziona il servizio collegato alla news"/>
 <spring:message var="selectTheProductProjectLinkedToTheNewsTitleAttr" code="form.nuova.news.impresa.selectTheProductProjectLinkedToTheNewsTitleAttr" text="Seleziona il progetto prodotto collegato alla news"/>
 
+		
 <div class="page-head">
 	<div class="container">
 		<div class="row">
@@ -44,6 +45,18 @@
 	<div class="content-area user-profiel">
 		&nbsp;
 		<div class="container">
+		
+			<c:if test="${dettaglio.isScaduto()}">
+				<div class="col-sm-12 label-scaduto-container">
+					<div class="col-sm-10">
+						&nbsp;
+					</div>
+					<div class="col-sm-2">
+						<label class="label-scaduto"><spring:message code="expired" text="Scaduto"/></label>
+					</div>
+				</div>
+			</c:if>
+			
 
 			<c:if test="${!empty successMessage}">
 				<div class="alert alert-success fade in">
@@ -338,7 +351,7 @@
 									<br>
 									<c:choose>
 										<c:when test="${utils.checkLinkUrl(dettaglio.linkApprofondimento)}">
-											<a class="wow fadeInUp animated" target="_blank" href="http://${dettaglio.linkApprofondimento}" data-wow-delay="0.5s">${dettaglio.linkApprofondimento}</a>
+											<a class="wow fadeInUp animated" target="_blank" href="${utils.anchor(dettaglio.linkApprofondimento)}" data-wow-delay="0.5s">${dettaglio.linkApprofondimento}</a>
 										</c:when>
 										<c:otherwise>
 											<label><b>${dettaglio.linkApprofondimento}</b></label>
@@ -365,7 +378,7 @@
 					</form:select>
 					<div class="col-sm-12">
 						<div class="col-sm-6">
-							<div class="form-group">
+							<div id="tagsContainer" class="form-group">
 								<label>Tag</label><br>
 								<c:choose>
 									<c:when test="${modifica}">
@@ -401,47 +414,15 @@
 						</div>
 					</div>
 				</div>
-					<%--tags--%>
-					<%--<div class="safe-col">
-						<div class="col-sm-12" ${!modifica && empty dettaglio.newsImpresaTranslation.descTag ? 'hidden' : ''}>
-							<div class="form-group">
-								<input name="opportunitaTranslation.descTag"
-									   value="${dettaglio.newsImpresaTranslation.descTag}" id="selectedTags"
-									   hidden="true">
-								<label>Tag</label><br>
-								<c:choose>
-									<c:when test="${modifica}">
-										<small><spring:message
-												code="form.dettaglio.impresa.tag_guide"/></small><br>
-										<c:forEach items="${allTags}" var="tag">
-											<div class="col-md-2 col-sm-2 element-tag tag-interactive"
-												 onclick="toggleTagSelection(this)">${tag}</div>
-										</c:forEach>
-									</c:when>
-									<c:otherwise>
-										<c:choose>
-											<c:when test="${tags == null or fn:length(tags) < 1}">
-												<spring:message code="form.dettaglio.impresa.no_tags"/>
-											</c:when>
-											<c:otherwise>
-												<c:forEach items="${tags}" var="tag">
-													<div class="col-md-2 col-sm-2 element-tag tag-selected">${tag}</div>
-												</c:forEach>
-											</c:otherwise>
-										</c:choose>
-									</c:otherwise>
-								</c:choose>
-							</div>
-						</div>
-					</div>--%>
+					
 
 				<c:if test="${modifica}">
 					<div class="row">
 						<div class="col-md-12" style="margin-top: 30px; padding-left: 30px">
 							<div class="col-sm-6 save-btns">
-								<a href="#" class="btn btn-finish btn-primary"
+								<a id="deleteButton" href="#" class="btn btn-finish btn-primary"
 								   data-toggle="modal" data-target="#chiudiModal"><spring:message code="form.dettaglio.news.impresa.erase_news" text="CANCELLA NEWS"/></a>
-								<button class='btn btn-default' type="button" onClick="javascript:resetForm();"><spring:message code="common_texts.reset" text="ANNULLA"/></button>
+								<button id="cancelButton" class='btn btn-default' type="button" onClick="javascript:resetForm();"><spring:message code="common_texts.reset" text="ANNULLA"/></button>
 							</div>
 							<div class="col-sm-6 save-btns">
 								<button id="saveButton"
@@ -568,12 +549,15 @@
 <script type="text/javascript" src="${evn_urlRisorseStatiche}/vimp/assets/js/lang/summernote-it-IT.js"></script>
 
 
+<script src="${evn_urlRisorseStatiche}/vimp/assets/js/checkModify.js"></script>
+
 
 
 
 
 <script>
 	var uploadImage = false;
+	var summernoteElement;
 
 	$(document).ready(
 			function() {
@@ -654,35 +638,32 @@
 					}
 				}
 
-
-				$('#dataTesto').summernote(
-						{
-							onChange: function (contents, $editable) {
-								summernoteElement.val(summernoteElement.summernote('isEmpty') ? "" : contents);
-								summernoteValidator.element(summernoteElement);
-							},
-							lang: '${env_locale}',
-							placeholder : "<spring:message code="newsFormNuovaTextPlaceholder" text="Testo della news" />",
-							tabsize : 2,
-							height : 100,
-							fontNames : [ 'Arial', 'Arial Black',
-								'Comic Sans MS', 'Courier New' ],
-							toolbar : [
-								[
-									'style',
-									[ 'bold', 'italic', 'underline',
-										'clear' ] ],
-								[ 'fontname', [ 'fontname' ] ],
-								[ 'fontsize', [ 'fontsize' ] ],
-								[ 'color', [ 'color' ] ],
-								[ 'para', [ 'ul', 'ol', 'paragraph' ] ],
-								[ 'height', [ 'height' ] ] ]
-						});
-
-
 				var summernoteForm = $('#frmDettaglio');
+				$('#dataTesto').summernote(
+				{
+					onChange: function (contents, $editable) {
+						summernoteElement.val(summernoteElement.summernote('isEmpty') ? "" : contents);
+					},
+					lang: '${env_locale}',
+					placeholder : "<spring:message code="newsFormNuovaTextPlaceholder" text="Testo della news" />",
+					tabsize : 2,
+					height : 100,
+					fontNames : [ 'Arial', 'Arial Black',
+						'Comic Sans MS', 'Courier New' ],
+					toolbar : [
+						[
+							'style',
+							[ 'bold', 'italic', 'underline',
+								'clear' ] ],
+						[ 'fontname', [ 'fontname' ] ],
+						[ 'fontsize', [ 'fontsize' ] ],
+						[ 'color', [ 'color' ] ],
+						[ 'para', [ 'ul', 'ol', 'paragraph' ] ],
+						[ 'height', [ 'height' ] ] ]
+				});
 				var summernoteElement = $('#dataTesto');
 
+				
 				$('.datepicker').datepicker({
 					format : 'yyyy-mm-dd',
 					viewformat : 'dd/mm/yyyy',
@@ -720,21 +701,45 @@
 						'newsImpresaTranslation.descrizione' : "required",
 						dataInizio : "required",
 						dataFine: "checkDate",
-						'dataTesto.newsImpresaTranslation': "required"
+						'newsImpresaTranslation.dataTesto' : {
+							required: function(element) {
+								return $('#dataTesto').summernote('isEmpty');
+							}
+						},
 					},
 					messages : {
 						'newsImpresaTranslation.descrizione' : '<spring:message code="newsInserireLaDescrizione" javaScriptEscape="true" />',
 						dataInizio : '<spring:message code="newsInserireLaData" javaScriptEscape="true" />',
 						dataFine: '<spring:message code="erroreDateNews" javaScriptEscape="true" />',
-						'newsImpresaTranslation.dataTesto' : '<spring:message code="newsInserireIlContenuto" javaScriptEscape="true" />'
+						'newsImpresaTranslation.dataTesto': '<spring:message code="newsFormNuovaInserireIlTesto" javaScriptEscape="true" />'
+					},
+					showErrors: function (errorMap, errorList) {
+						if (typeof errorList[0] != "undefined") {
+							var id = errorList[0].element.id;
+
+							if( id === 'dataTesto') {
+								$('html, body').animate({
+									scrollTop: 200
+								}, 300);
+							}
+						}
+						this.defaultShowErrors();
 					}
 				});
+						
 
 				if(${dettaglio.evidenzaPortale} === true) {
 					$('input[name="evidenzaPortale"]').iCheck('check');
 				}
 				if(${dettaglio.pubblicato} === true) {
 					$('input[name="pubblicato"]').iCheck('check');
+				}
+
+				<!-- CONTROLLO USCITA PAGINA MODIFICATA SENZA SALVARE-->
+				<!-- checkModify.js -->
+				if (${modifica})
+				{
+					setCheckModify('saveButton','cancelButton','deleteButton',['evidenzaPortale','pubblicato'],['dataTesto']);
 				}
 			});
 
@@ -755,7 +760,6 @@
 			$("#imageData").val("");
 			$("#frmDettaglio").submit();
 		}
-
 	}
 
 	function toggleEvidenzaPortale(el) {
@@ -811,7 +815,7 @@
 	function toggleTagSelection(e, id) {
 		var startClass = $(e).attr('class');
 
-		$(e).toggleClass('tag-selected');
+		$(e).toggleClass('tag-selected').trigger('classChange');
 
 		$('#selectTags > option[value="'+ id +'"]').each(function() {
 

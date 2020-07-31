@@ -19,6 +19,7 @@ public class BatchPersistent
 {
 
 	private String wsArisUiSearchUrl;
+	private String wsArisUiSearchAllUrl;
 	private String wsArisRlMultiSearchUrl;
 	private String wsArisAuthorization;
 
@@ -90,6 +91,11 @@ public class BatchPersistent
 	{
 		return arisService.getUL(wsArisUiSearchUrl, wsArisAuthorization, codiceFiscalePartitaIva);
 	}
+	
+	public it.interlogic.vimp.service.ws.aris.uisearchall.UlSearchAllResult getULAll(String codiceFiscalePartitaIva)
+	{
+		return arisService.getULAll(wsArisUiSearchAllUrl, wsArisAuthorization, codiceFiscalePartitaIva);
+	}
 
 	public String getAddressMailFrom()
 	{
@@ -138,6 +144,7 @@ public class BatchPersistent
 			Properties prop = new Properties();
 			prop.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("dbconnection.properties"));
 			wsArisUiSearchUrl = prop.getProperty("wsArisUiSearchUrl");
+			wsArisUiSearchAllUrl = prop.getProperty("wsArisUiSearchAllUrl");
 			wsArisRlMultiSearchUrl = prop.getProperty("wsArisRlMultiSearchUrl");
 			wsArisAuthorization = prop.getProperty("wsArisAuthorization");
 

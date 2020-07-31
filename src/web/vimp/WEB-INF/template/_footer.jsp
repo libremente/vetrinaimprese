@@ -83,12 +83,14 @@
 		<div class="container">
 			<div class="row">
 				<div class="pull-left">
-					<span>V. <b>1.0.63</b> 2020-03-27 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(C) <a href="http://www.pro-logic.it">Interlogic
+					<span>V. <b>1.0.66</b> 2020-07-21 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(C) <a href="http://www.pro-logic.it">Interlogic
 							S.r.l.</a> , All rights reserved 2020
 					</span>
 				</div>
 				<div class="bottom-menu pull-right">
 					<ul>
+						<li><a class="wow fadeInUp animated" href="https://github.com/ComuneDiGenova/vetrinaimprese"
+							data-wow-delay="0.2s">Repository Git</a></li>
 						<li><a class="wow fadeInUp animated" href="http://www.pro-logic.it/"
 							data-wow-delay="0.2s">Home</a></li>
 						<li><a class="wow fadeInUp animated" href="http://www.pro-logic.it/#contatti"

@@ -25,6 +25,12 @@ public interface IArisService
 	it.interlogic.vimp.service.ws.aris.uisearch.UlSearchResult getUL(String codiceFiscalePartitaIva);
 	
 	/**
+	 * @param codiceFiscalePartitaIva
+	 * @return
+	 */
+	public it.interlogic.vimp.service.ws.aris.uisearchall.UlSearchAllResult getULAll(String url, String authorization, String codiceFiscalePartitaIva);
+	
+	/**
 	 * @param url
 	 * @param authorization
 	 * @param codiceFiscalePartitaIva

@@ -580,6 +580,7 @@
 <script type="text/javascript"
         src="${evn_urlRisorseStatiche}/vimp/assets/js/lang/summernote-it-IT.js"></script>
 
+<script src="${evn_urlRisorseStatiche}/vimp/assets/js/checkModify.js"></script>
 
 <script>
     var uploadImage = false;
@@ -764,6 +765,8 @@
 
             setValidation();
 
+            setCheckInsert();
+
         });
 
     function setValidation() {
@@ -792,6 +795,7 @@
     }
 
     function aggiorna(event) {
+    	removeCheckInsert();
         event.preventDefault();
         if (uploadImage) {
 
@@ -907,7 +911,7 @@
     function toggleTagSelection(e, id) {
         var startClass = $(e).attr('class');
 
-        $(e).toggleClass('tag-selected');
+        $(e).toggleClass('tag-selected').trigger('classChange');
 
         $('#selectTags > option[value="'+ id +'"]').each(function() {
 

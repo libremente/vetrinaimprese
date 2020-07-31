@@ -3,6 +3,7 @@ package it.interlogic.vimp.web.page;
 import it.interlogic.vimp.batch.Constants;
 import it.interlogic.vimp.data.jpa.model.PLFImpresaEntity;
 import it.interlogic.vimp.data.jpa.model.PLFImpresaTranslationEntity;
+import it.interlogic.vimp.data.jpa.model.PLFLogEntity;
 import it.interlogic.vimp.data.jpa.model.PLFRichiestaAccreditamentoEntity;
 import it.interlogic.vimp.data.jpa.model.PLFTControlliRichiestaEntity;
 import it.interlogic.vimp.data.jpa.model.PLFTStatoImpresaEntity;
@@ -16,6 +17,7 @@ import it.interlogic.vimp.service.IAccreditamentoService;
 import it.interlogic.vimp.service.IArisService;
 import it.interlogic.vimp.service.IDecodificheService;
 import it.interlogic.vimp.service.IImpresaService;
+import it.interlogic.vimp.service.ILogService;
 import it.interlogic.vimp.service.IRicercaService;
 import it.interlogic.vimp.service.IUtenteService;
 import it.interlogic.vimp.service.exception.AccreditamentoException;
@@ -51,7 +53,6 @@ import org.apache.commons.lang.text.StrSubstitutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.data.domain.Page;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -96,6 +97,10 @@ public class AccreditamentoHandler extends AbstractHandler
 
 	@Autowired
 	private JavaMailSender mailSender;
+	
+	@Autowired
+	protected ILogService logService;
+
 
 	private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -154,6 +159,22 @@ public class AccreditamentoHandler extends AbstractHandler
 
 		model.addAttribute("dettaglio", dettaglio);
 
+		model.addAttribute("cambiaStatoImpresa", true);
+		if (dettaglio.getPlfImpresa()!=null&& dettaglio.getPlfImpresa().getIdPlfImpresa() != null && dettaglio.getPlfImpresa().getIdPlfImpresa().intValue()>0)
+		{
+			PLFLogEntity log = logService.getLogImpresa(dettaglio.getPlfImpresa().getIdPlfImpresa());
+			if (log != null && log.getIdLog() != null && log.getIdLog().intValue() > 0)
+			{
+				int idMessaggioLog = log.getLogMessaggi().getId().intValue();
+				if (idMessaggioLog == IAbstractServiceImpl.LOG_IMPRESA_PRESENTE_VERTINA_CANCELLATA_ARIS
+						|| idMessaggioLog == IAbstractServiceImpl.LOG_IMPRESA_PRESENTE_ARIS_NON_ISCRITTA
+						|| idMessaggioLog == IAbstractServiceImpl.LOG_IMPRESA_PRSENTE_VETRINA_NO_ARIS)
+				{
+					model.addAttribute("cambiaStatoImpresa", true);
+				}
+			}
+		}
+		
 		model.addAttribute("statoImpresaList", IDecodificheServiceImpl.toMap(PLFTStatoImpresaEntity.class, decodificheService.getStatoImpresa(), "id", "descrizione", null, true));
 
 		parametri.setTipoInformazione(0);
@@ -431,6 +452,18 @@ public class AccreditamentoHandler extends AbstractHandler
 		LoggerUtility.info(dettaglio.toString());
 
 		PLFRichiestaAccreditamentoEntity entity = accreditamentoService.find(dettaglio.getIdRichiestaAccreditamento());
+		int oldState = 0;
+		int newState = 0;
+		boolean sendMailCambiaStato = false;
+		if (entity != null && entity.getPlfTStatoImpresa() != null && entity.getPlfTStatoImpresa().getId() != null && entity.getPlfTStatoImpresa().getId().intValue() > 0)
+		{
+			oldState = entity.getPlfTStatoImpresa().getId().intValue();
+			newState = (dettaglio.getPlfTStatoImpresa() != null && dettaglio.getPlfTStatoImpresa().getId() != null) ? dettaglio.getPlfTStatoImpresa().getId().intValue(): 0;
+			if (oldState != newState)
+				sendMailCambiaStato = true;
+		}
+		
+		
 		if ("valida".equalsIgnoreCase(dettaglio.getAzione()))
 		{
 
@@ -464,11 +497,12 @@ public class AccreditamentoHandler extends AbstractHandler
 
 			impresa.getImpresaTranslation().setDescImpresa(dettaglio.getRagioneSociale());
 
-			if (impresa.getImpresaTranslation() == null || impresa.getImpresaTranslation().getDescImpresa() == null
-					|| impresa.getImpresaTranslation().getDescImpresa().length() <= 0)
+			if (impresa.getImpresaTranslation() == null || impresa.getImpresaTranslation().getDescBreveImpresa() == null
+					|| impresa.getImpresaTranslation().getDescBreveImpresa().length() <= 0)
 			{
 				impresa.getImpresaTranslation().setDescBreveImpresa(dettaglio.getDescImpresa());
 			}
+			
 
 			impresa.setCodFiscale(dettaglio.getCodFiscale());
 			impresa.setPartitaIva(dettaglio.getPartitaIva());
@@ -497,6 +531,9 @@ public class AccreditamentoHandler extends AbstractHandler
 				entity.setFlagAccreditamento("S");
 				entity.setDataRichiesta(new Date());
 				entity.setParereAccreditamento(dettaglio.getParereAccreditamento());
+				
+				
+				entity.setPlfTStatoImpresa(dettaglio.getPlfTStatoImpresa());
 				accreditamentoService.update(entity);
 
 				utenteService.accreditaUtente(dettaglio.getCodFiscaleRichiedente(), dettaglio.getEmailContatto(), impresaEntity.getIdPlfImpresa(), null, null);
@@ -504,7 +541,7 @@ public class AccreditamentoHandler extends AbstractHandler
 				// UtenteContext.USER_SESSION_KEY, new UtenteDto(utente));
 			}
 
-			sendMailRichiestaValidata(dettaglio.getEmailContatto());
+			sendMailRichiestaValidata(dettaglio.getEmailContatto(),sendMailCambiaStato,oldState,newState);
 		}
 		else if ("invalida".equalsIgnoreCase(dettaglio.getAzione()))
 		{
@@ -513,7 +550,7 @@ public class AccreditamentoHandler extends AbstractHandler
 			entity.setFlagAccreditamento("N");
 			accreditamentoService.update(entity);
 
-			sendMailRichiestaInvalidata(dettaglio.getEmailContatto(), dettaglio.getRagioneSociale(), dettaglio.getParereAccreditamento());
+			sendMailRichiestaInvalidata(dettaglio.getEmailContatto(), dettaglio.getRagioneSociale(), dettaglio.getParereAccreditamento(),sendMailCambiaStato,oldState,newState);
 		}
 
 		return "redirect:/secure/dettaglioAccreditamento/" + dettaglio.getIdRichiestaAccreditamento().intValue();
@@ -907,7 +944,7 @@ public class AccreditamentoHandler extends AbstractHandler
 	/**
 	 * @param email
 	 */
-	private void sendMailRichiestaValidata(String email)
+	private void sendMailRichiestaValidata(String email,boolean sendMailCambiaStato,int vecchioStato,int nuovoStato)
 	{
 		Map<String, String> mailData = new HashMap<String, String>();
 		String from = AmbienteContext.getMailNoReplay();
@@ -917,8 +954,17 @@ public class AccreditamentoHandler extends AbstractHandler
 
 		try
 		{
-			body = fillMailBody("MailValidaAccreditamento.txt", mailData);
-			doSendEmail(from, to, subject, body);
+			if (sendMailCambiaStato)
+			{
+				PLFTStatoImpresaEntity oldStateEntity = decodificheService.getStatoImpresa(new BigDecimal(vecchioStato));
+				PLFTStatoImpresaEntity newStateEntity = decodificheService.getStatoImpresa(new BigDecimal(nuovoStato));
+				mailData.put("nuovoStato", newStateEntity.getDescrizione());
+				mailData.put("vecchioStato", oldStateEntity.getDescrizione());
+				body = fillMailBody("MailValidaAccreditamentoCambioStato.txt", mailData);
+			}
+			else
+				body = fillMailBody("MailValidaAccreditamento.txt", mailData);
+			doSendEmail(mailSender,from, to, subject, body);
 		}
 		catch (Exception err)
 		{
@@ -932,7 +978,7 @@ public class AccreditamentoHandler extends AbstractHandler
 	 * @param denominazioneImpresa
 	 * @param parere
 	 */
-	private void sendMailRichiestaInvalidata(String email, String denominazioneImpresa, String parere)
+	private void sendMailRichiestaInvalidata(String email, String denominazioneImpresa, String parere, boolean sendMailCambiaStato,int vecchioStato,int nuovoStato)
 	{
 		Map<String, String> mailData = new HashMap<String, String>();
 		if (denominazioneImpresa == null || denominazioneImpresa.trim().length() < 0)
@@ -947,8 +993,16 @@ public class AccreditamentoHandler extends AbstractHandler
 
 		try
 		{
-			body = fillMailBody("MailInvalidaAccreditamento.txt", mailData);
-			doSendEmail(from, to, subject, body);
+			if (sendMailCambiaStato)
+			{
+				PLFTStatoImpresaEntity oldStateEntity = decodificheService.getStatoImpresa(new BigDecimal(vecchioStato));
+				PLFTStatoImpresaEntity newStateEntity = decodificheService.getStatoImpresa(new BigDecimal(nuovoStato));
+				mailData.put("nuovoStato", newStateEntity.getDescrizione());
+				mailData.put("vecchioStato", oldStateEntity.getDescrizione());
+				body = fillMailBody("MailInvalidaAccreditamentoCambioStato.txt", mailData);
+			}
+			else body = fillMailBody("MailInvalidaAccreditamento.txt", mailData);
+			doSendEmail(mailSender,from, to, subject, body);
 		}
 		catch (Exception err)
 		{
@@ -1001,7 +1055,7 @@ public class AccreditamentoHandler extends AbstractHandler
 		try
 		{
 			body = fillMailBody("MailRichiestaAccreditamento.txt", mailData);
-			doSendEmail(from, to, subject, body);
+			doSendEmail(mailSender,from, to, subject, body);
 		}
 		catch (Exception err)
 		{
@@ -1025,39 +1079,5 @@ public class AccreditamentoHandler extends AbstractHandler
 		return textMail;
 	}
 
-	/**
-	 * @param from
-	 * @param to
-	 * @param subject
-	 * @param body
-	 */
-	private void doSendEmail(String from, String to, String subject, String body)
-	{
-		LoggerUtility.error("----------------- Send mail begin");
-		try
-		{
-			LoggerUtility.error("from:" + from);
-			LoggerUtility.error("to:" + to);
-			LoggerUtility.error("subject:" + subject);
-			LoggerUtility.error("body:");
-			LoggerUtility.error(body);
-
-			// creates a simple e-mail object
-			SimpleMailMessage email = new SimpleMailMessage();
-			email.setFrom(from);
-			email.setTo(to);
-			email.setSubject(subject);
-			email.setText(body);
-
-			// sends the e-mail
-			// TODO SEND MAIL
-			mailSender.send(email);
-		}
-		catch (Exception err)
-		{
-			LoggerUtility.error("Impostare il server SMPT in servlet.xml", err);
-		}
-		LoggerUtility.error("----------------- Send mail end");
-	}
 
 }

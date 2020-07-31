@@ -86,6 +86,11 @@ public abstract class IAbstractServiceImpl
 	public static final int LOG_IMPRESA_PRSENTE_VETRINA_NO_ARIS = 11;
 	public static final int LOG_IMPRESA_DENOMINAZIONE_SEZIONE = 12;
 	
+	public static final int LOG_IMPRESA_STATO_NON_AGGIORNATO = 17;
+	public static final int LOG_IMPRESA_STATO_NO_DENOMINAZIONE_AGGIORNATO = 16;
+	public static final int LOG_IMPRESA_STATO_E_DENOMINAZIONE_AGGIORNATO = 15;
+	
+	
 
 
 	@Autowired

@@ -5,6 +5,7 @@ import it.interlogic.vimp.data.jpa.model.PLFVImpresaEntity;
 import it.interlogic.vimp.data.jpa.model.PLFVInformazioneEntity;
 import it.interlogic.vimp.data.jpa.model.PLFVRichiestaAccreditamentoEntity;
 import it.interlogic.vimp.data.jpa.repository.specs.CriteriQuery;
+import it.interlogic.vimp.web.dto.ParametriRicercaMyInfo;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -33,10 +34,8 @@ public interface IRicercaService
 	 */
 	Page<PLFVInformazioneEntity> findInformazioni(int numPage, int pageSize, BigDecimal tipoInformazione, String ricerca, boolean onlyPublic);
 	
-	/**
-	 * @return
-	 */
-	List<PLFVInformazioneEntity> findInformazioniPersonal();
+	
+	List<PLFVInformazioneEntity> findInformazioniPersonal(ParametriRicercaMyInfo parametri);
 
 	/**
 	 * @param numPage

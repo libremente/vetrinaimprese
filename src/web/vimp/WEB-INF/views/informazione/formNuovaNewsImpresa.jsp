@@ -429,7 +429,7 @@
 <script type="text/javascript" src="${evn_urlRisorseStatiche}/vimp/assets/js/summernote-bs4.js"></script>
 <script type="text/javascript" src="${evn_urlRisorseStatiche}/vimp/assets/js/lang/summernote-it-IT.js"></script>
 
-
+<script src="${evn_urlRisorseStatiche}/vimp/assets/js/checkModify.js"></script>
 
 <script>
 	var uploadImage = false;
@@ -557,10 +557,15 @@
 					}
 				});
 
+
+				setCheckInsert();
 			});
 
 
 	function aggiorna(event) {
+
+		removeCheckInsert();
+		
 		event.preventDefault();
 		if (uploadImage) {
 
@@ -643,20 +648,7 @@
 				dataFine: '<spring:message code="erroreFutureDateNews" javaScriptEscape="true" />',
 				checkboxAccept: '<spring:message code="perProcedereConRegistrazioneAccettareTermini" javaScriptEscape="true"/>'
 			},
-
-			/*errorPlacement: function(error, element) {
-                if(element.attr('name') == 'numValEconomico') {
-                    var outNumValEconomico = $('#sliderValEconomico');
-                    error.appendTo( outNumValEconomico.parent('div'));
-                }
-                else {
-                    error.insertAfter(element);
-                }
-            },*/
 			showErrors: function (errorMap, errorList) {
-				// errorList[0].element; // <- index "0" is the first element with an error
-				console.log('errorMap', errorMap);
-				console.log('errorList', errorList);
 				if (typeof errorList[0] != "undefined") {
 					var id = errorList[0].element.id;
 
@@ -742,7 +734,7 @@
 	function toggleTagSelection(e, id) {
 		var startClass = $(e).attr('class');
 
-		$(e).toggleClass('tag-selected');
+		$(e).toggleClass('tag-selected').trigger('classChange');
 
 		$('#selectTags > option[value="'+ id +'"]').each(function() {
 

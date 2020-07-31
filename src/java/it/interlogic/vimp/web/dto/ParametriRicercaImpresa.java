@@ -22,6 +22,7 @@ public class ParametriRicercaImpresa implements Serializable
 	String iscrizioneRegistro;
 	String iscrizioneSpeciale;
 	String stakeholder;
+	String accreditata;
 
 	String paginaCorrente;
 	String numeroRecord;
@@ -41,14 +42,14 @@ public class ParametriRicercaImpresa implements Serializable
 	{
 		return !StringUtils.isEmpty(ragioneSociale) || !StringUtils.isEmpty(settore) || !StringUtils.isEmpty(provincia) || !StringUtils.isEmpty(comune) || !StringUtils.isEmpty(statoImpresa)
 				|| !StringUtils.isEmpty(elementiInnovazione) || !StringUtils.isEmpty(mercatiRiferimento) || !StringUtils.isEmpty(brevetti)
-				|| !StringUtils.isEmpty(iscrizioneRegistro) || !StringUtils.isEmpty(iscrizioneSpeciale) || !StringUtils.isEmpty(stakeholder);
+				|| !StringUtils.isEmpty(iscrizioneRegistro) || !StringUtils.isEmpty(iscrizioneSpeciale) || !StringUtils.isEmpty(stakeholder) || !StringUtils.isEmpty(accreditata);
 	}
 
 	public boolean isNull()
 	{
 		return (ragioneSociale == null && settore == null && colonneResult == null && provincia == null && comune == null && statoImpresa == null && numeroRecord == null && paginaCorrente == null
 				&& elementiInnovazione == null && selectedIdAImpresa == null && mercatiRiferimento == null && brevetti == null && iscrizioneRegistro == null
-				&& iscrizioneSpeciale == null && stakeholder == null);
+				&& iscrizioneSpeciale == null && stakeholder == null  && accreditata == null);
 	}
 	
 	
@@ -276,6 +277,16 @@ public class ParametriRicercaImpresa implements Serializable
 	public void setTipoInformazione(Integer tipoInformazione)
 	{
 		this.tipoInformazione = tipoInformazione;
+	}
+
+	public String getAccreditata()
+	{
+		return accreditata;
+	}
+
+	public void setAccreditata(String accreditata)
+	{
+		this.accreditata = accreditata;
 	}
 	
 	

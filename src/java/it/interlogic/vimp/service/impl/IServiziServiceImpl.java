@@ -388,6 +388,12 @@ public class IServiziServiceImpl extends IAbstractServiceImpl implements IServiz
 	{
 		return repository.findAllByImpresa(idImpresa);
 	}
+	
+	@Override
+	public List<PLFServiziEntity> findAllByImpresa(BigDecimal idImpresa,String ricerca)
+	{
+		return repository.findAllByImpresa(idImpresa,ricerca);
+	}
 
 	@Override
 	public List<PLFServiziEntity> loadServiziByImpresa(BigDecimal idImpresa, boolean pubblicati)

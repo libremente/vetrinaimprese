@@ -1,5 +1,7 @@
 package it.interlogic.vimp.data.jpa.model;
 
+import it.interlogic.vimp.service.impl.IDecodificheServiceImpl;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -19,8 +21,6 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
-
-import it.interlogic.vimp.service.impl.IDecodificheServiceImpl;
 
 /**
  * The persistent class for the PLF_SERVIZI database table.
@@ -126,17 +126,17 @@ public class PLFServiziEntity implements Serializable, TagEntityInterface
 		{
 			if ("S".equals(serviziStandard))
 			{
-				if (getPlfImpresas() != null && getPlfImpresas().size()>0)
-					return serviziTranslation.getDescrizione() + " - " +  getPlfImpresas().get(0).getImpresaTranslation().getDescImpresa() + " (STANDARD)";
-				
+				if (getPlfImpresas() != null && getPlfImpresas().size() > 0)
+					return serviziTranslation.getDescrizione() + " - " + getPlfImpresas().get(0).getImpresaTranslation().getDescImpresa() + " (STANDARD)";
+
 				return serviziTranslation.getDescrizione() + " - STANDARD";
 			}
 			else
 			{
-				
-				if (getPlfImpresas() != null && getPlfImpresas().size()>0)
-					return serviziTranslation.getTitolo() + " - " +  getPlfImpresas().get(0).getImpresaTranslation().getDescImpresa();
-				
+
+				if (getPlfImpresas() != null && getPlfImpresas().size() > 0)
+					return serviziTranslation.getTitolo() + " - " + getPlfImpresas().get(0).getImpresaTranslation().getDescImpresa();
+
 				return serviziTranslation.getTitolo();
 
 			}
@@ -425,4 +425,8 @@ public class PLFServiziEntity implements Serializable, TagEntityInterface
 		this.dataCancellazione = dataCancellazione;
 	}
 
+	public boolean isScaduto()
+	{
+		return (dataFine != null && dataFine.before(new Date()));
+	}
 }

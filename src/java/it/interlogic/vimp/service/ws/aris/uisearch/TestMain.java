@@ -9,6 +9,9 @@ public class TestMain {
 		
 		
 		EnterprisePortTypeProxy service = new EnterprisePortTypeProxy("https://apipublictest.comune.genova.it:443/aris_ulsearch/1.0.0");
+		
+		//https://apipublictest.comune.genova.it:443/aris_uisearchall​
+		
 		service.addToHeader("Authorization", "Bearer dca52f84-8b02-3bc8-b240-5b4bedd896b6");
 
 		

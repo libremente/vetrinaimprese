@@ -30,6 +30,8 @@
 			<form:hidden id="brevetti" path="brevetti" />
 			<form:hidden id="iscrizioneRegistro" path="iscrizioneRegistro" />
 			<form:hidden id="iscrizioneSpeciale" path="iscrizioneSpeciale" />
+			
+			<form:hidden id="accreditata" path="accreditata" />
 		
 		
 		    <div class="row">
@@ -153,7 +155,7 @@
 									
 									<div class="form-group col-md-4 col-sm-6 col-xs-12">
 										<div class="checkbox">
-											<label class="center homecheckbox"> <input
+											<label class="homecheckbox"> <input
 												id="checkboxBrevetti" name="checkboxBrevetti" type="checkbox" /><br />
 												<strong><spring:message code="ricerca.impresa.form.patent_possession" text="Possesso di brevetti"/></strong>
 											</label>
@@ -162,7 +164,7 @@
 									
 									<div class="form-group col-md-4 col-sm-6 col-xs-12">
 										<div class="checkbox">
-											<label class="center homecheckbox"> <input
+											<label class="homecheckbox"> <input
 												id="checkboxIscrizioneRegistro" name="checkboxIscrizioneRegistro" type="checkbox" /><br />
 												<strong><spring:message code="ricerca.impresa.form.business_register" text="Iscrizione registro imprese"/></strong>
 											</label>
@@ -171,16 +173,22 @@
 									
 									<div class="form-group col-md-4 col-sm-6 col-xs-12">
 										<div class="checkbox">
-											<label class="center homecheckbox"> <input
+											<label class="homecheckbox"> <input
 												id="checkboxIscrizioneSpeciale" name="checkboxIscrizioneSpeciale" type="checkbox" /><br />
 												<strong><spring:message code="ricerca.impresa.form.innovation_start_up" text="Iscrizione sezione speciale registro start up innovative / PMI innovative"/></strong>
 											</label>
 										</div>
 									</div>
 									
-							
+									<div class="form-group col-md-4 col-sm-6 col-xs-12">
+										<div class="checkbox">
+											<label class="homecheckbox"> <input
+												id="checkboxAccreditata" name="checkboxAccreditata" type="checkbox" /><br />
+												<strong><spring:message code="ricerca.impresa.form.accredited" text="Accreditata"/></strong>
+											</label>
+										</div>
+									</div>
 									
-			
 								</div>
 			
 							</div>
@@ -363,6 +371,12 @@
 		$("#iscrizioneRegistro").val("");
 		$('#checkboxIscrizioneSpeciale').iCheck('uncheck');
 		$("#iscrizioneSpeciale").val("");
+
+		$('#checkboxAccreditata').iCheck('uncheck');
+		$("#accreditata").val("");
+		
+
+		
 	}
 
 	$(document).ready(
@@ -402,6 +416,20 @@
 				$('#checkboxIscrizioneSpeciale').on('ifUnchecked', function(event) {
 					$("#iscrizioneSpeciale").val("N");
 				});
+
+
+				if (${parametriRicerca.accreditata == 'S'})
+					$('#checkboxAccreditata').iCheck('check');
+				else 
+					$('#checkboxAccreditata').iCheck('uncheck');
+				$('#checkboxAccreditata').on('ifChecked', function(event) {
+					$("#accreditata").val("S");
+				});
+				$('#checkboxAccreditata').on('ifUnchecked', function(event) {
+					$("#accreditata").val("N");
+				});
+				
+
 				
 			});
 

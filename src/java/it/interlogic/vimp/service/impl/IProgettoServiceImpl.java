@@ -104,7 +104,7 @@ public class IProgettoServiceImpl extends IAbstractServiceImpl implements IProge
 			dettaglio.setIdPlfProgettiProdotti(null);
 		}
 
-		List<PLFProgettiProdottiEntity> result = repository.findProgettiByNome(dettaglio.getProgettiProdottiTranslation().getNomeProgettoProdotto());
+		List<PLFProgettiProdottiEntity> result = repository.findProgettiByNomeNonCancellati(dettaglio.getProgettiProdottiTranslation().getNomeProgettoProdotto());
 		if (result != null && result.size() > 0)
 		{
 			// controllo se esiste con dettaglio NUOVO

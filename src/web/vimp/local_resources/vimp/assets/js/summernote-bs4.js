@@ -353,6 +353,8 @@
           height: rect.bottom - rect.top
       };
   }
+  
+  
   /**
    * returns a copy of the object where the keys have become the values and the values the keys.
    * @param {Object} obj
@@ -521,6 +523,7 @@
   function isEmpty(array) {
       return !array || !array.length;
   }
+
   /**
    * cluster elements by predicate function.
    *
@@ -4113,6 +4116,7 @@
               });
           });
       }
+      var functionChangeListener = null;
       Editor.prototype.initialize = function () {
           var _this = this;
           // bind custom events
@@ -4149,8 +4153,10 @@
           });
           // init content before set event
           this.$editable.html(dom.html(this.$note) || dom.emptyPara);
+          
           this.$editable.on(env.inputEventName, func.debounce(function () {
-              _this.context.triggerEvent('change', _this.$editable.html());
+        	if (functionChangeListener) functionChangeListener();
+        	  _this.context.triggerEvent('change', _this.$editable.html(), _this.$editable);
           }, 10));
           this.$editor.on('focusin', function (event) {
               _this.context.triggerEvent('focusin', event);
@@ -4175,6 +4181,9 @@
       };
       Editor.prototype.destroy = function () {
           this.$editable.off();
+      };
+      Editor.prototype.onChangeListener = function (paramFunction) {
+    	  functionChangeListener = paramFunction;
       };
       Editor.prototype.handleKeyMap = function (event) {
           var keyMap = this.options.keyMap[env.isMac ? 'mac' : 'pc'];

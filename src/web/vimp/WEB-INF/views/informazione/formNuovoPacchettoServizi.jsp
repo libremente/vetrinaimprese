@@ -449,6 +449,8 @@
 <script src="${evn_urlRisorseStatiche}/vimp/assets/js/wizard.js"></script>
 <script src="${evn_urlRisorseStatiche}/vimp/assets/js/main.js"></script>
 
+<script src="${evn_urlRisorseStatiche}/vimp/assets/js/checkModify.js"></script>
+
 <script>
     var uploadImage = false;
     var checkServiziDuplicati = false;
@@ -520,10 +522,12 @@
         });
 
         displayTabelleServizi();
+        setCheckInsert();
 
     });
 
     function aggiorna(event) {
+    	removeCheckInsert();
         event.preventDefault();
         if (uploadImage) {
             var fileSize = $('#wizardPicturePreview').attr('src').length;
@@ -559,7 +563,7 @@
     function toggleTagSelection(e, id) {
         var startClass = $(e).attr('class');
 
-        $(e).toggleClass('tag-selected');
+        $(e).toggleClass('tag-selected').trigger('classChange');
 
         $('#selectTags > option[value="'+ id +'"]').each(function() {
 

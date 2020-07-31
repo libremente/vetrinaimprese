@@ -9,6 +9,7 @@ public class UtenteContext
 	public final static String USER_SESSION_KEY_TEMPORANY = "UtenteContext.currentUser.temporany";
 	
 	public final static String USER_PERSONAL_LIST_KEY = "UtenteContext.personal.list";
+	public final static String USER_PERSONAL_LIST_PARAMS_KEY = "UtenteContext.personal.list.params";
 
 	private final static ThreadLocal<UtenteContext> threadInstance = new ThreadLocal<UtenteContext>()
 	{

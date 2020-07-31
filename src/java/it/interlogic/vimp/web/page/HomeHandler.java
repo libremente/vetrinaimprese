@@ -7,6 +7,7 @@ import it.interlogic.vimp.utils.LoggerUtility;
 import it.interlogic.vimp.web.AbstractHandler;
 import it.interlogic.vimp.web.dto.MailContattaci;
 import it.interlogic.vimp.web.dto.ParametriRicerca;
+import it.interlogic.vimp.web.dto.ParametriRicercaMyInfo;
 import it.interlogic.vimp.web.security.AmbienteContext;
 import it.interlogic.vimp.web.security.UtenteContext;
 
@@ -46,7 +47,7 @@ public class HomeHandler extends AbstractHandler
 	private static final String VIEW_CONTATTI = "contatti";
 	private static final String VIEW_TERMINI = "termini";
 	private static final String VIEW_COOKIES = "cookies";
-	
+
 	@Autowired
 	private JavaMailSender mailSender;
 
@@ -54,7 +55,7 @@ public class HomeHandler extends AbstractHandler
 
 	@Autowired
 	protected IRicercaService ricercaService;
-	
+
 	@Autowired
 	protected ServletContext context;
 
@@ -121,8 +122,7 @@ public class HomeHandler extends AbstractHandler
 	{
 		return home(parametri, model, session);
 	}
-	
-	
+
 	/**
 	 * @param parametri
 	 * @param model
@@ -155,25 +155,7 @@ public class HomeHandler extends AbstractHandler
 		return view;
 	}
 
-	/**
-	 * @param parametri
-	 * @param model
-	 * @param session
-	 * @return
-	 */
-	@RequestMapping(value = "/secure/homePersonal")
-	public String homePersonal(ParametriRicerca parametri, Model model, HttpSession session)
-	{
-		logger.debug("HomeHandler::homePersonal: BEGIN");
-
-		if (parametri == null)
-			parametri = new ParametriRicerca();
-
-		String view = internalPersonalSearch(parametri, model, session);
-
-		logger.debug("HomeHandler::homePersonal: END");
-		return view;
-	}
+	
 
 	/**
 	 * @param parametri
@@ -186,6 +168,30 @@ public class HomeHandler extends AbstractHandler
 	{
 		return home(parametri, model, session);
 	}
+	
+	
+	/**
+	 * @param parametri
+	 * @param model
+	 * @param session
+	 * @return
+	 */
+	@RequestMapping(value = "/secure/homePersonal")
+	public String homePersonal(ParametriRicercaMyInfo parametriRicerca, Model model, HttpSession session,HttpServletRequest request)
+	{
+		logger.debug("HomeHandler::homePersonal: BEGIN");
+
+		if (parametriRicerca == null)
+			parametriRicerca = new ParametriRicercaMyInfo();
+
+		String view = internalPersonalSearch(parametriRicerca, model, session,request);
+		
+		
+		model.addAttribute("parametriRicerca", parametriRicerca);
+		
+		logger.debug("HomeHandler::homePersonal: END");
+		return view;
+	}
 
 	/**
 	 * @param parametri
@@ -193,67 +199,58 @@ public class HomeHandler extends AbstractHandler
 	 * @param session
 	 * @return
 	 */
-	private String internalPersonalSearch(ParametriRicerca parametri, Model model, HttpSession session)
+	private String internalPersonalSearch(ParametriRicercaMyInfo parametriRicerca, Model model, HttpSession session, HttpServletRequest request)
 	{
 		String view = VIEW_HOME_PERSONAL;
-		model.addAttribute("widgetPaginazione", false);
 
-		List<PLFVInformazioneEntity> risultato = ricercaService.findInformazioniPersonal();
-		model.addAttribute("lista", risultato);
-
-		setCounter(model);
-
-		return view;
-	}
-	
-	
-	
-	private String internalPaginatePersonalSearch(ParametriRicerca parametri, Model model, HttpSession session,HttpServletRequest request)
-	{
-		String view = VIEW_HOME_PERSONAL;
-		
-		int numberForPageInformation = 8;
-		
-		int numeroPagina = parametri.getValoreNumeroPagina() - 1;
+		int numeroPagina = parametriRicerca.getValoreNumeroPagina() - 1;
 		@SuppressWarnings("unchecked")
 		List<PLFVInformazioneEntity> storedList = (List<PLFVInformazioneEntity>) WebUtils.getSessionAttribute(request, UtenteContext.USER_PERSONAL_LIST_KEY);
-		if (storedList == null || numeroPagina <= 0)
+		ParametriRicercaMyInfo storedParam = (ParametriRicercaMyInfo) WebUtils.getSessionAttribute(request, UtenteContext.USER_PERSONAL_LIST_PARAMS_KEY);
+		if (storedParam == null)
+			storedParam = parametriRicerca;
+		
+		if (storedList == null || numeroPagina <= 0 || !storedParam.equals(parametriRicerca))
 		{
-			storedList = ricercaService.findInformazioniPersonal();
+			storedList = ricercaService.findInformazioniPersonal(parametriRicerca);
 			WebUtils.setSessionAttribute(request, UtenteContext.USER_PERSONAL_LIST_KEY, storedList);
+			WebUtils.setSessionAttribute(request, UtenteContext.USER_PERSONAL_LIST_PARAMS_KEY, parametriRicerca);
 		}
+
+		int numeroRecordPerPagina = Integer.parseInt(parametriRicerca.getNumeroRecord());
+		int paginaCorrente = Integer.parseInt(parametriRicerca.getPaginaCorrente())-1;
+		parametriRicerca.setPaginaCorrente(parametriRicerca.getPaginaCorrente());
+
+		int fromIndex = numeroRecordPerPagina * paginaCorrente;
 		
-		model.addAttribute("widgetPaginazione", storedList.size()>numberForPageInformation);
+		int toIndex = fromIndex + numeroRecordPerPagina;
+		if (fromIndex + numeroRecordPerPagina > storedList.size())
+			toIndex = storedList.size();
 		
-		int numeroRecordPerPagina = Integer.parseInt(parametri.getNumeroRecord());
-		int paginaCorrente = Integer.parseInt(parametri.getPaginaCorrente());
+		model.addAttribute("widgetPaginazione", storedList.size() > numeroRecordPerPagina);
 		
-		
-		int fromIndex = numeroRecordPerPagina*paginaCorrente;
-		int toIndex = fromIndex+numeroRecordPerPagina;
 		List<PLFVInformazioneEntity> pageResult = storedList.subList(fromIndex, toIndex);
-		
+
 		int totalPage = 1;
-		if (storedList.size()>numeroRecordPerPagina)
+		if (storedList.size() > numeroRecordPerPagina)
 		{
-			totalPage = (int) (storedList.size()/numeroRecordPerPagina);
-			if (storedList.size() % numeroRecordPerPagina>0)
+			totalPage = (int) (storedList.size() / numeroRecordPerPagina);
+			if (storedList.size() % numeroRecordPerPagina > 0)
 				totalPage += 1;
 		}
-		
+
 		model.addAttribute("lista", pageResult);
 		model.addAttribute("totRecord", storedList.size());
 		model.addAttribute("totPagine", totalPage);
 		model.addAttribute("paginaCorrente", paginaCorrente + 1);
+		model.addAttribute("numeroRecordPerPagina", numeroRecordPerPagina);
+		
 		model.addAttribute("numeroRecordDa", (paginaCorrente * numeroRecordPerPagina) + 1);
 		model.addAttribute("numeroRecordA", Math.min((paginaCorrente * numeroRecordPerPagina) + numeroRecordPerPagina, storedList.size()));
-			
-		
-		
+
 		setCounter(model);
 		return view;
 	}
-	
 
 	/**
 	 * @param parametri
@@ -335,7 +332,7 @@ public class HomeHandler extends AbstractHandler
 			{
 				if ("S".equals(parametri.getFindIncubatori()))
 				{
-					BigDecimal[] stato = new BigDecimal[]{new BigDecimal(IAbstractServiceImpl.STAKEHOLDER_INCUBATORE)};
+					BigDecimal[] stato = new BigDecimal[] { new BigDecimal(IAbstractServiceImpl.STAKEHOLDER_INCUBATORE) };
 					risultato = ricercaService.findInformazioniByStato(numeroPagina, parametri.getValoreNumeroRecord(), new BigDecimal(parametri.getTipoInformazione()),
 							parametri.getTextRicerca(), stato, onlyPublic);
 				}
@@ -385,12 +382,11 @@ public class HomeHandler extends AbstractHandler
 				BigDecimal[] tipo = null;
 				List<BigDecimal> tipi = new ArrayList<BigDecimal>();
 
-				if(parametri.getFindServizi().equals("S"))
-				 	tipi.add(new BigDecimal(IAbstractServiceImpl.TIPO_INFO_SERVIZIO));
+				if (parametri.getFindServizi().equals("S"))
+					tipi.add(new BigDecimal(IAbstractServiceImpl.TIPO_INFO_SERVIZIO));
 
-				if(parametri.getFindPacchettiServizi().equals("S"))
+				if (parametri.getFindPacchettiServizi().equals("S"))
 					tipi.add(new BigDecimal(IAbstractServiceImpl.TIPO_INFO_PACCHETTO_SERVIZI));
-				
 
 				if (tipi.size() > 0)
 				{
@@ -406,17 +402,19 @@ public class HomeHandler extends AbstractHandler
 				if (!"S".equals(parametri.getFindNewsEvidenza()))
 					risultato = ricercaService.findInformazioni(numeroPagina, parametri.getValoreNumeroRecord(), new BigDecimal(parametri.getTipoInformazione()),
 							parametri.getTextRicerca(), onlyPublic);
-				else {
+				else
+				{
 
-					BigDecimal[] stato = {new BigDecimal(IAbstractServiceImpl.STATO_NEWS_EVIDENZA)};
-					BigDecimal[] tipoInfo = {new BigDecimal(IAbstractServiceImpl.TIPO_INFO_NEWS)};
+					BigDecimal[] stato = { new BigDecimal(IAbstractServiceImpl.STATO_NEWS_EVIDENZA) };
+					BigDecimal[] tipoInfo = { new BigDecimal(IAbstractServiceImpl.TIPO_INFO_NEWS) };
 
-					risultato = ricercaService.findInformazioniByTipoStato(numeroPagina, parametri.getValoreNumeroRecord(),
-							tipoInfo, parametri.getTextRicerca(), stato, onlyPublic);
+					risultato = ricercaService
+							.findInformazioniByTipoStato(numeroPagina, parametri.getValoreNumeroRecord(), tipoInfo, parametri.getTextRicerca(), stato, onlyPublic);
 				}
 
 			}
-			else {
+			else
+			{
 
 				risultato = ricercaService.findInformazioni(numeroPagina, parametri.getValoreNumeroRecord(), new BigDecimal(parametri.getTipoInformazione()),
 						parametri.getTextRicerca(), onlyPublic);
@@ -425,28 +423,18 @@ public class HomeHandler extends AbstractHandler
 		else
 			risultato = ricercaService.findInformazioni(numeroPagina, parametri.getValoreNumeroRecord(), parametri.getTextRicerca(), onlyPublic);
 
-
-		if(risultato != null) {
+		if (risultato != null)
+		{
 
 			int numeroRecordPerPagina = Integer.parseInt(parametri.getNumeroRecord());
-/*
-			List<PLFVInformazioneEntity> tList = new ArrayList<PLFVInformazioneEntity>();
-
-			for(PLFVInformazioneEntity informazioneEntity : risultato.getContent()) {
-				if(informazioneEntity.isPubblicato() || UtenteContext.getCurrentUser().isBackoffice()) {
-					tList.add(informazioneEntity);
-				}
-			}
-
-
-
-			Page<PLFVInformazioneEntity> showRisultato = new PageImpl<PLFVInformazioneEntity>(tList, new PageRequest(numeroPagina, numeroRecordPerPagina), tList.size());*/
+			
 			model.addAttribute("lista", risultato.getContent());
 			model.addAttribute("totRecord", risultato.getTotalElements());
 			model.addAttribute("totPagine", risultato.getTotalPages());
 			model.addAttribute("paginaCorrente", risultato.getNumber() + 1);
 			model.addAttribute("numeroRecordDa", (risultato.getNumber() * numeroRecordPerPagina) + 1);
 			model.addAttribute("numeroRecordA", Math.min((risultato.getNumber() * numeroRecordPerPagina) + numeroRecordPerPagina, risultato.getTotalElements()));
+			
 		}
 		else
 		{
@@ -570,18 +558,18 @@ public class HomeHandler extends AbstractHandler
 	{
 		logger.debug("HomeHandler::mailContattaci: BEGIN");
 
-		if (dettaglio != null && dettaglio.getEmail() != null && dettaglio.getOggetto() != null && 
-				dettaglio.getMessaggio() != null && dettaglio.getCognome() != null)
+		if (dettaglio != null && dettaglio.getEmail() != null && dettaglio.getOggetto() != null && dettaglio.getMessaggio() != null && dettaglio.getCognome() != null)
 		{
 			Map<String, String> mailData = new HashMap<String, String>();
-			
+
 			String nomeCognome = dettaglio.getCognome();
-			if (dettaglio.getNome() != null) nomeCognome = dettaglio.getNome() + " " + nomeCognome;
+			if (dettaglio.getNome() != null)
+				nomeCognome = dettaglio.getNome() + " " + nomeCognome;
 
 			mailData.put("nomeCognome", nomeCognome);
 			mailData.put("data", dateFormat.format(new Date()));
 			mailData.put("messaggio", dettaglio.getMessaggio());
-			
+
 			String body = null;
 
 			try
@@ -593,15 +581,13 @@ public class HomeHandler extends AbstractHandler
 			{
 				err.printStackTrace();
 			}
-			
-			
-			
+
 		}
 
 		logger.debug("HomeHandler::mailContattaci: END");
 		return "redirect:/contact";
 	}
-	
+
 	/**
 	 * @param from
 	 * @param to
@@ -632,12 +618,11 @@ public class HomeHandler extends AbstractHandler
 		}
 		catch (Exception err)
 		{
-			LoggerUtility.error("Impostare il server SMPT in servlet.xml",err);
+			LoggerUtility.error("Impostare il server SMPT in servlet.xml", err);
 		}
 		LoggerUtility.error("----------------- Send mail end");
 	}
 
-	
 	/**
 	 * @param mailFileName
 	 * @param values
@@ -652,8 +637,7 @@ public class HomeHandler extends AbstractHandler
 		textMail = sub.replace(theString);
 		return textMail;
 	}
-	
-	
+
 	/**
 	 * @param request
 	 * @param session
@@ -715,7 +699,7 @@ public class HomeHandler extends AbstractHandler
 	{
 		return termini(model, request);
 	}
-	
+
 	/**
 	 * @param model
 	 * @param request
@@ -729,9 +713,9 @@ public class HomeHandler extends AbstractHandler
 		String returnView = VIEW_COOKIES;
 		String language = LocaleContextHolder.getLocale().getLanguage();
 		String region = LocaleContextHolder.getLocale().getCountry();
-		if (language != null && language.trim().length()>0 && region != null && region.trim().length()>0)
-			returnView = VIEW_COOKIES + "_"  + language + "_" + region;
-		
+		if (language != null && language.trim().length() > 0 && region != null && region.trim().length() > 0)
+			returnView = VIEW_COOKIES + "_" + language + "_" + region;
+
 		logger.debug("HomeHandler::cookiesO:   END");
 		return returnView;
 	}
@@ -747,8 +731,9 @@ public class HomeHandler extends AbstractHandler
 		return cookies(model, request);
 	}
 
-
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see it.interlogic.vimp.web.AbstractHandler#getPageName()
 	 */
 	@Override

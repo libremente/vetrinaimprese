@@ -106,6 +106,8 @@ public interface IServiziService
 	 */
 	List<PLFServiziEntity> findAllByImpresa(BigDecimal idImpresa);
 	
+	List<PLFServiziEntity> findAllByImpresa(BigDecimal idImpresa,String ricerca);
+	
 	
 	long countServiziByDenominazione(BigDecimal idDenominazioneServizio);
 

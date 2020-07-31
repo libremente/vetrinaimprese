@@ -41,6 +41,17 @@
     <div class="content-area user-profiel">
 
     <div class="container">
+    
+    	<c:if test="${dettaglio.isScaduto()}">
+			<div class="col-sm-12 label-scaduto-container">
+				<div class="col-sm-10">
+					&nbsp;
+				</div>
+				<div class="col-sm-2">
+					<label class="label-scaduto"><spring:message code="expired" text="Scaduto"/></label>
+				</div>
+			</div>
+		</c:if>
 
         <c:if test="${!empty successMessage}">
             <div class="alert alert-success fade in">
@@ -556,9 +567,9 @@
                                 <div class="col-sm-12">
                                     <div class="col-sm-6 save-btns">
 
-                                        <a href="#" class="btn btn-finish btn-primary"
+                                        <a id="deleteButton" href="#" class="btn btn-finish btn-primary"
                                            data-toggle="modal" data-target="#chiudiModal"><spring:message code="form.dettaglio.pacchetto.cancella"/></a>
-                                        <button class='btn btn-default' type="button" onClick="javascript:resetForm();"><spring:message code="common_texts.reset" /></button>
+                                        <button id="cancelButton" class='btn btn-default' type="button" onClick="javascript:resetForm();"><spring:message code="common_texts.reset" /></button>
                                     </div>
                                     <div class="col-sm-6 save-btns">
                                         <button id="saveButton"
@@ -606,6 +617,8 @@
 
     </div>
 
+    </div>
+    
     <div class="modal fade" id="resetFormConfirm" tabindex="-1" role="dialog"
          aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -626,6 +639,7 @@
     </div>
 
 </form:form>
+
 
 <div class="modal fade" id="errorModal" tabindex="-1" role="dialog"
      aria-labelledby="errorModalLabel" aria-hidden="true">
@@ -672,6 +686,8 @@
 <script src="${evn_urlRisorseStatiche}/vimp/assets/js/main.js"></script>
 <script src="${evn_urlRisorseStatiche}/vimp/assets/js/jquery.tablesorter.js"  type="text/javascript"></script>
 <script src="${evn_urlRisorseStatiche}/vimp/assets/js/jquery.tablecloth.js" type="text/javascript"></script>
+
+<script src="${evn_urlRisorseStatiche}/vimp/assets/js/checkModify.js"></script>
 
 <script>
 
@@ -743,7 +759,16 @@
                         $('#frmDettaglio').unbind('submit').submit();
                     });
                 }
-            })
+            });
+
+            <!-- CONTROLLO USCITA PAGINA MODIFICATA SENZA SALVARE-->
+			<!-- checkModify.js -->
+			if (${modifica})
+			{
+				setCheckModify('saveButton','cancelButton','deleteButton',
+						['pubblicato'],
+						null);
+			}
 
         });
 
@@ -788,7 +813,7 @@
     function toggleTagSelection(e, id) {
         var startClass = $(e).attr('class');
 
-        $(e).toggleClass('tag-selected');
+        $(e).toggleClass('tag-selected').trigger('classChange');
 
         $('#selectTags > option[value="'+ id +'"]').each(function() {
 

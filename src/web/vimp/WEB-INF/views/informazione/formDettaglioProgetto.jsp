@@ -34,6 +34,9 @@
                 text="Data fine collaborazione"/>
 <spring:message var="nameTitleAttr" code="name" text="Nome"/>
 <spring:message var="descriptionTitleAttr" code="description" text="Descrizione"/>
+<spring:message var="selectTheCompanyLinkedToTheNewsTitleAttr" code="form.nuova.news.impresa.selectTheCompanyLinkedToTheNewsTitleAttr" text="Seleziona l'impresa collegato alla news"/>
+<spring:message var="selectTheCompanyLinkedToTheProjectTitleAttr" code="form.nuova.news.impresa.selectTheCompanyLinkedToTheProjectTitleAttr" text="Seleziona l'impresa collegato al progetto"/>
+
 
 <div class="page-head">
     <div class="container">
@@ -66,14 +69,24 @@
     <!-- CAMPI MANCANTI -->
     <form:hidden id="descFonte" path="progettiProdottiTranslation.descFonte"/>
 
-	<c:if test="${aggiornamento}">
-		<form:hidden id="plfImpresa.idPlfImpresa" path="plfImpresa.idPlfImpresa"/>
-	</c:if>
+	
 
 
     <div class="content-area user-profiel">
     &nbsp;
     <div class="container">
+    
+    	<c:if test="${dettaglio.isScaduto()}">
+			<div class="col-sm-12 label-scaduto-container">
+				<div class="col-sm-10">
+					&nbsp;
+				</div>
+				<div class="col-sm-2">
+					<label class="label-scaduto"><spring:message code="expired" text="Scaduto"/></label>
+				</div>
+			</div>
+		</c:if>
+		
         <c:if test="${!empty successMessage}">
             <div class="alert alert-success fade in">
                 <button type="button" class="close" data-dismiss="alert"
@@ -247,8 +260,7 @@
 
                         <%--Impresa (DISABILITATO)--%>
                     <div class="form-group" hidden>
-                        <label style="margin-top: 12px;"><spring:message code="common_texts.enterprise"
-                                                                         text="Impresa"/> :
+                        <label style="margin-top: 12px;"><spring:message code="common_texts.enterprise" text="Impresa"/> :
                             <b>${dettaglio.plfImpresa.impresaTranslation.descImpresa}</b></label>&nbsp;
                         <a href="/vimp/impresa/${dettaglio.plfImpresa.idPlfImpresa}"><span
                                 class="glyphicon glyphicon-folder-open"></span></a>
@@ -289,7 +301,20 @@
                             <%-- Impresa --%>
                         <div class="col-sm-6">
                             <div class="form-group">
-                                <label><spring:message code="common_texts.enterprise" text="Impresa"/> : <b>${dettaglio.plfImpresa.descImpresa}</b></label>
+                            	<c:choose>
+									<c:when test="${modifica}">
+										<label><spring:message code="common_texts.enterprise" text="Impresa"/> :</label>
+										<form:select id="selectImpresa"
+													 title="${selectTheCompanyLinkedToTheProjectTitleAttr}" data-live-search="true"
+													 data-live-search-style="contains"
+													 path="plfImpresa.idPlfImpresa" cssClass="selectpicker">
+											<form:options items="${impresaList}" />
+										</form:select>
+									</c:when>
+									<c:otherwise>
+                                		<label><spring:message code="common_texts.enterprise" text="Impresa"/> : <b>${dettaglio.plfImpresa.descImpresa}</b></label>
+                                	</c:otherwise>
+								</c:choose>
                             </div>
                         </div>
 
@@ -536,7 +561,7 @@
                                             
                                             <c:choose>
                                     			<c:when test="${utils.checkLinkUrl(dettaglio.descSito)}">
-                                    				<a class="wow fadeInUp animated" target="_blank" href="${dettaglio.descSito}" data-wow-delay="0.5s">${dettaglio.descSito}</a>
+                                    				<a class="wow fadeInUp animated" target="_blank" href="${utils.anchor(dettaglio.descSito)}" data-wow-delay="0.5s">${dettaglio.descSito}</a>
                                     			</c:when>
                                     			<c:otherwise>
                                     				<label><b>${dettaglio.descSito}</b></label>
@@ -1081,10 +1106,10 @@
 
                             <div class="col-sm-12">
                                 <div class="col-sm-6 save-btns">
-                                    <a href="#" class="btn btn-finish btn-primary"
+                                    <a id="cancelButton" href="#" class="btn btn-finish btn-primary"
                                        data-toggle="modal" data-target="#chiudiModal"><spring:message
                                             code="delete.uppercase" text="CANCELLA"/></a>
-                                    <button class='btn btn-default' type="button" onClick="javascript:resetForm();">
+                                    <button id="deleteButton" class='btn btn-default' type="button" onClick="javascript:resetForm();">
                                         <spring:message code="common_texts.reset" text="ANNULLA"/></button>
                                 </div>
                                 <div class="col-sm-6 save-btns">
@@ -1219,12 +1244,11 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <div class="pull-right">
+                	<button type="button" class="btn btn-default" data-dismiss="modal"><spring:message code="undo"/></button>
                         <a id="allegaFileDialogButton"
                            name="allegaFileDialogButton"
                            class='btn btn-finish btn-primary'
                            onClick="javascript:allegaFile();"><spring:message code="attach" text="Allega"/></a>
-                    </div>
                 </div>
             </form>
         </div>
@@ -1342,6 +1366,7 @@
 <script type="text/javascript"
         src="${evn_urlRisorseStatiche}/vimp/assets/js/lang/summernote-it-IT.js"></script>
 
+<script src="${evn_urlRisorseStatiche}/vimp/assets/js/checkModify.js"></script>
 
 <script>
     var uploadImage = false;
@@ -1551,6 +1576,16 @@
                 if(${dettaglio.pubblicato} === true) {
                     $('input[name="pubblicato"]').iCheck('check');
                 }
+
+
+                <!-- CONTROLLO USCITA PAGINA MODIFICATA SENZA SALVARE-->
+				<!-- checkModify.js -->
+				if (${modifica})
+				{
+					setCheckModify('saveButton','cancelButton','deleteButton',
+							['pubblicato'],
+							['caratteristicheTecniche']);
+				}
 
             });
 
@@ -1830,7 +1865,7 @@
     function toggleTagSelection(e, id) {
         var startClass = $(e).attr('class');
 
-        $(e).toggleClass('tag-selected');
+        $(e).toggleClass('tag-selected').trigger('classChange');
 
         $('#selectTags > option[value="'+ id +'"]').each(function() {
 

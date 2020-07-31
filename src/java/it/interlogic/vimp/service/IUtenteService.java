@@ -8,6 +8,7 @@ import it.interlogic.vimp.service.exception.PasswordExpiredException;
 import it.interlogic.vimp.service.exception.PasswordTemporanyException;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -76,5 +77,7 @@ public interface IUtenteService
 	
 	
 	PLFTUtenteEntity update(PLFTUtenteEntity utente, BigDecimal idImpresa);
+	
+	PLFTUtenteEntity deleteUtenteImpresa(PLFTUtenteEntity utente, BigDecimal idImpresa,Date dataCancellazione);
 	
 }

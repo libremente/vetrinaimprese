@@ -1,0 +1,5 @@
+Buongiorno,
+
+L'impresa denominata %(denominazioneImpresa) con codice fiscale %(codiceFiscale) e la relativa login risultano ripristinati sulla Vetrina Impresa.
+
+Per maggiori dettagli puoi inviare una e-mail a piattaformalavoro.assistenza@comune.genova.it.

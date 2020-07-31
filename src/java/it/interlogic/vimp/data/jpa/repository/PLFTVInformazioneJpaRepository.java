@@ -15,13 +15,16 @@ public interface PLFTVInformazioneJpaRepository extends PagingAndSortingReposito
 		JpaSpecificationExecutor<PLFVInformazioneEntity>
 {
 
-	@Query(value = "SELECT i FROM PLFVInformazioneEntity i WHERE UPPER(i.ricerca) like :ricerca ")
+	@Query(value = "SELECT i FROM PLFVInformazioneEntity i WHERE UPPER(i.ricerca) like :ricerca AND i.dataCancellazione is null ")
 	public List<PLFVInformazioneEntity> findInformazioni(@Param("ricerca") String ricerca);
-
-	@Query("SELECT i FROM PLFVInformazioneEntity i WHERE i.compositePrimaryKey.idTipoInformazione = :tipoInformazione AND UPPER(i.ricerca) = :ricerca")
+	
+	@Query("SELECT i FROM PLFVInformazioneEntity i WHERE i.compositePrimaryKey.idTipoInformazione = :tipoInformazione AND UPPER(i.ricerca) like :ricerca AND i.dataCancellazione is null")
 	public List<PLFVInformazioneEntity> findInformazioni(@Param("tipoInformazione") BigDecimal tipoInformazione, @Param("ricerca") String ricerca);
 
-	@Query("SELECT i FROM PLFVInformazioneEntity i WHERE i.compositePrimaryKey.idTipoInformazione = :tipoInformazione AND i.compositePrimaryKey.idInformazione = :idInformazione")
+	@Query("SELECT i FROM PLFVInformazioneEntity i WHERE i.compositePrimaryKey.idTipoInformazione = :tipoInformazione AND i.compositePrimaryKey.idInformazione = :idInformazione AND i.dataCancellazione is null")
 	public List<PLFVInformazioneEntity> findInformazioni(@Param("tipoInformazione") BigDecimal tipoInformazione, @Param("idInformazione") BigDecimal idInformazione);
+	
+	@Query("SELECT i FROM PLFVInformazioneEntity i WHERE i.compositePrimaryKey.idTipoInformazione = :tipoInformazione AND i.compositePrimaryKey.idInformazione = :idInformazione AND UPPER(i.ricerca) like :ricerca AND i.dataCancellazione is null")
+	public List<PLFVInformazioneEntity> findInformazioni(@Param("tipoInformazione") BigDecimal tipoInformazione, @Param("idInformazione") BigDecimal idInformazione, @Param("ricerca") String ricerca);
 
 }
