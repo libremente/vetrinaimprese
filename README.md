@@ -9,6 +9,20 @@ Next documentation is in Italian because the system has been developed for an It
 L’asse 1 “Agenda Digitale Metropolitano” del Piano Operativo della Città di Genova (PON Metro Genova) ha svolto rilevanti interventi per avanzare l’intero processo di produzione di servizi a cittadini e imprese presenti sul territorio, tra le quali ritroviamo lo sviluppo della piattaforma "Vetrina impresa" volta a garantire funzionalità legate alle tematiche del lavoro, con particolare riguardo agli ambiti dell’innovazione tecnologica, dell’industria creativa, dello sviluppo turistico culturale del territorio, della promozione dell’occupazione, dell’internalizzazione del mondo del lavoro, dello sviluppo di nuove professionalità e nuovi mercati. Il sistema permette, alle imprese accreditate, di inserire informazioni volte a pubblicizzare le proprie attività ed eventi di particolare interesse e di poter ricercare i vari servizi svolti sul territorio dagli stakeholder che hanno aderito al progetto. Si vuole pertanto uniformare le modalità di accesso di imprese, professionisti alle pratiche, ai servizi, ai sistemi, favorire la condivisione dei dati tra i vari stakeholder, ridurre i tempi e semplificare le modalità di espletamento delle varie attività al fine di incrementare la qualità, l’efficienza e l’efficacia del servizio erogato creando un ambiente sempre più favorevole allo sviluppo e alla rapida realizzazione di un’idea imprenditoriale con evidenti ricadute sul tessuto economico e produttivi, in particolare per le più piccole, giovani i in fase di start-up
 Il sistema è stata realizzato dall'impresa [Interlogic S.r.l.](http://www.pro-logic.it).
 
+
+[Ponmetro Comune di Genova](https://smart.comune.genova.it/ponmetro)
+
+Accesso all'applicativo [Vetrina Imprese](https://vetrinaimprese.comune.genova.it/vimp/home)
+
+
+## Struttura del repository
+Le principali cartelle usate dal repository sono
+
+* img: cartella con le immagini usate dall'applicazione
+* buildfiles: file di configurazione per ambiente di destinazione
+* lib: librerie utilizzate
+* src: sorgenti e files di configurazione
+
 ## System requirements
 
 The application this project produces is designed to be run on JBoss Enterprise Application Platform - Version 6.2.0.GA.
@@ -56,9 +70,16 @@ Start the JBoss Server with Custom Options. You will need to provide the argumen
 4. This will deploy `target/build/archives/tst/vimp.ear` to the running instance of the server.
  
 
-##Access the application
+ 
+## Accesso all'applicazione tramite credenziali SPID
 
- Access the running application in a browser at the following URL:  <http://localhost:8080/vimp>
+L'accesso all'applicazione è consentito con il sistema SPID per gli utenti esterni
+
+La gestione dell'autenticazione è garantita dal sistema SIRAC SSO che è definito tra i service provider SPID 
+(https://registry.spid.gov.it/service-providers)
+
+Noto il CF dell'utente il sistema verifica in una tabella del DB l'appartenenza dell'utente tra quelli di sistema.
+
 
 ## Copyleft and License
 
@@ -80,3 +101,17 @@ Start Bootstrap is based on the [Bootstrap](http://getbootstrap.com/) framework 
 This work is financed by [PON Metro 2014-2020](http://www.ponmetro.it) funding.
 
 ![alt text](./img/pon_metro/Barra_loghi.png)
+
+
+## Versioning
+
+La prima versione stabile è stata creata nel marzo 2020 all'atto dell'inserimento del SW nel catalogo del riuso.
+
+Il progetto è stabile al netto di continue migliorie e bug detection che sono possibili attraverso l'uso dell'ambiente in produzione presso la Protezione Civile del Comune di Genova
+
+
+
+## Contatti
+
+* Amministrazione proprietaria: Comune di Genova
+* Contatto e-mail referente di progetto (per segnalazioni e richiesta informazioni): 
