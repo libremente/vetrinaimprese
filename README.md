@@ -26,10 +26,10 @@ Le principali cartelle usate dal repository sono
 
 Documentazione allegata:
 
-* [Modello database](./doc/ModelloDatabase.pdf)
-* [Manuale utente Amministratore](./doc/ManualeUtenteAmministratore.pdf)
-* [Manuale utente accreditato](./doc/ManualeUtenteAccreditati.pdf)
-* [Manuale utente accesso libero](./doc/ManualeUtenteAccessoLibero.pdf)
+* [Modello database](./doc/ModelloDatabase.html)
+* [Manuale utente Amministratore](./doc/ManualeUtenteAmministratore.html)
+* [Manuale utente accreditato](./doc/ManualeUtenteAccessoaccreditati.html)
+* [Manuale utente accesso libero](./doc/ManualeUtenteAccessoLibero.html)
 
 
 ## System requirements
