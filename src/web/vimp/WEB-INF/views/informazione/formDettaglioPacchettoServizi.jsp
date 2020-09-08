@@ -29,7 +29,6 @@
 
     <form:hidden id="idPacchettoServizi" path="idPacchettoServizi" />
     <form:hidden id="pacchettoServiziTranslation.idPacchettoServizi" path="pacchettoServiziTranslation.idPacchettoServizi"/>
-    <form:hidden id="dataInizio" path="dataInizio" />
     <form:hidden id="utenteCreazione.idUtente" path="utenteCreazione.idUtente" />
     <form:hidden id="utenteCreazione.ruolo.idRuolo" path="utenteCreazione.ruolo.idRuolo" />
     <form:hidden id="utenteCreazione.nome" path="utenteCreazione.nome" />
@@ -140,8 +139,8 @@
                                 </c:if>
                                 <c:choose>
                                     <c:when test="${modifica}">
-											<textarea rows="4" name="pacchettoServiziTranslation.descrizione" class="form-control"
-                                                      maxlength="3390">${dettaglio.pacchettoServiziTranslation.descrizione}</textarea>
+                                            <textarea name="pacchettoServiziTranslation.descrizione" id="descrizione" class="form-control"
+											  maxlength="3990">${dettaglio.pacchettoServiziTranslation.descrizione}</textarea>
                                     </c:when>
                                     <c:otherwise>
                                         <br>
@@ -415,6 +414,64 @@
                                 </div>
                             </div>
                         </c:if>
+                        
+                        
+                        <div class="col-sm-12">
+							<div class="col-sm-6">
+								<div class="form-group" ${!modifica && empty dettaglio.dataInizio ? 'hidden' : ''}>
+									<label><spring:message code="date" text="Data"/> : <c:if test="${modifica}">
+										<small>(<spring:message code="required" text="richiesto"/>)</small>
+									</c:if>
+									</label>
+									<c:choose>
+										<c:when test="${modifica}">
+											<fmt:formatDate value="${dettaglio.dataInizio}" type="date"
+															pattern="dd/MM/yyyy" var="dataInizioFormatted" />
+											<div class="input-group date" data-provide="datepicker" data-date-language="${env_locale}"
+												 data-date-format="dd/mm/yyyy" >
+												<input name="dataInizio" type="text" class="form-control" id="dataInizio"
+													   value="${dataInizioFormatted}" path="dataInizio" autocomplete="off">
+												<div class="input-group-addon">
+													<span class="glyphicon glyphicon-th"></span>
+												</div>
+											</div>
+										</c:when>
+										<c:otherwise>
+											<fmt:formatDate value="${dettaglio.dataInizio}" type="date"
+															pattern="dd/MM/yyyy" var="dataInizioFormatted" />
+											<br>
+											<label><b>${dataInizioFormatted}</b></label>
+										</c:otherwise>
+									</c:choose>
+								</div>
+							</div>
+							
+							<div class="col-sm-6">
+								<div class="form-group" ${!modifica && empty dettaglio.dataFine ? 'hidden' : ''}>
+									<label><spring:message code="end_date" text="Data fine"/> :</label>
+									<c:choose>
+										<c:when test="${modifica}">
+											<fmt:formatDate value="${dettaglio.dataFine}" type="date" pattern="dd/MM/yyyy" var="dataFineFormatted" />
+											<div class="input-group date" data-provide="datepicker" data-date-language="${env_locale}" data-date-format="dd/mm/yyyy" >
+												<input name="dataFine" type="text" class="form-control" id="dataFine"
+													   value="${dataFineFormatted}" path="dataFine" autocomplete="off">
+												<div class="input-group-addon">
+													<span class="glyphicon glyphicon-th"></span>
+												</div>
+											</div>
+										</c:when>
+										<c:otherwise>
+											<fmt:formatDate value="${dettaglio.dataFine}" type="date"
+															pattern="dd/MM/yyyy" var="dataFineFormatted" />
+											<br>
+											<label><b>${dataFineFormatted}</b></label>
+										</c:otherwise>
+									</c:choose>
+								</div>
+							</div>
+							
+						</div>
+						
                             <%--tags--%>
                         <div class="safe-col">
                             <form:select id="selectTags" hidden="true"
@@ -511,7 +568,7 @@
                                 	</c:otherwise>
                                 </c:choose>
                             
-                                <label><b>${dettaglio.utenteCreazione.cognome} ${dettaglio.utenteCreazione.nome}</b></label>
+                                <label><b>${dettaglio.utenteCreazione.nome} ${dettaglio.utenteCreazione.cognome}</b></label>
                             </div>
                             <div class="col-sm-6" ${empty dettaglio.dataCreazione ? 'hidden' :''}>
                                 <label><spring:message code="form.dettaglio.pacchetto.data_creazione" /> </label>
@@ -529,7 +586,7 @@
                                 	</c:otherwise>
                                 </c:choose>
                             
-                                <label><b>${dettaglio.utenteUltimaModifica.cognome} ${dettaglio.utenteUltimaModifica.nome}</b></label>
+                                <label><b>${dettaglio.utenteUltimaModifica.nome} ${dettaglio.utenteUltimaModifica.cognome}</b></label>
                             </div>
                             <div class="col-sm-6" ${empty dettaglio.dataUltimaModifica ? 'hidden' :''}>
                                 <label><spring:message code="form.dettaglio.pacchetto.data_ultima_modifica" /> </label>
@@ -687,6 +744,10 @@
 <script src="${evn_urlRisorseStatiche}/vimp/assets/js/jquery.tablesorter.js"  type="text/javascript"></script>
 <script src="${evn_urlRisorseStatiche}/vimp/assets/js/jquery.tablecloth.js" type="text/javascript"></script>
 
+<script type="text/javascript"
+		src="${evn_urlRisorseStatiche}/vimp/assets/js/summernote-bs4.js"></script>
+<script type="text/javascript" src="${evn_urlRisorseStatiche}/vimp/assets/js/lang/summernote-it-IT.js"></script>
+
 <script src="${evn_urlRisorseStatiche}/vimp/assets/js/checkModify.js"></script>
 
 <script>
@@ -708,9 +769,55 @@
                 uploadImage = true;
             });
 
+            $('.datepicker').datepicker({
+				format : 'yyyy-mm-dd',
+				viewformat : 'dd/mm/yyyy',
+				language : '${env_locale}'
+			});
 
-            $('#frmDettaglio').validate({
-                ignore: ":hidden:not(.validate)",
+            var summernoteForm = $('#frmDettaglio');
+			$('#descrizione').summernote(
+			{
+				onChange: function (contents, $editable) {
+					summernoteElement.val(summernoteElement.summernote('isEmpty') ? "" : contents);
+				},
+				lang: '${env_locale}',
+				placeholder : "<spring:message code="pacchettoFormNuovaTextPlaceholder" text="Descrizione" />",
+				tabsize : 2,
+				height : 100,
+				fontNames : [ 'Arial', 'Arial Black',
+					'Comic Sans MS', 'Courier New' ],
+				toolbar : [
+					[
+						'style',
+						[ 'bold', 'italic', 'underline',
+							'clear' ] ],
+					[ 'fontname', [ 'fontname' ] ],
+					[ 'fontsize', [ 'fontsize' ] ],
+					[ 'color', [ 'color' ] ],
+					[ 'para', [ 'ul', 'ol', 'paragraph' ] ],
+					[ 'height', [ 'height' ] ] ]
+			});
+			var summernoteElement = $('#descrizione');
+
+			jQuery.validator.addMethod("checkDate", function(e) {
+				let valDataInizio = $('#dataInizio').val().split('/');
+				let dataInizio = new Date(valDataInizio[2], valDataInizio[1] - 1, valDataInizio[0]);
+
+				let valDataFine = $('#dataFine').val();
+
+				if(valDataFine) {
+					let arrDataFine = valDataFine.split("/");
+					let dataFine = new Date(arrDataFine[2], arrDataFine[1] - 1, arrDataFine[0]);
+					return dataFine > dataInizio;
+				}
+				return true;
+			});
+        
+
+
+			var summernoteValidator = $('#frmDettaglio').validate({
+				ignore: ':hidden:not(#descrizione),.note-editable.card-block',
                 errorPlacement: function(error, element) {
                     if(element.parent('.input-group').length) {
                         error.insertAfter(element.parent());
@@ -720,18 +827,38 @@
                 },
                 rules: {
                     'pacchettoServiziTranslation.titolo': 'required',
-                    'pacchettoServiziTranslation.descrizione' : 'required',
+                    'pacchettoServiziTranslation.descrizione' : {
+						required: function(element) {
+							return $('#descrizione').summernote('isEmpty');
+						}
+					},
                     'macroarea.id': 'required',
                     'luogoErogazione': 'required',
                     'contatti': 'required',
+                    dataInizio: 'required',
+					dataFine: "checkDate"
                 },
                 messages: {
                     'pacchettoServiziTranslation.titolo' : '<spring:message code="pacchettoFormNuovoInserireNome" javaScriptEscape="true" />',
                     'pacchettoServiziTranslation.descrizione' : '<spring:message code="pacchettoFormNuovoInserireDescrizione" javaScriptEscape="true" />',
                     'macroarea.id': '<spring:message code="pacchettoFormNuovoSelectMacroarea" javaScriptEscape="true" />',
                     'luogoErogazione': '<spring:message code="pacchettoFormNuovoInserireLuogoErogazione" javaScriptEscape="true" />',
-                    'contatti': '<spring:message code="pacchettoFormNuovoInserireContatti" javaScriptEscape="true" />'
-                }
+                    'contatti': '<spring:message code="pacchettoFormNuovoInserireContatti" javaScriptEscape="true" />',
+                    dataInizio: '<spring:message code="pacchettoInserireLaData" javaScriptEscape="true" />',
+					dataFine: '<spring:message code="erroreDateNews" javaScriptEscape="true" />'
+                },
+                showErrors: function (errorMap, errorList) {
+					if (typeof errorList[0] != "undefined") {
+						var id = errorList[0].element.id;
+
+						if( id === 'descrizione') {
+							$('html, body').animate({
+								scrollTop: 200
+							}, 300);
+						}
+					}
+					this.defaultShowErrors();
+				}
             });
 
             if(${dettaglio.pubblicato} === true) {
@@ -767,8 +894,9 @@
 			{
 				setCheckModify('saveButton','cancelButton','deleteButton',
 						['pubblicato'],
-						null);
+						['descrizione']);
 			}
+
 
         });
 

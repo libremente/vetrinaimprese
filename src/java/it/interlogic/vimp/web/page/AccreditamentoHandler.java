@@ -5,7 +5,10 @@ import it.interlogic.vimp.data.jpa.model.PLFImpresaEntity;
 import it.interlogic.vimp.data.jpa.model.PLFImpresaTranslationEntity;
 import it.interlogic.vimp.data.jpa.model.PLFLogEntity;
 import it.interlogic.vimp.data.jpa.model.PLFRichiestaAccreditamentoEntity;
+import it.interlogic.vimp.data.jpa.model.PLFTAtecoEntity;
 import it.interlogic.vimp.data.jpa.model.PLFTControlliRichiestaEntity;
+import it.interlogic.vimp.data.jpa.model.PLFTNaturaGiuridicaEntity;
+import it.interlogic.vimp.data.jpa.model.PLFTSettoreImpresaEntity;
 import it.interlogic.vimp.data.jpa.model.PLFTStatoImpresaEntity;
 import it.interlogic.vimp.data.jpa.model.PLFTStatoRichiestaEntity;
 import it.interlogic.vimp.data.jpa.model.PLFTTipoImpresaEntity;
@@ -36,6 +39,8 @@ import it.interlogic.vimp.web.security.AmbienteContext;
 import it.interlogic.vimp.web.security.UtenteContext;
 
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -74,6 +79,8 @@ public class AccreditamentoHandler extends AbstractHandler
 
 	private static final String COLONNE_ACCRDITAMENTO_SESSION_KEY = "COLONNE_ACCRDITAMENTO_SESSION_KEY";
 
+	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+
 	@Autowired
 	protected IArisService arisService;
 
@@ -97,10 +104,9 @@ public class AccreditamentoHandler extends AbstractHandler
 
 	@Autowired
 	private JavaMailSender mailSender;
-	
+
 	@Autowired
 	protected ILogService logService;
-
 
 	private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -160,7 +166,7 @@ public class AccreditamentoHandler extends AbstractHandler
 		model.addAttribute("dettaglio", dettaglio);
 
 		model.addAttribute("cambiaStatoImpresa", true);
-		if (dettaglio.getPlfImpresa()!=null&& dettaglio.getPlfImpresa().getIdPlfImpresa() != null && dettaglio.getPlfImpresa().getIdPlfImpresa().intValue()>0)
+		if (dettaglio.getPlfImpresa() != null && dettaglio.getPlfImpresa().getIdPlfImpresa() != null && dettaglio.getPlfImpresa().getIdPlfImpresa().intValue() > 0)
 		{
 			PLFLogEntity log = logService.getLogImpresa(dettaglio.getPlfImpresa().getIdPlfImpresa());
 			if (log != null && log.getIdLog() != null && log.getIdLog().intValue() > 0)
@@ -174,7 +180,7 @@ public class AccreditamentoHandler extends AbstractHandler
 				}
 			}
 		}
-		
+
 		model.addAttribute("statoImpresaList", IDecodificheServiceImpl.toMap(PLFTStatoImpresaEntity.class, decodificheService.getStatoImpresa(), "id", "descrizione", null, true));
 
 		parametri.setTipoInformazione(0);
@@ -458,12 +464,11 @@ public class AccreditamentoHandler extends AbstractHandler
 		if (entity != null && entity.getPlfTStatoImpresa() != null && entity.getPlfTStatoImpresa().getId() != null && entity.getPlfTStatoImpresa().getId().intValue() > 0)
 		{
 			oldState = entity.getPlfTStatoImpresa().getId().intValue();
-			newState = (dettaglio.getPlfTStatoImpresa() != null && dettaglio.getPlfTStatoImpresa().getId() != null) ? dettaglio.getPlfTStatoImpresa().getId().intValue(): 0;
+			newState = (dettaglio.getPlfTStatoImpresa() != null && dettaglio.getPlfTStatoImpresa().getId() != null) ? dettaglio.getPlfTStatoImpresa().getId().intValue() : 0;
 			if (oldState != newState)
 				sendMailCambiaStato = true;
 		}
-		
-		
+
 		if ("valida".equalsIgnoreCase(dettaglio.getAzione()))
 		{
 
@@ -502,10 +507,11 @@ public class AccreditamentoHandler extends AbstractHandler
 			{
 				impresa.getImpresaTranslation().setDescBreveImpresa(dettaglio.getDescImpresa());
 			}
-			
 
 			impresa.setCodFiscale(dettaglio.getCodFiscale());
 			impresa.setPartitaIva(dettaglio.getPartitaIva());
+			
+			
 			impresa.setDescIndirizzo(dettaglio.getDescIndirizzo());
 			impresa.setNumeroCivico(dettaglio.getNumeroCivico());
 			impresa.setCodCap(dettaglio.getCodCap());
@@ -519,6 +525,7 @@ public class AccreditamentoHandler extends AbstractHandler
 			tipo.setId(new BigDecimal(IAbstractServiceImpl.TIPO_IMPRESA_AZIENDA));
 			impresa.setPlfTTipoImpresa(tipo);
 
+			impresa = aggiornaDaAris(impresa);
 			PLFImpresaEntity impresaEntity = impresaService.updateImpresa(impresa);
 
 			if (impresaEntity != null && impresaEntity.getIdPlfImpresa() != null && impresaEntity.getIdPlfImpresa().intValue() > 0)
@@ -531,8 +538,7 @@ public class AccreditamentoHandler extends AbstractHandler
 				entity.setFlagAccreditamento("S");
 				entity.setDataRichiesta(new Date());
 				entity.setParereAccreditamento(dettaglio.getParereAccreditamento());
-				
-				
+
 				entity.setPlfTStatoImpresa(dettaglio.getPlfTStatoImpresa());
 				accreditamentoService.update(entity);
 
@@ -541,7 +547,7 @@ public class AccreditamentoHandler extends AbstractHandler
 				// UtenteContext.USER_SESSION_KEY, new UtenteDto(utente));
 			}
 
-			sendMailRichiestaValidata(dettaglio.getEmailContatto(),sendMailCambiaStato,oldState,newState);
+			sendMailRichiestaValidata(dettaglio.getEmailContatto(), sendMailCambiaStato, oldState, newState);
 		}
 		else if ("invalida".equalsIgnoreCase(dettaglio.getAzione()))
 		{
@@ -550,7 +556,7 @@ public class AccreditamentoHandler extends AbstractHandler
 			entity.setFlagAccreditamento("N");
 			accreditamentoService.update(entity);
 
-			sendMailRichiestaInvalidata(dettaglio.getEmailContatto(), dettaglio.getRagioneSociale(), dettaglio.getParereAccreditamento(),sendMailCambiaStato,oldState,newState);
+			sendMailRichiestaInvalidata(dettaglio.getEmailContatto(), dettaglio.getRagioneSociale(), dettaglio.getParereAccreditamento(), sendMailCambiaStato, oldState, newState);
 		}
 
 		return "redirect:/secure/dettaglioAccreditamento/" + dettaglio.getIdRichiestaAccreditamento().intValue();
@@ -594,13 +600,13 @@ public class AccreditamentoHandler extends AbstractHandler
 					else
 					{
 						String descr = accreditamento.getDescImpresa();
-						if (descr == null || descr.trim().length()<=0)
+						if (descr == null || descr.trim().length() <= 0)
 							descr = accreditamento.getPartitaIva();
-						if (descr == null || descr.trim().length()<=0)
+						if (descr == null || descr.trim().length() <= 0)
 							descr = accreditamento.getCodFiscale();
-						throw new AccreditamentoException(getMessage("accreditamentoPresenteAltro",new Object[] { descr }));
+						throw new AccreditamentoException(getMessage("accreditamentoPresenteAltro", new Object[] { descr }));
 					}
-					
+
 				}
 				LoggerUtility.info("PASSO 1");
 				throw new AccreditamentoException(getMessage("accreditamentoErroreGenerico"));
@@ -670,7 +676,7 @@ public class AccreditamentoHandler extends AbstractHandler
 
 						accreditamentoService.salvaRichiesta(codiceFiscaleUtente, dettaglio.getCodiceFiscaleInput(), dettaglio.getPartitaIvaInput(), dettaglio.getEmailInput(),
 								dettaglio.getIdStatoImpresaInput(), arisImpresa, IAbstractServiceImpl.STATO_RICHIESTA_ATTESA,
-								IAbstractServiceImpl.RICHIESTA_CONTROLLO_PRESENTE_ARIS, false);
+								IAbstractServiceImpl.RICHIESTA_CONTROLLO_PRESENTE_ARIS, false, dettaglio.getRappresentante(),dettaglio.getIncaricato());
 
 						throw new AccreditamentoException(message, true, false);
 					}
@@ -711,7 +717,7 @@ public class AccreditamentoHandler extends AbstractHandler
 
 					accreditamentoService.salvaRichiesta(codiceFiscaleUtente, dettaglio.getCodiceFiscaleInput(), dettaglio.getPartitaIvaInput(), dettaglio.getEmailInput(),
 							dettaglio.getIdStatoImpresaInput(), arisImpresa, IAbstractServiceImpl.STATO_RICHIESTA_ATTESA, IAbstractServiceImpl.RICHIESTA_CONTROLLO_PRESENTE_ARIS,
-							false);
+							false, dettaglio.getRappresentante(),dettaglio.getIncaricato());
 
 					throw new AccreditamentoException(message, true, false);
 
@@ -740,7 +746,7 @@ public class AccreditamentoHandler extends AbstractHandler
 
 						accreditamentoService.salvaRichiesta(codiceFiscaleUtente, dettaglio.getCodiceFiscaleInput(), dettaglio.getPartitaIvaInput(), dettaglio.getEmailInput(),
 								dettaglio.getIdStatoImpresaInput(), impresa, IAbstractServiceImpl.STATO_RICHIESTA_ATTESA, IAbstractServiceImpl.RICHIESTA_CONTROLLO_PRESENTE_ARIS,
-								false);
+								false, dettaglio.getRappresentante(),dettaglio.getIncaricato());
 
 						throw new AccreditamentoException(message, true, false);
 					}
@@ -776,7 +782,7 @@ public class AccreditamentoHandler extends AbstractHandler
 	private void nonPresente(RichiestaAccreditamento dettaglio, String codiceFiscaleUtente) throws AccreditamentoException
 	{
 		accreditamentoService.salvaRichiesta(codiceFiscaleUtente, dettaglio.getCodiceFiscaleInput(), dettaglio.getPartitaIvaInput(), dettaglio.getEmailInput(),
-				dettaglio.getIdStatoImpresaInput(), null, IAbstractServiceImpl.STATO_RICHIESTA_ATTESA, IAbstractServiceImpl.RICHIESTA_CONTROLLO_NON_PRESENTE, false);
+				dettaglio.getIdStatoImpresaInput(), null, IAbstractServiceImpl.STATO_RICHIESTA_ATTESA, IAbstractServiceImpl.RICHIESTA_CONTROLLO_NON_PRESENTE, false, dettaglio.getRappresentante(),dettaglio.getIncaricato());
 
 		String param = "";
 		if (dettaglio.getPartitaIvaInput() != null && dettaglio.getPartitaIvaInput().trim().length() > 0)
@@ -812,9 +818,11 @@ public class AccreditamentoHandler extends AbstractHandler
 			message = getMessage("accreditamentoImpresaUtenteEsistenteAltro");
 
 		accreditamentoService.salvaRichiesta(codiceFiscaleUtente, dettaglio.getCodiceFiscaleInput(), dettaglio.getPartitaIvaInput(), dettaglio.getEmailInput(),
-				dettaglio.getIdStatoImpresaInput(), impresa, IAbstractServiceImpl.STATO_RICHIESTA_VALIDATA_AUTO, IAbstractServiceImpl.RICHIESTA_CONTROLLO_PRESENTE_VIMP, true);
+				dettaglio.getIdStatoImpresaInput(), impresa, IAbstractServiceImpl.STATO_RICHIESTA_VALIDATA_AUTO, IAbstractServiceImpl.RICHIESTA_CONTROLLO_PRESENTE_VIMP, true, 
+				dettaglio.getRappresentante(),dettaglio.getIncaricato());
 
 		impresa.setDataAccreditamento(new Date());
+		impresa = aggiornaDaAris(impresa);
 		impresa = impresaService.updateImpresa(impresa);
 
 		sendMailRichiestaAccreditamento(dettaglio.getEmailInput(), codiceFiscaleUtente, impresa);
@@ -944,7 +952,7 @@ public class AccreditamentoHandler extends AbstractHandler
 	/**
 	 * @param email
 	 */
-	private void sendMailRichiestaValidata(String email,boolean sendMailCambiaStato,int vecchioStato,int nuovoStato)
+	private void sendMailRichiestaValidata(String email, boolean sendMailCambiaStato, int vecchioStato, int nuovoStato)
 	{
 		Map<String, String> mailData = new HashMap<String, String>();
 		String from = AmbienteContext.getMailNoReplay();
@@ -964,7 +972,7 @@ public class AccreditamentoHandler extends AbstractHandler
 			}
 			else
 				body = fillMailBody("MailValidaAccreditamento.txt", mailData);
-			doSendEmail(mailSender,from, to, subject, body);
+			doSendEmail(mailSender, from, to, subject, body);
 		}
 		catch (Exception err)
 		{
@@ -978,7 +986,7 @@ public class AccreditamentoHandler extends AbstractHandler
 	 * @param denominazioneImpresa
 	 * @param parere
 	 */
-	private void sendMailRichiestaInvalidata(String email, String denominazioneImpresa, String parere, boolean sendMailCambiaStato,int vecchioStato,int nuovoStato)
+	private void sendMailRichiestaInvalidata(String email, String denominazioneImpresa, String parere, boolean sendMailCambiaStato, int vecchioStato, int nuovoStato)
 	{
 		Map<String, String> mailData = new HashMap<String, String>();
 		if (denominazioneImpresa == null || denominazioneImpresa.trim().length() < 0)
@@ -1001,8 +1009,9 @@ public class AccreditamentoHandler extends AbstractHandler
 				mailData.put("vecchioStato", oldStateEntity.getDescrizione());
 				body = fillMailBody("MailInvalidaAccreditamentoCambioStato.txt", mailData);
 			}
-			else body = fillMailBody("MailInvalidaAccreditamento.txt", mailData);
-			doSendEmail(mailSender,from, to, subject, body);
+			else
+				body = fillMailBody("MailInvalidaAccreditamento.txt", mailData);
+			doSendEmail(mailSender, from, to, subject, body);
 		}
 		catch (Exception err)
 		{
@@ -1055,7 +1064,7 @@ public class AccreditamentoHandler extends AbstractHandler
 		try
 		{
 			body = fillMailBody("MailRichiestaAccreditamento.txt", mailData);
-			doSendEmail(mailSender,from, to, subject, body);
+			doSendEmail(mailSender, from, to, subject, body);
 		}
 		catch (Exception err)
 		{
@@ -1079,5 +1088,134 @@ public class AccreditamentoHandler extends AbstractHandler
 		return textMail;
 	}
 
+	private PLFImpresaEntity aggiornaDaAris(PLFImpresaEntity impresa)
+	{
+		String cfpi = getCodiceFiscalePartitaIva(impresa);
+		if (cfpi != null)
+		{
+			it.interlogic.vimp.service.ws.aris.uisearchall.UlSearchAllResult ul = arisService.getULAll(cfpi);
+			try
+			{
+				if (ul != null && ul.getC_fiscale_impresa() != null && ul.getC_fiscale_impresa().trim().length() > 0)
+				{
+					if (impresa.getDataIscrizioneSezioneSpeciale() == null)
+					{
+						PLFTNaturaGiuridicaEntity naturaGiuridica = getNaturaGiuridica(ul.getC_natura_giuridica());
+						if (naturaGiuridica != null)
+							impresa.setPlfTNaturaGiuridica(naturaGiuridica);
+
+						PLFTSettoreImpresaEntity settoreImpresaEntity = getSettoreImpresaServizi();
+						if (settoreImpresaEntity != null)
+							impresa.setPlfTSettoreImpresa(settoreImpresaEntity);
+
+						Date dataIscrizioneRegistroImprese = parseDate(ul.getDt_iscrizione_ri());
+						if (dataIscrizioneRegistroImprese != null)
+							impresa.setDataIscrizioneRegistroImprese(dataIscrizioneRegistroImprese);
+					}
+
+					it.interlogic.vimp.service.ws.aris.uisearchall.ResultElement[] sedi = ul.getResultUnitaLocali();
+					if (sedi != null && sedi.length > 0)
+					{
+						String attivitaAteco = sedi[0].getC_ateco();
+						PLFTAtecoEntity ateco = getAtecoAris(attivitaAteco);
+						if (ateco != null && ateco.getIdAteco() != null && ateco.getIdAteco().intValue() > 0)
+							impresa.setPlfTAteco(ateco);
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
+
+		return impresa;
+	}
+
+	private Date parseDate(String date)
+	{
+		try
+		{
+			if (date != null && date.trim().length() >= 10)
+			{
+				date = date.substring(0, 10).trim();
+				return DATE_FORMAT.parse(date.trim());
+			}
+		}
+		catch (ParseException e)
+		{
+		}
+		return null;
+
+	}
+
+	private String getCodiceFiscalePartitaIva(PLFImpresaEntity impresa)
+	{
+		if (impresa.getPartitaIva() != null && impresa.getPartitaIva().trim().length() > 0)
+			return impresa.getPartitaIva();
+		if (impresa.getCodFiscale() != null && impresa.getCodFiscale().trim().length() > 0)
+			return impresa.getCodFiscale();
+		return null;
+	}
+
+	private PLFTAtecoEntity getAtecoAris(String attivita)
+	{
+		try
+		{
+			if (attivita != null && attivita.trim().length() > 0)
+			{
+				List<PLFTAtecoEntity> list = decodificheService.getAtecoPerAttivita(new BigDecimal(Integer.parseInt(attivita.trim())));
+				if (list != null && list.size() > 0)
+				{
+					PLFTAtecoEntity ret = new PLFTAtecoEntity();
+					ret.setIdAteco(list.get(0).getIdAteco());
+					return ret;
+				}
+			}
+		}
+		catch (Exception err)
+		{
+		}
+		return null;
+	}
+
+	private PLFTNaturaGiuridicaEntity getNaturaGiuridica(String codice)
+	{
+		try
+		{
+			if (codice != null && codice.trim().length() > 0)
+			{
+				List<PLFTNaturaGiuridicaEntity> list = decodificheService.getNaturaGiuridicaByCodice(codice.trim().toUpperCase());
+				if (list != null && list.size() > 0)
+				{
+					PLFTNaturaGiuridicaEntity ret = new PLFTNaturaGiuridicaEntity();
+					ret.setId(list.get(0).getId());
+					return ret;
+				}
+			}
+		}
+		catch (Exception err)
+		{
+		}
+		return null;
+	}
+
+	private PLFTSettoreImpresaEntity getSettoreImpresaServizi()
+	{
+		try
+		{
+			List<PLFTSettoreImpresaEntity> list = decodificheService.getSettoreImpresaPerDescrizione("Servizi");
+			if (list != null && list.size() > 0)
+			{
+				PLFTSettoreImpresaEntity ret = new PLFTSettoreImpresaEntity();
+				ret.setId(list.get(0).getId());
+				return ret;
+			}
+		}
+		catch (Exception err)
+		{
+		}
+		return null;
+	}
 
 }

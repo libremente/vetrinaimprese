@@ -1291,7 +1291,8 @@
 					
 					
 						<div class="col-sm-12">&nbsp;</div>
-						<div class="col-md-12 col-xs-12 register-blocks" style="text-align: center;">
+						<div class="col-md-12 col-xs-12 register-blocks" style="text-align: center;"
+							${!modifica && (empty dettaglio.plfTPrevalenzaFemminile.codice && empty dettaglio.plfTPrevalenzaGiovanile.codice && empty dettaglio.plfTPrevalenzaStraniera.codice) ? 'hidden' : ''}>
 							<h2><spring:message code="form.dettaglio.impresa.prevalence" text="Prevalenze"/></h2>
 						</div>
 						<div class="col-sm-12">&nbsp;</div>
@@ -1497,7 +1498,7 @@
 																</a>
 															</td>
 														</c:if>
-														<td>${allegato.nome}</td>
+														<td>${allegato.fileName}</td>
 														<td id="descrizioneAllegato_${allegato.impresaAllegatiTranslation.idImpresaAllegati}">${allegato.impresaAllegatiTranslation.descrizione}</td>
 														<td>
 															<a target="_blank" href="/vimp/impresaAllegato/${allegato.idImpresaAllegati}">
@@ -2969,8 +2970,7 @@
 						rules : {
 							partitaIva: {
 								required: function(element) {
-									//return $("#codFiscale").val().length <= 0;
-									return false;
+									return $("#codFiscale").val().length <= 0;
 								}
 							},
 							codFiscale: {

@@ -232,8 +232,8 @@
 									</c:if>
 									<c:choose>
 										<c:when test="${modifica}">
-											<textarea rows="4" name="serviziTranslation.descrizione"
-													  class="form-control" maxlength="3990">${dettaglio.serviziTranslation.descrizione}</textarea>
+											 <textarea name="serviziTranslation.descrizione" id="descrizione" class="form-control"
+											  maxlength="3990">${dettaglio.serviziTranslation.descrizione}</textarea>
 										</c:when>
 										<c:otherwise>
 											<br>
@@ -347,9 +347,7 @@
 
 								</div>
 							</div>
-							<div id="casellaOrari" class="col-sm-6"
-								${!modifica && empty dettaglio.serviziTranslation.orari ? 'hidden' : ''}
-								 hidden>
+							<div id="casellaOrari" class="col-sm-6" ${!modifica && empty dettaglio.serviziTranslation.orari ? 'hidden' : ''} hidden>
 								<div class="form-group">
 									<label><spring:message
 											code="form.dettaglio.servizi.orari" /></label>
@@ -850,6 +848,10 @@
 		src="${evn_urlRisorseStatiche}/vimp/assets/js/jquery.tablesorter.js"></script>
 <script type="text/javascript"
 		src="${evn_urlRisorseStatiche}/vimp/assets/js/jquery.tablecloth.js"></script>
+		
+<script type="text/javascript"
+		src="${evn_urlRisorseStatiche}/vimp/assets/js/summernote-bs4.js"></script>
+<script type="text/javascript" src="${evn_urlRisorseStatiche}/vimp/assets/js/lang/summernote-it-IT.js"></script>
 
 <script src="${evn_urlRisorseStatiche}/vimp/assets/js/checkModify.js"></script>
 
@@ -882,6 +884,32 @@
 					language : '${env_locale}'
 				});
 
+
+				var summernoteForm = $('#frmDettaglio');
+				$('#descrizione').summernote(
+				{
+					onChange: function (contents, $editable) {
+						summernoteElement.val(summernoteElement.summernote('isEmpty') ? "" : contents);
+					},
+					lang: '${env_locale}',
+					placeholder : "<spring:message code="pacchettoFormNuovaTextPlaceholder" text="Descrizione" />",
+					tabsize : 2,
+					height : 100,
+					fontNames : [ 'Arial', 'Arial Black',
+						'Comic Sans MS', 'Courier New' ],
+					toolbar : [
+						[
+							'style',
+							[ 'bold', 'italic', 'underline',
+								'clear' ] ],
+						[ 'fontname', [ 'fontname' ] ],
+						[ 'fontsize', [ 'fontsize' ] ],
+						[ 'color', [ 'color' ] ],
+						[ 'para', [ 'ul', 'ol', 'paragraph' ] ],
+						[ 'height', [ 'height' ] ] ]
+				});
+				var summernoteElement = $('#descrizione');
+
 				jQuery.validator.addMethod("checkDate", function(e) {
 					let valDataInizio = $('#dataInizio').val().split('/');
 					let dataInizio = new Date(valDataInizio[2], valDataInizio[1] - 1, valDataInizio[0]);
@@ -902,8 +930,8 @@
 				});
 
 
-				$('#frmDettaglio').validate({
-					ignore: ":hidden:not(.validate)",
+				var summernoteValidator = $('#frmDettaglio').validate({
+					ignore: ':hidden:not(#descrizione),.note-editable.card-block',
 					errorPlacement: function(error, element) {
 						if(element.parent('.input-group').length) {
 							error.insertAfter(element.parent());
@@ -928,7 +956,11 @@
 										}
 									}
 								},
-								'serviziTranslation.descrizione' : 'required',
+								'serviziTranslation.descrizione' : {
+									required: function(element) {
+										return $('#descrizione').summernote('isEmpty');
+									}
+								},
 								'plfTTipoServizio.id': 'required',
 								'plfTAreeCompetenza.id':'required',
 								'modalitaErogazioneServizio.id':'required',
@@ -947,6 +979,18 @@
 						'elencoMacroarea':'<spring:message code="serviziFormNuovoSelectMacroarea" javaScriptEscape="true" />',
 						dataInizio: '<spring:message code="servizioInserireLaData" javaScriptEscape="true" />',
 						dataFine: '<spring:message code="erroreDateNews" javaScriptEscape="true" />'
+					},
+	                showErrors: function (errorMap, errorList) {
+						if (typeof errorList[0] != "undefined") {
+							var id = errorList[0].element.id;
+
+							if( id === 'descrizione') {
+								$('html, body').animate({
+									scrollTop: 200
+								}, 300);
+							}
+						}
+						this.defaultShowErrors();
 					}
 				});
 
@@ -960,7 +1004,7 @@
 				{
 					setCheckModify('saveButton','cancelButton','deleteButton',
 							['pubblicato'],
-							null);
+							['descrizione']);
 				}
 
 			});
@@ -1057,7 +1101,7 @@
 
 		if(keyCode == 1) {
 			$('#casellaOrari').show();
-		} else if(keyCode == 2){
+		} else {
 			$('#casellaOrari').hide();
 		}
 	}

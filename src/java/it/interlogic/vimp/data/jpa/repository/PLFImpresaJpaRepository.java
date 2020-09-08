@@ -17,6 +17,12 @@ public interface PLFImpresaJpaRepository extends PagingAndSortingRepository<PLFI
 
 	@Query("SELECT COUNT(t) FROM PLFImpresaEntity t where t.plfTTipoImpresa.id <> 2 and (t.plfTStatoImpresa.id = :statoImpresa or t.plfTStatoImpresa.id = :statoImpresaBis) and t.dataCancellazione is null and t.pubblicato = 1")
 	long countAll(@Param("statoImpresa") BigDecimal statoImpresa, @Param("statoImpresaBis") BigDecimal statoImpresaBis);
+	
+	
+	@Query("SELECT COUNT(t) FROM PLFImpresaEntity t where t.plfTTipoImpresa.id <> 2 and t.plfTOrigineImpresa in (1,2) and t.dataCancellazione is null and t.pubblicato = 1")
+	long countSpinoff();
+	
+	
 
 	@Query("SELECT i FROM PLFImpresaEntity i WHERE i.plfTTipoImpresa.id = 2 AND i.dataCancellazione is null")
 	List<PLFImpresaEntity> findStakeholder();

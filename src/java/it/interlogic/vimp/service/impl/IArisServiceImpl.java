@@ -48,6 +48,11 @@ public class IArisServiceImpl implements IArisService
 		return null;
 	}
 	
+	@Override
+	public it.interlogic.vimp.service.ws.aris.uisearchall.UlSearchAllResult getULAll(String codiceFiscalePartitaIva)
+	{
+		return getULAll(AmbienteContext.getWsArisUiSearchUrl(), AmbienteContext.getWsArisAuthorization(), codiceFiscalePartitaIva);
+	}
 	
 	@Override
 	public it.interlogic.vimp.service.ws.aris.uisearchall.UlSearchAllResult getULAll(String url, String authorization, String codiceFiscalePartitaIva)

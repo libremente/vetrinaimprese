@@ -1252,11 +1252,24 @@ public class IDecodificheServiceImpl implements IDecodificheService
 	{
 		return tipoErogazioneRepository.findTipiErogazioneServizio();
 	}
+	
+	@Override
+	public List<PLFTTipoErogazioneServizioEntity> getTipiErogazioneServizioPerDescrizione(String codSettore)
+	{
+		if (codSettore != null && codSettore.trim().length()>0)
+			codSettore = "%" + codSettore.toUpperCase() +"%";
+		return (List<PLFTTipoErogazioneServizioEntity>) tipoErogazioneRepository.findTipiErogazioneServizioPerDescrizione(codSettore);
+	}
 
 	@Override
 	public List<PLFTMacroareaServiziEntity> getMacroareeServizio()
 	{
 		return macroareaRepository.findMacroareeServizi();
+	}
+	
+	public List<PLFTMacroareaServiziEntity> getMacroareeServizioByDescrizione(String descrizione)
+	{
+		return macroareaRepository.findMacroareeServiziPerDescrizione(descrizione);
 	}
 
 	@Override

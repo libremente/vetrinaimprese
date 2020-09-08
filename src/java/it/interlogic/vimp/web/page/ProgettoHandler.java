@@ -636,7 +636,7 @@ public class ProgettoHandler extends AbstractHandler
 
 			e = progettoService.salvaAllegato(e);
 
-			EditableResult res = EditableResult.getInstance("" + e.getIdProgettiProdottiAllegati().intValue(), e.getNome(), new String[] { descrizione });
+			EditableResult res = EditableResult.getInstance("" + e.getIdProgettiProdottiAllegati().intValue(), e.getFileName(), new String[] { descrizione });
 
 			return res;
 		}

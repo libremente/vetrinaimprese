@@ -1,6 +1,7 @@
 package it.interlogic.vimp.data.jpa.model;
 
 import javax.persistence.*;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -101,6 +102,12 @@ public class PLFRichiestaAccreditamentoEntity implements Serializable
 
 	@Transient
 	private String azione;
+	
+	@Column(name = "RAPPRESENTANTE")
+	private boolean rappresentante;
+	
+	@Column(name = "INCARICATO")
+	private boolean incaricato;
 
 	public PLFRichiestaAccreditamentoEntity()
 	{
@@ -355,5 +362,27 @@ public class PLFRichiestaAccreditamentoEntity implements Serializable
 	{
 		this.azione = azione;
 	}
+
+	public boolean isRappresentante()
+	{
+		return rappresentante;
+	}
+
+	public void setRappresentante(boolean rappresentante)
+	{
+		this.rappresentante = rappresentante;
+	}
+
+	public boolean isIncaricato()
+	{
+		return incaricato;
+	}
+
+	public void setIncaricato(boolean incaricato)
+	{
+		this.incaricato = incaricato;
+	}
+	
+	
 
 }

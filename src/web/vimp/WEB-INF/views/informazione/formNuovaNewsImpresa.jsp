@@ -623,6 +623,7 @@
 			}
 			return true;
 		});
+		
 
 		summernoteValidator = $('#frmDettaglio').validate({
 

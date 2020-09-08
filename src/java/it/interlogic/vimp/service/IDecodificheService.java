@@ -710,11 +710,13 @@ public interface IDecodificheService
 	 * @return
 	 */
 	List<PLFTTipoErogazioneServizioEntity> getTipiErogazioneServizio();
+	List<PLFTTipoErogazioneServizioEntity> getTipiErogazioneServizioPerDescrizione(String codSettore);
 	
 	/**
 	 * @return
 	 */
 	List<PLFTMacroareaServiziEntity> getMacroareeServizio();
+	List<PLFTMacroareaServiziEntity> getMacroareeServizioByDescrizione(String descrizione);
 
 	/**
 	 * @return

@@ -291,6 +291,12 @@ public class IServiziServiceImpl extends IAbstractServiceImpl implements IServiz
 			}
 		}
 	}
+	
+	@Override
+	public void updateTipoErogazione(PLFRServiziTipoErogazioneEntity tipo)
+	{
+		serviziTipoErogazioneRepository.save(tipo);
+	}
 
 	private void updateMacroarea(PLFServiziEntity servizio)
 	{
@@ -312,6 +318,12 @@ public class IServiziServiceImpl extends IAbstractServiceImpl implements IServiz
 
 			}
 		}
+	}
+	
+	@Override
+	public void updateMacroarea(PLFRServiziMacroareaEntity macro)
+	{
+		serviziMacroareaRepository.save(macro);
 	}
 
 	@Override

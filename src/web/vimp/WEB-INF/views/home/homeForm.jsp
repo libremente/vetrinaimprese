@@ -271,8 +271,7 @@
 					</div>
 				</c:when>
 
-				<c:when test="${parametriRicerca.tipoInformazione == 6}">
-
+				<c:when test="${parametriRicerca.tipoInformazione == 6 && !utente.isVisitor()}">
 					<div class="col-md-6">
 						<label>
 							<input type="checkbox" id="evidenzaPortaleCheck"/>

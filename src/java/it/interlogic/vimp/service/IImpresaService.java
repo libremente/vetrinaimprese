@@ -6,6 +6,7 @@ import it.interlogic.vimp.data.jpa.model.PLFImpresaAllegatiTranslationEntity;
 import it.interlogic.vimp.data.jpa.model.PLFImpresaEntity;
 import it.interlogic.vimp.data.jpa.model.PLFTInnovazioneEntity;
 import it.interlogic.vimp.data.jpa.model.PLFTMercatiEntity;
+import it.interlogic.vimp.data.jpa.model.PLFTUtenteEntity;
 import it.interlogic.vimp.data.jpa.model.relation.PLFRImpresaInnovazioneEntity;
 import it.interlogic.vimp.data.jpa.model.relation.PLFRImpresaMercatiEntity;
 import it.interlogic.vimp.data.jpa.model.relation.PLFRImpresaStakeholderEntity;
@@ -206,5 +207,8 @@ public interface IImpresaService
 	 * @return
 	 */
 	PLFImpresaAllegatiTranslationEntity salvaTranslationAllegato(PLFImpresaAllegatiTranslationEntity translation);
+	
+	
+	List<PLFTUtenteEntity> getUtenti(BigDecimal idImpresa);
 
 }

@@ -192,6 +192,27 @@
 					</div>
 					
 					<div class="col-sm-12">
+						<div class="col-sm-6">
+							<div class="form-group">
+								<div class="checkbox">
+									<label> <input id="checkboxRappresentante" disabled
+										name="checkboxRappresentante" type="checkbox" /> <strong>&nbsp;<spring:message code="form.richiesta.accreditamento.rappresentante" text="Dichiaro di essere Rappresentante Legale dell'impresa"/>&nbsp;</strong>
+									</label>
+								</div>
+							</div>
+						</div>
+						<div class="col-sm-6">
+							<div class="form-group">
+								<div class="checkbox">
+									<label> <input id="checkboxIncaricato" disabled
+										name="checkboxIncaricato" type="checkbox" /> <strong>&nbsp;<spring:message code="form.richiesta.accreditamento.incaricato" text="Dichiaro di essere incaricato ad operare per l'impresa"/>&nbsp;</strong>
+									</label>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					<div class="col-sm-12">
 						<div class="col-sm-12">
 							<div class="form-group">
 								<label><spring:message code="form.dettaglio.accreditamento.request_opinion" text="Parere accreditamento"/>:</label>
@@ -311,6 +332,19 @@
 
 
 <script>
+$(document).ready(
+	function() {
+
+		if(${dettaglio.rappresentante} === true) {
+			$('input[name="checkboxRappresentante"]').iCheck('check');
+		}
+		if(${dettaglio.incaricato} === true) {
+			$('input[name="checkboxIncaricato"]').iCheck('check');
+		}		
+});
+
+
+	
 function invalida(event) {
 	$.blockUI({ message: $('#accreditamentoSpinner') }); 		
 	event.preventDefault();

@@ -10,7 +10,6 @@ import it.interlogic.vimp.data.jpa.model.PLFTClasseProduzioneEntity;
 import it.interlogic.vimp.data.jpa.model.PLFTComuneEntity;
 import it.interlogic.vimp.data.jpa.model.PLFTLogMessaggiEntity;
 import it.interlogic.vimp.data.jpa.model.PLFTNaturaGiuridicaEntity;
-import it.interlogic.vimp.data.jpa.model.PLFTOrigineImpresaEntity;
 import it.interlogic.vimp.data.jpa.model.PLFTPrevalenzaEntity;
 import it.interlogic.vimp.data.jpa.model.PLFTSettoreImpresaEntity;
 import it.interlogic.vimp.data.jpa.model.PLFTSezioneSpecialeImpresaEntity;
@@ -55,7 +54,6 @@ public class Importer
 
 	private BatchPersistent persistent;
 	private Map<String, Integer> impreseFile = null;
-	
 
 	public void start(String pathFilePMI, String pathFileStartup)
 	{
@@ -87,7 +85,7 @@ public class Importer
 					if (codiceFiscalePartitaIva != null)
 						impreseFile.put(codiceFiscalePartitaIva, TIPO_SCARICO_PMI);
 					impresa = addNecessaryField(impresa, IAbstractServiceImpl.STATO_IMPRESA_PMI_INNOVATIVA, IAbstractServiceImpl.TIPO_IMPRESA_PMI, Constants.PMI_DESC_FONTE);
-					
+
 					impresa = addAtecoFromAris(impresa);
 					salvaImpresa(impresa, true);
 				}
@@ -111,7 +109,8 @@ public class Importer
 					codiceFiscalePartitaIva = getCodiceFiscalePartitaIva(impresa);
 					if (codiceFiscalePartitaIva != null)
 						impreseFile.put(codiceFiscalePartitaIva, TIPO_SCARICO_STARTUP);
-					impresa = addNecessaryField(impresa, IAbstractServiceImpl.STATO_IMPRESA_START_UP_INNOVATIVA, IAbstractServiceImpl.TIPO_IMPRESA_AZIENDA, Constants.STARTUP_DESC_FONTE);
+					impresa = addNecessaryField(impresa, IAbstractServiceImpl.STATO_IMPRESA_START_UP_INNOVATIVA, IAbstractServiceImpl.TIPO_IMPRESA_AZIENDA,
+							Constants.STARTUP_DESC_FONTE);
 					impresa = addAtecoFromAris(impresa);
 					salvaImpresa(impresa, false);
 				}
@@ -148,10 +147,10 @@ public class Importer
 					{
 						Debug.printInfo("Impresa gia' presente. " + impresa.toStringIndentificativo(), Importer.class.getName());
 						impresa.setIdPlfImpresa(db.getIdPlfImpresa());
-						
+
 						if (db.getImpresaTranslation() != null)
 							impresa.getImpresaTranslation().setIdPlfImpresa(db.getIdPlfImpresa());
-						
+
 						impresaPresente(db, impresa, isPmi);
 					}
 					else
@@ -194,18 +193,20 @@ public class Importer
 			if (impresa.getImpresaTranslation() == null)
 				impresa.setImpresaTranslation(new PLFImpresaTranslationEntity());
 			impresa.getImpresaTranslation().setDescFonte(fonte);
-			
+
 			impresa.setDataAggiornamento(new Date());
-			
-			
+
 			impresa.setPubblicato(false);
 		}
 		return impresa;
 	}
-	
+
 	private PLFImpresaEntity addAtecoFromAris(PLFImpresaEntity impresa)
 	{
 		String cfpi = getCodiceFiscalePartitaIva(impresa);
+		
+		Debug.printInfo("Ricerca ATECO su ARIS con partita iva : " + cfpi, Importer.class.getName());
+		
 		if (cfpi != null)
 		{
 			try
@@ -214,13 +215,19 @@ public class Importer
 				if (ul != null && ul.getC_fiscale_impresa() != null && ul.getC_fiscale_impresa().trim().length() > 0)
 				{
 					ResultElement[] sedi = ul.getResultUnitaLocali();
-					if (sedi != null && sedi.length>0)
+					if (sedi != null && sedi.length > 0)
 					{
 						String attivitaAteco = sedi[0].getC_ateco();
 						PLFTAtecoEntity ateco = this.getAtecoAris(attivitaAteco);
-						if (ateco != null && ateco.getIdAteco() != null && ateco.getIdAteco().intValue()>0)
+						if (ateco != null && ateco.getIdAteco() != null && ateco.getIdAteco().intValue() > 0)
 							impresa.setPlfTAteco(ateco);
+						
+						Debug.printInfo("ATECO PARTITA_IVA:" + cfpi + " RITORNO: " + attivitaAteco , Importer.class.getName());
 					}
+				}
+				else
+				{
+					Debug.printInfo("ATECO PARTITA_IVA:" + cfpi + " RITORNO NIENTE" , Importer.class.getName());
 				}
 			}
 			catch (Exception e)
@@ -230,7 +237,6 @@ public class Importer
 		}
 		return impresa;
 	}
-	
 
 	private PLFImpresaEntity getImpresaPMIFromXSL(Row currentRow)
 	{
@@ -643,8 +649,7 @@ public class Importer
 		}
 		return null;
 	}
-	
-	
+
 	private PLFTAtecoEntity getAtecoAris(String attivita)
 	{
 		try
@@ -667,7 +672,7 @@ public class Importer
 		}
 		return null;
 	}
-	
+
 	private String getSitoWeb(String sito)
 	{
 		try
@@ -677,7 +682,7 @@ public class Importer
 				String tmp = sito.toLowerCase();
 				if (!tmp.startsWith("http"))
 					return "http://" + sito;
-				
+
 				return sito;
 			}
 		}
@@ -691,30 +696,34 @@ public class Importer
 
 	private void saveLog(PLFImpresaEntity impresa, int idMessaggio, Date dataUltimoAggCciaRegistro)
 	{
-		PLFLogEntity log = persistent.getLogService().getLogImpresa(impresa.getIdPlfImpresa());
-		if (log == null)
+		if (impresa != null && impresa.getImpresaTranslation() != null && impresa.getImpresaTranslation().getDescImpresa() != null)
 		{
-			log = new PLFLogEntity();
-			PLFImpresaEntity key = new PLFImpresaEntity();
-			key.setIdPlfImpresa(impresa.getIdPlfImpresa());
-			log.setPlfImpresa(key);
+			PLFLogEntity log = persistent.getLogService().getLogImpresa(impresa.getIdPlfImpresa());
+			if (log == null)
+			{
+				log = new PLFLogEntity();
+				PLFImpresaEntity key = new PLFImpresaEntity();
+				key.setIdPlfImpresa(impresa.getIdPlfImpresa());
+				log.setPlfImpresa(key);
+			}
+
+			PLFTLogMessaggiEntity messaggio = new PLFTLogMessaggiEntity();
+			messaggio.setId(new BigDecimal(idMessaggio));
+			log.setLogMessaggi(messaggio);
+
+			log.setCodiceFiscale(impresa.getCodFiscale());
+			log.setPartitaIva(impresa.getPartitaIva());
+
+			log.setRagioneSociale(impresa.getImpresaTranslation().getDescImpresa());
+
+			if (dataUltimoAggCciaRegistro != null)
+			{
+				log.setDataUltimoAggCciaAnagrafe(dataUltimoAggCciaRegistro);
+				log.setDataUltimoAggCciaRegistro(dataUltimoAggCciaRegistro);
+			}
+
+			persistent.getLogService().salvaLog(log);
 		}
-
-		PLFTLogMessaggiEntity messaggio = new PLFTLogMessaggiEntity();
-		messaggio.setId(new BigDecimal(idMessaggio));
-		log.setLogMessaggi(messaggio);
-
-		log.setCodiceFiscale(impresa.getCodFiscale());
-		log.setPartitaIva(impresa.getPartitaIva());
-		log.setRagioneSociale(impresa.getImpresaTranslation().getDescImpresa());
-
-		if (dataUltimoAggCciaRegistro != null)
-		{
-			log.setDataUltimoAggCciaAnagrafe(dataUltimoAggCciaRegistro);
-			log.setDataUltimoAggCciaRegistro(dataUltimoAggCciaRegistro);
-		}
-
-		persistent.getLogService().salvaLog(log);
 	}
 
 	private void impresaPresente(PLFImpresaEntity db, PLFImpresaEntity impresa, boolean isPmi)
@@ -746,13 +755,12 @@ public class Importer
 
 			if (idMessagio == -1)
 			{
-				
 				idMessagio = IAbstractServiceImpl.LOG_IMPRESA_AGGIORNATA;
-				
 				// TODO cosa aggiornare
-				//db.setDescSito(impresa.getDescSito());
-				//db = persistent.getImpresaService().updateImpresa(db);
-				//db = persistent.getImpresaService().find(db.getIdPlfImpresa());
+				// db.setDescSito(impresa.getDescSito());
+				// db = persistent.getImpresaService().updateImpresa(db);
+				// db =
+				// persistent.getImpresaService().find(db.getIdPlfImpresa());
 				// TODO da specifiche nulla???????
 			}
 			else
@@ -764,63 +772,62 @@ public class Importer
 		}
 		else
 		{
-			db.setDataIscrizioneSezioneSpeciale(new Date());
+			int idMessagio = -1;
 
-			if (db.getPlfTStatoImpresa() != null && db.getPlfTStatoImpresa().getId() != null)
+			db.setDataIscrizioneSezioneSpeciale(impresa.getDataIscrizioneSezioneSpeciale());
+
+			if (impresa.getDataIscrizioneSezioneSpeciale() != null)
 			{
-				if (db.getPlfTStatoImpresa().getId().intValue() == IAbstractServiceImpl.STATO_IMPRESA_SPIN_OFF_UNIVERSITARIA)
+				LoggerUtility.error("CAMBIO STATO:" + db.getPlfTStatoImpresa().getId());
+				
+				if (db.getPlfTStatoImpresa() != null && db.getPlfTStatoImpresa().getId() != null
+						&& db.getPlfTStatoImpresa().getId().intValue() == IAbstractServiceImpl.STATO_IMPRESA_PMI)
 				{
-					PLFTOrigineImpresaEntity origine = new PLFTOrigineImpresaEntity();
-					origine.setId(new BigDecimal(IAbstractServiceImpl.ORIGINE_SPINOFF_UNIVERSITARIA));
-					db.setPlfTOrigineImpresa(origine);
+					PLFTStatoImpresaEntity stato = new PLFTStatoImpresaEntity();
+					stato.setId(new BigDecimal(IAbstractServiceImpl.STATO_IMPRESA_PMI_INNOVATIVA));
+					db.setPlfTStatoImpresa(stato);
+					
+					Debug.printInfo("CAMBIO STATO:" + db.getPlfTStatoImpresa().getId() , Importer.class.getName());
+					
+					idMessagio = IAbstractServiceImpl.LOG_IMPRESA_STATO_NO_DENOMINAZIONE_AGGIORNATO;
 				}
-				else if (db.getPlfTStatoImpresa().getId().intValue() == IAbstractServiceImpl.STATO_IMPRESA_SPIN_OFF_AZIENDALE)
+				else if (db.getPlfTStatoImpresa() != null && db.getPlfTStatoImpresa().getId() != null
+						&& db.getPlfTStatoImpresa().getId().intValue() == IAbstractServiceImpl.STATO_IMPRESA_START_UP)
 				{
-					PLFTOrigineImpresaEntity origine = new PLFTOrigineImpresaEntity();
-					origine.setId(new BigDecimal(IAbstractServiceImpl.ORIGINE_SPINOFF_AZIENDALE));
-					db.setPlfTOrigineImpresa(origine);
+					PLFTStatoImpresaEntity stato = new PLFTStatoImpresaEntity();
+					stato.setId(new BigDecimal(IAbstractServiceImpl.STATO_IMPRESA_START_UP_INNOVATIVA));
+					db.setPlfTStatoImpresa(stato);
+					
+					Debug.printInfo("CAMBIO STATO:" + db.getPlfTStatoImpresa().getId() , Importer.class.getName());
+					
+					idMessagio = IAbstractServiceImpl.LOG_IMPRESA_STATO_NO_DENOMINAZIONE_AGGIORNATO;
 				}
 			}
 
-			PLFTSezioneSpecialeImpresaEntity sezione = new PLFTSezioneSpecialeImpresaEntity();
-			if (isPmi)
-				sezione.setId(new BigDecimal(IAbstractServiceImpl.SEZIONE_PMI_INNOVATIVA));
-			else
-				sezione.setId(new BigDecimal(IAbstractServiceImpl.SEZIONE_STARTUP_INNOVATIVA));
-			db.setPlfTSezioneSpecialeImpresa(sezione);
-
-			int idMessagio = IAbstractServiceImpl.LOG_IMPRESA_ISCRITTA_REGISTRO;
-			
-			
-			if (impresa.getPlfTStatoImpresa() != null && impresa.getPlfTStatoImpresa().getId() != null && impresa.getPlfTStatoImpresa().getId().intValue()>0)
-			{
-				db.getPlfTStatoImpresa().setId(impresa.getPlfTStatoImpresa().getId());
-				idMessagio = IAbstractServiceImpl.LOG_IMPRESA_STATO_NO_DENOMINAZIONE_AGGIORNATO;
-			}
-			else
-			{
-				idMessagio = IAbstractServiceImpl.LOG_IMPRESA_STATO_NON_AGGIORNATO;
-			}
-			
 			if (!equalsString(db.getImpresaTranslation().getDescImpresa(), impresa.getImpresaTranslation().getDescImpresa()))
 			{
 				db.getImpresaTranslation().setDescImpresa(impresa.getImpresaTranslation().getDescImpresa());
-				if (idMessagio == IAbstractServiceImpl.LOG_IMPRESA_STATO_NO_DENOMINAZIONE_AGGIORNATO)
+
+				if (idMessagio > 0)
 					idMessagio = IAbstractServiceImpl.LOG_IMPRESA_STATO_E_DENOMINAZIONE_AGGIORNATO;
 				else
 					idMessagio = IAbstractServiceImpl.LOG_IMPRESA_DENOMINAZIONE_AGGIORNATA;
 			}
-			
-			
-				
-			// TODO cosa aggiornare
-			//db.setDescSito(impresa.getDescSito());
-			// TODO da specifiche nulla???????
 
+			if (idMessagio < 0)
+				idMessagio = IAbstractServiceImpl.LOG_IMPRESA_STATO_NON_AGGIORNATO;
+
+			
 			db = persistent.getImpresaService().updateImpresa(db);
 			db = persistent.getImpresaService().find(db.getIdPlfImpresa());
 			saveLog(db, idMessagio, new Date());
 		}
+		
+		
+		// AGGIORNAMENTO ATECO DA ARIS SEMPRE
+		db.setPlfTAteco(impresa.getPlfTAteco());
+		db = persistent.getImpresaService().updateImpresa(db);
+		
 
 	}
 
@@ -831,94 +838,114 @@ public class Importer
 		{
 			for (PLFImpresaEntity impresa : imprese)
 			{
-				String cfpi = getCodiceFiscalePartitaIva(impresa);
-				if (cfpi != null)
+				if (impresa != null)
 				{
-					Integer tipo = impreseFile.get(cfpi);
-					if (tipo == null)
-					{
-						LoggerUtility.error("----------------- cfpi:" + cfpi);
 
-						// non c'e' nello scarico
-						int idMessaggio = -1;
-						//UlSearchResult ul = persistent.getUL(cfpi);
-						UlSearchAllResult ul = persistent.getULAll(cfpi);
-						try
+					String textImpresa = " < INDEFINITA > ";
+
+					if (impresa.getImpresaTranslation() != null)
+						textImpresa = impresa.getImpresaTranslation().getDescImpresa();
+					else if (impresa.getPartitaIva() != null)
+						textImpresa = impresa.getPartitaIva();
+					else if (impresa.getCodFiscale() != null)
+						textImpresa = impresa.getCodFiscale();
+
+					String cfpi = getCodiceFiscalePartitaIva(impresa);
+					if (cfpi != null)
+					{
+						Integer tipo = impreseFile.get(cfpi);
+						if (tipo == null)
 						{
+							LoggerUtility.error("----------------- cfpi:" + cfpi);
+
+							// non c'e' nello scarico
+							int idMessaggio = -1;
+							// UlSearchResult ul = persistent.getUL(cfpi);
+							UlSearchAllResult ul = persistent.getULAll(cfpi);
+							try
+							{
+								if (ul != null && ul.getC_fiscale_impresa() != null && ul.getC_fiscale_impresa().trim().length() > 0)
+								{
+									ResultElement[] sedi = ul.getResultUnitaLocali();
+									if (sedi != null && sedi.length > 0)
+									{
+										String attivitaAteco = sedi[0].getC_ateco();
+										PLFTAtecoEntity ateco = this.getAtecoAris(attivitaAteco);
+										if (ateco != null && ateco.getIdAteco() != null && ateco.getIdAteco().intValue() > 0)
+											impresa.setPlfTAteco(ateco);
+										persistent.getImpresaService().update(impresa);
+									}
+								}
+							}
+							catch (InformazioneDuplicataException e)
+							{
+								e.printStackTrace();
+							}
+
 							if (ul != null && ul.getC_fiscale_impresa() != null && ul.getC_fiscale_impresa().trim().length() > 0)
 							{
-								ResultElement[] sedi = ul.getResultUnitaLocali();
-								if (sedi != null && sedi.length>0)
+								// presente su aris
+								if (ARIS_STATO_ATTIVITA_INATTIVO.equalsIgnoreCase(ul.getI_stato_attivita()))
 								{
-									String attivitaAteco = sedi[0].getC_ateco();
-									PLFTAtecoEntity ateco = this.getAtecoAris(attivitaAteco);
-									if (ateco != null && ateco.getIdAteco() != null && ateco.getIdAteco().intValue()>0)
-										impresa.setPlfTAteco(ateco);
-									persistent.getImpresaService().update(impresa);
+									// inattiva su aris
+									email("L’impresa denominata " + impresa.getImpresaTranslation().getDescImpresa() + " con codice fiscale " + cfpi + " in data "
+											+ Constants.dateFormat.format(new Date()) + " non risulta più attiva nella banca dati delle imprese – ARIS");
+									idMessaggio = IAbstractServiceImpl.LOG_IMPRESA_PRESENTE_VERTINA_CANCELLATA_ARIS;
 								}
-							}
-						}
-						catch (InformazioneDuplicataException e)
-						{
-							e.printStackTrace();
-						}
-						
-						
-						if (ul != null && ul.getC_fiscale_impresa() != null && ul.getC_fiscale_impresa().trim().length() > 0)
-						{
-							// presente su aris
-							if (ARIS_STATO_ATTIVITA_INATTIVO.equalsIgnoreCase(ul.getI_stato_attivita()))
-							{
-								// inattiva su aris
-								email("L’impresa denominata " + impresa.getImpresaTranslation().getDescImpresa() + " con codice fiscale " + cfpi + " in data "
-										+ Constants.dateFormat.format(new Date()) + " non risulta più attiva nella banca dati delle imprese – ARIS");
-								idMessaggio = IAbstractServiceImpl.LOG_IMPRESA_PRESENTE_VERTINA_CANCELLATA_ARIS;
-							}
-							else if (ARIS_STATO_ATTIVITA_ATTIVO.equalsIgnoreCase(ul.getI_stato_attivita()))
-							{
-								if (impresa.getDataIscrizioneSezioneSpeciale() != null)
+								else if (ARIS_STATO_ATTIVITA_ATTIVO.equalsIgnoreCase(ul.getI_stato_attivita()))
 								{
-									
-									if (impresa.getPlfTStatoImpresa() != null && impresa.getPlfTStatoImpresa().getId() != null && impresa.getPlfTStatoImpresa().getId().intValue()>0)
+									if (impresa.getDataIscrizioneSezioneSpeciale() != null)
 									{
-										int newStato = -1;
-										if (IAbstractServiceImpl.STATO_IMPRESA_START_UP_INNOVATIVA == impresa.getPlfTStatoImpresa().getId().intValue())
-											newStato = IAbstractServiceImpl.STATO_IMPRESA_START_UP;
-										else if (IAbstractServiceImpl.STATO_IMPRESA_PMI_INNOVATIVA == impresa.getPlfTStatoImpresa().getId().intValue())
-											newStato = IAbstractServiceImpl.STATO_IMPRESA_PMI;
-										
-										if (newStato >0)
+
+										if (impresa.getPlfTStatoImpresa() != null && impresa.getPlfTStatoImpresa().getId() != null
+												&& impresa.getPlfTStatoImpresa().getId().intValue() > 0)
 										{
-											impresa.setPlfTStatoImpresa(new PLFTStatoImpresaEntity());
-											impresa.getPlfTStatoImpresa().setId(new BigDecimal(newStato));
-											try
+											int newStato = -1;
+											if (IAbstractServiceImpl.STATO_IMPRESA_START_UP_INNOVATIVA == impresa.getPlfTStatoImpresa().getId().intValue())
 											{
-												persistent.getImpresaService().update(impresa);
+												newStato = IAbstractServiceImpl.STATO_IMPRESA_PMI;
+												impresa.setDataIscrizioneSezioneSpeciale(null);
 											}
-											catch (InformazioneDuplicataException e)
+											else if (IAbstractServiceImpl.STATO_IMPRESA_PMI_INNOVATIVA == impresa.getPlfTStatoImpresa().getId().intValue())
 											{
+												newStato = IAbstractServiceImpl.STATO_IMPRESA_PMI;
+												impresa.setDataIscrizioneSezioneSpeciale(null);
+											}
+
+											if (newStato > 0)
+											{
+												impresa.setPlfTStatoImpresa(new PLFTStatoImpresaEntity());
+												impresa.getPlfTStatoImpresa().setId(new BigDecimal(newStato));
+												try
+												{
+													persistent.getImpresaService().update(impresa);
+												}
+												catch (InformazioneDuplicataException e)
+												{
+												}
 											}
 										}
+
+										email("L’impresa denominata " + impresa.getImpresaTranslation().getDescImpresa() + " con codice fiscale " + cfpi + " in data "
+												+ Constants.dateFormat.format(new Date())
+												+ " non risulta più iscritta al Registro Imprese sezione speciale start up / PMI innovative");
+										idMessaggio = IAbstractServiceImpl.LOG_IMPRESA_CANCELLATA;
 									}
-									
-									email("L’impresa denominata " + impresa.getImpresaTranslation().getDescImpresa() + " con codice fiscale " + cfpi + " in data "
-											+ Constants.dateFormat.format(new Date()) + " non risulta più iscritta al Registro Imprese sezione speciale start up / PMI innovative");
-									idMessaggio = IAbstractServiceImpl.LOG_IMPRESA_CANCELLATA;
-								}
-								else
-								{
-									idMessaggio = IAbstractServiceImpl.LOG_IMPRESA_PRESENTE_ARIS_NON_ISCRITTA;
+									else
+									{
+										idMessaggio = IAbstractServiceImpl.LOG_IMPRESA_PRESENTE_ARIS_NON_ISCRITTA;
+									}
 								}
 							}
+							else
+							{
+								// non presente su aris
+								email("L'impresa denominata " + textImpresa + " con codice fiscale " + cfpi + " in data " + Constants.dateFormat.format(new Date())
+										+ " non risulta iscritta alla banca dati delle imprese – ARIS");
+								idMessaggio = IAbstractServiceImpl.LOG_IMPRESA_PRSENTE_VETRINA_NO_ARIS;
+							}
+							saveLog(impresa, idMessaggio, new Date());
 						}
-						else
-						{
-							// non presente su aris
-							email("L'impresa denominata " + impresa.getImpresaTranslation().getDescImpresa() + " con codice fiscale " + cfpi + " in data "
-									+ Constants.dateFormat.format(new Date()) + " non risulta iscritta alla banca dati delle imprese – ARIS");
-							idMessaggio = IAbstractServiceImpl.LOG_IMPRESA_PRSENTE_VETRINA_NO_ARIS;
-						}
-						saveLog(impresa, idMessaggio, new Date());
 					}
 				}
 			}

@@ -23,6 +23,7 @@ import it.interlogic.vimp.data.jpa.model.PLFTStatoImpresaEntity;
 import it.interlogic.vimp.data.jpa.model.PLFTTagEntity;
 import it.interlogic.vimp.data.jpa.model.PLFTTipoAllegatoEntity;
 import it.interlogic.vimp.data.jpa.model.PLFTTipoImpresaEntity;
+import it.interlogic.vimp.data.jpa.model.PLFTUtenteEntity;
 import it.interlogic.vimp.data.jpa.model.PLFVDelegatoEntity;
 import it.interlogic.vimp.data.jpa.model.relation.PLFRImpresaInnovazioneEntity;
 import it.interlogic.vimp.data.jpa.model.relation.PLFRImpresaMercatiEntity;
@@ -370,8 +371,10 @@ public class ImpresaHandler extends AbstractHandler
 		if (dettaglio.getDescIndirizzo() == null || dettaglio.getDescIndirizzo().trim().length() <= 0)
 			return false;
 
+		/*
 		if (dettaglio.getPlfTAteco() == null || dettaglio.getPlfTAteco().getIdAteco() == null || dettaglio.getPlfTAteco().getIdAteco().intValue() <= 0)
 			return false;
+		*/
 
 		if (dettaglio.getPlfTSettoreImpresa() == null || dettaglio.getPlfTSettoreImpresa().getId() == null || dettaglio.getPlfTSettoreImpresa().getId().intValue() <= 0)
 			return false;
@@ -437,6 +440,12 @@ public class ImpresaHandler extends AbstractHandler
 		if (dettaglio.getPlfTPrevalenzaStraniera() != null
 				&& (dettaglio.getPlfTPrevalenzaStraniera().getId() == null || dettaglio.getPlfTPrevalenzaStraniera().getId().intValue() <= 0))
 			dettaglio.setPlfTPrevalenzaStraniera(null);
+		
+		
+		if (dettaglio.getPlfTAteco() != null
+				&& (dettaglio.getPlfTAteco().getIdAteco() == null || dettaglio.getPlfTAteco().getIdAteco().intValue() <= 0))
+			dettaglio.setPlfTAteco(null);
+
 
 		return dettaglio;
 	}
@@ -731,10 +740,9 @@ public class ImpresaHandler extends AbstractHandler
 	{
 		try
 		{
-			// TODO MAIL a che indirizzo la mando??????
-			String toMail = dettaglio.getEmailContatto();
-						
-			if (toMail != null && toMail.trim().length()>0)
+			
+			List<PLFTUtenteEntity> utenti = impresaService.getUtenti(dettaglio.getIdPlfImpresa());
+			if (utenti != null && utenti.size()>0)
 			{
 				String theString = null;
 				if (ripristina)
@@ -780,7 +788,13 @@ public class ImpresaHandler extends AbstractHandler
 						subject = "Vetrina imprese: ripristino impresa " + dettaglio.getDescImpresa();
 					else
 						subject = "Vetrina imprese: cancellazione impresa " + dettaglio.getDescImpresa();
-					doSendEmail(mailSender, from, toMail, subject, body);
+					
+					
+					for (PLFTUtenteEntity utente: utenti)
+					{
+						doSendEmail(mailSender, from, utente.getEmail(), subject, body);
+					}
+					
 				}
 			}
 			
@@ -1176,7 +1190,7 @@ public class ImpresaHandler extends AbstractHandler
 
 			e = impresaService.salvaAllegato(e);
 
-			EditableResult res = EditableResult.getInstance("" + e.getIdImpresaAllegati().intValue(), e.getNome(), new String[] { descrizione });
+			EditableResult res = EditableResult.getInstance("" + e.getIdImpresaAllegati().intValue(), e.getFileName(), new String[] { descrizione });
 
 			return res;
 		}

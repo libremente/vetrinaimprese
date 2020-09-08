@@ -321,6 +321,12 @@
 					</div>
 
 					<div class="row" ${!modifica && empty dettaglio.newsImpresaTranslation.dataTesto ? 'hidden' : ''}>
+						
+						<div class="col-sm-12">
+							<h5 align="center"><spring:message code="form.dettaglio.news.impresa.news_content" text="Contenuto della news"/>:</h5>
+						</div>
+						
+						
 						<div class="col-sm-8 col-sm-offset-2">
 							<c:choose>
 								<c:when test="${modifica}">

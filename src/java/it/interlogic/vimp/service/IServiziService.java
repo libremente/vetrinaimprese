@@ -5,6 +5,8 @@ import java.util.List;
 
 import it.interlogic.vimp.data.jpa.model.PLFServiziEntity;
 import it.interlogic.vimp.data.jpa.model.relation.PLFRServiziImpresaEntity;
+import it.interlogic.vimp.data.jpa.model.relation.PLFRServiziMacroareaEntity;
+import it.interlogic.vimp.data.jpa.model.relation.PLFRServiziTipoErogazioneEntity;
 import it.interlogic.vimp.service.exception.InformazioneDuplicataException;
 
 public interface IServiziService
@@ -110,5 +112,8 @@ public interface IServiziService
 	
 	
 	long countServiziByDenominazione(BigDecimal idDenominazioneServizio);
+	
+	void updateTipoErogazione(PLFRServiziTipoErogazioneEntity tipo);
+	void updateMacroarea(PLFRServiziMacroareaEntity macro);
 
 }

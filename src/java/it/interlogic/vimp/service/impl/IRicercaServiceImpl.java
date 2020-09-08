@@ -290,7 +290,7 @@ public class IRicercaServiceImpl implements IRicercaService
 	@Override
 	public long countSpinoff()
 	{
-		return impresaRepository.countAll(new BigDecimal(1), new BigDecimal(2));
+		return impresaRepository.countSpinoff();
 	}
 
 	@Override

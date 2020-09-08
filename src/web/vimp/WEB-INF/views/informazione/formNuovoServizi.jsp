@@ -138,10 +138,8 @@
 
 												<div class="form-group">
 													<label><spring:message code="description"/> : <small>(<spring:message code="required"/>)</small></label>
-													<input id="descrizione" name="serviziTranslation.descrizione" type="text"
-														   class="form-control" placeholder=""
-														   value="${dettaglio.serviziTranslation.descrizione}"
-														   maxlength="3990">
+													<textarea name="serviziTranslation.descrizione" id="descrizione" class="form-control" 
+														 maxlength="3990">${dettaglio.serviziTranslation.descrizione}</textarea>
 												</div>
 
 												<div class="form-group">
@@ -504,10 +502,16 @@
 <script src="${evn_urlRisorseStatiche}/vimp/assets/js/wizard.js"></script>
 <script src="${evn_urlRisorseStatiche}/vimp/assets/js/main.js"></script>
 
+<script type="text/javascript" src="${evn_urlRisorseStatiche}/vimp/assets/js/summernote-bs4.js"></script>
+<script type="text/javascript" src="${evn_urlRisorseStatiche}/vimp/assets/js/lang/summernote-it-IT.js"></script>
+
 <script src="${evn_urlRisorseStatiche}/vimp/assets/js/checkModify.js"></script>
 
 <script>
 	var uploadImage = false;
+	var summernoteValidator;
+	var summernoteForm;
+	var summernoteElement;
 
 	$(document).ready(
 			function() {
@@ -542,6 +546,29 @@
 				$('#wizard-picture').change(function() {
 					uploadImage = true;
 				});
+
+				$('#descrizione').summernote({
+					onChange: function (contents, $editable) {
+						summernoteElement.val(summernoteElement.summernote('isEmpty') ? '' : contents);
+						summernoteValidator.element(summernoteElement);
+					},
+					lang: '${env_locale}',
+					placeholder: '<spring:message code="pacchettoFormNuovaTextPlaceholder" text="Descrizione" />',
+					tabsize: 2,
+					height: 150,
+					fontNames: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New'],
+					toolbar: [
+						['style', ['bold', 'italic', 'underline', 'clear']],
+						['fontname', ['fontname']],
+						['fontsize', ['fontsize']],
+						['color', ['color']],
+						['para', ['ul', 'ol', 'paragraph']],
+						['height', ['height']]
+					]
+				});
+
+				summernoteForm = $('#frmDettaglio');
+				summernoteElement = $('.summernote');
 
 				jQuery.validator.addMethod("checkDate", function(e) {
 					let valDataInizio = $('#dataInizio').val().split('/');
@@ -662,9 +689,8 @@
 	}
 
 	function validateFirstStep() {
-		$('#frmDettaglio').validate({
-
-			ignore: ':hidden:not(.validate)',
+		summernoteValidator = $('#frmDettaglio').validate({
+			ignore: ':hidden:not(.validate),hidden:not(.summernote),.note-editable.card-block',
 			errorPlacement: function(error, element) {
 				if(element.parent('.input-group').length) {
 					error.insertAfter(element.parent());
@@ -688,7 +714,6 @@
 						}
 					}
 				},
-				'serviziTranslation.descrizione' : 'required',
 				'plfTTipoServizio.id': 'required',
 				'plfTAreeCompetenza.id':'required',
 				'modalitaErogazioneServizio.id':'required',
@@ -701,16 +726,23 @@
 				'serviziStandard':'<spring:message code="serviziFormNuovoSelezionaStandard" javaScriptEscape="true" />',
 				'denominazionServizio.id':'<spring:message code="serviziFormNuovoSelezionaDenominazione" javaScriptEscape="true" />',
 				'serviziTranslation.titolo' : '<spring:message code="serviziFormNuovoInserireNome" javaScriptEscape="true" />',
-				'serviziTranslation.descrizione' : '<spring:message code="serviziFormNuovoInserireDescrizione" javaScriptEscape="true" />',
 				'plfTTipoServizio.id': '<spring:message code="serviziFormNuovoInserireTipo" javaScriptEscape="true" />',
 				'plfTAreeCompetenza.id':'<spring:message code="serviziFormNuovoSelectAreaCompetenza" javaScriptEscape="true" />',
 				'modalitaErogazioneServizio.id': '<spring:message code="serviziFormNuovoSelectModalitaErogazione" javaScriptEscape="true" />',
 				'elencoMacroarea':'<spring:message code="serviziFormNuovoSelectMacroarea" javaScriptEscape="true" />',
 				checkboxAccept: '<spring:message code="perProcedereConRegistrazioneAccettareTermini" javaScriptEscape="true" />',
 				dataInizio: '<spring:message code="servizioInserireLaData" javaScriptEscape="true" />',
-				dataFine: '<spring:message code="erroreDateNews" javaScriptEscape="true" />',
+				dataFine: '<spring:message code="erroreDateNews" javaScriptEscape="true" />'
 			}
 		});
+
+		var test = $('#descrizione').val();
+		if(test.length < 1) {
+			$('#frmDettaglio').validate().showErrors({
+				'serviziTranslation.descrizione': '<spring:message code="pacchettoFormNuovoInserireDescrizione" javaScriptEscape="true" />'
+			});
+			return false;
+		}
 
 		if (!$('#frmDettaglio').valid()) {
 			return false;

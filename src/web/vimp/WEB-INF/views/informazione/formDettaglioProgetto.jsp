@@ -230,9 +230,8 @@
                                 </label>
                                 <c:choose>
                                     <c:when test="${modifica}">
-											<textarea rows="4" name="progettiProdottiTranslation.descrizione"
-                                                      class="form-control"
-                                                      maxlength="3990">${dettaglio.progettiProdottiTranslation.descrizione}</textarea>
+											<textarea name="progettiProdottiTranslation.descrizione" id="descrizione"
+                                                              class="form-control" maxlength="3990">${dettaglio.progettiProdottiTranslation.descrizione}</textarea>
                                     </c:when>
                                     <c:otherwise>
                                         <br>
@@ -586,10 +585,8 @@
                                     : </label>
                                 <c:choose>
                                     <c:when test="${modifica}">
-                                            <textarea rows="4" id="obiettivi"
-                                                      name="progettiProdottiTranslation.obiettivi"
-                                                      class="form-control"
-                                                      maxlength="1000">${dettaglio.progettiProdottiTranslation.obiettivi}</textarea>
+                                            <textarea name="progettiProdottiTranslation.obiettivi" id="obiettivi"
+                                             class="form-control" maxlength="990">${dettaglio.progettiProdottiTranslation.obiettivi}</textarea>
                                     </c:when>
                                     <c:otherwise>
                                         <br>
@@ -605,9 +602,8 @@
                                 <label><spring:message code="form.contatti.contacts_title"/> :</label>
                                 <c:choose>
                                     <c:when test="${modifica}">
-                                        <textarea rows="4" name="progettiProdottiTranslation.descContatti"
-                                                  class="form-control"
-                                                  maxlength="1000">${dettaglio.progettiProdottiTranslation.descContatti}</textarea>
+                                        <textarea name="progettiProdottiTranslation.descContatti" id="descContatti" class="form-control"  
+                                                	maxlength="990">${dettaglio.progettiProdottiTranslation.descContatti}</textarea>
                                     </c:when>
                                     <c:otherwise>
                                         <br>
@@ -684,7 +680,7 @@
                                                                 </a>
                                                             </td>
                                                         </c:if>
-                                                        <td>${allegato.nome}</td>
+                                                        <td>${allegato.fileName}</td>
                                                         <td id="descrizioneAllegato_${allegato.progettiProdottiAllegatiTranslation.idProgettiProdottiAllegati}">${allegato.progettiProdottiAllegatiTranslation.descrizione}</td>
                                                         <td><a target="_blank"
                                                                href="/vimp/progettoProdottoAllegato/${allegato.idProgettiProdottiAllegati}">
@@ -1501,14 +1497,30 @@
                             rules: {
                                 'progettiProdottiTranslation.nomeProgettoProdotto': "required",
                                 'plfTTipoProgettiProdotti.id': 'required',
-                                'progettiProdottiTranslation.descrizione': 'required'
+                                'progettiProdottiTranslation.descrizione' : {
+        							required: function(element) {
+        								return $('#descrizione').summernote('isEmpty');
+        							}
+        						}   
                             },
                             messages: {
                                 'progettiProdottiTranslation.nomeProgettoProdotto': '<spring:message code="dettaglioProgettoInserireNome" javaScriptEscape="true" />',
                                 'plfTTipoProgettiProdotti.id': '<spring:message code="dettaglioProgettoInserireTipo" javaScriptEscape="true" />',
                                 'progettiProdottiTranslation.descrizione': '<spring:message code="form.nuovo.progetto.insert_description" javaScriptEscape="true" />',
                                 numDurata: '<spring:message code="form.progetti.prodotti.max_durata" javaScriptEscape="true"/> 99999999999999999'
-                            }
+                            },
+                            showErrors: function (errorMap, errorList) {
+        						if (typeof errorList[0] != "undefined") {
+        							var id = errorList[0].element.id;
+
+        							if( id === 'descrizione') {
+        								$('html, body').animate({
+        									scrollTop: 200
+        								}, 300);
+        							}
+        						}
+        						this.defaultShowErrors();
+        					}
                         });
 
                 let validateSettings = $('#frmDettaglio').validate().settings;
@@ -1570,8 +1582,85 @@
                             [ 'para', [ 'ul', 'ol', 'paragraph' ] ],
                             [ 'height', [ 'height' ] ] ]
                     });
-
                 var summernoteCaratTecnicheElement = $('caratteristicheTecniche');
+
+
+                $('#descrizione').summernote(
+                        {
+                            onChange: function (contents, $editable) {
+                            	summernoteDescrizioneElement.val(summernoteDescrizioneElement.summernote('isEmpty') ? "" : contents);
+                                summernoteValidator.element(summernoteDescrizioneElement);
+                            },
+                            lang: '${env_locale}',
+                            placeholder : '<spring:message code="form.dettaglio.progetto.topic" javaScriptEscape="true"/>',
+                            tabsize : 2,
+                            height : 100,
+                            fontNames : [ 'Arial', 'Arial Black',
+                                'Comic Sans MS', 'Courier New' ],
+                            toolbar : [
+                                [
+                                    'style',
+                                    [ 'bold', 'italic', 'underline',
+                                        'clear' ] ],
+                                [ 'fontname', [ 'fontname' ] ],
+                                [ 'fontsize', [ 'fontsize' ] ],
+                                [ 'color', [ 'color' ] ],
+                                [ 'para', [ 'ul', 'ol', 'paragraph' ] ],
+                                [ 'height', [ 'height' ] ] ]
+                        });
+                    var summernoteDescrizioneElement = $('descrizione');
+
+
+                    $('#obiettivi').summernote(
+                            {
+                                onChange: function (contents, $editable) {
+                                	summernoteObbiettiviElement.val(summernoteObbiettiviElement.summernote('isEmpty') ? "" : contents);
+                                    summernoteValidator.element(summernoteObbiettiviElement);
+                                },
+                                lang: '${env_locale}',
+                                placeholder : '<spring:message code="form.dettaglio.progetto.targets" javaScriptEscape="true"/>',
+                                tabsize : 2,
+                                height : 100,
+                                fontNames : [ 'Arial', 'Arial Black',
+                                    'Comic Sans MS', 'Courier New' ],
+                                toolbar : [
+                                    [
+                                        'style',
+                                        [ 'bold', 'italic', 'underline',
+                                            'clear' ] ],
+                                    [ 'fontname', [ 'fontname' ] ],
+                                    [ 'fontsize', [ 'fontsize' ] ],
+                                    [ 'color', [ 'color' ] ],
+                                    [ 'para', [ 'ul', 'ol', 'paragraph' ] ],
+                                    [ 'height', [ 'height' ] ] ]
+                            });
+                        var summernoteObbiettiviElement = $('obiettivi');
+
+
+                        $('#descContatti').summernote(
+                                {
+                                    onChange: function (contents, $editable) {
+                                    	summernoteDescContattiElement.val(summernoteDescContattiElement.summernote('isEmpty') ? "" : contents);
+                                        summernoteValidator.element(summernoteDescContattiElement);
+                                    },
+                                    lang: '${env_locale}',
+                                    placeholder : '<spring:message code="form.contatti.contacts_title" javaScriptEscape="true"/>',
+                                    tabsize : 2,
+                                    height : 100,
+                                    fontNames : [ 'Arial', 'Arial Black',
+                                        'Comic Sans MS', 'Courier New' ],
+                                    toolbar : [
+                                        [
+                                            'style',
+                                            [ 'bold', 'italic', 'underline',
+                                                'clear' ] ],
+                                        [ 'fontname', [ 'fontname' ] ],
+                                        [ 'fontsize', [ 'fontsize' ] ],
+                                        [ 'color', [ 'color' ] ],
+                                        [ 'para', [ 'ul', 'ol', 'paragraph' ] ],
+                                        [ 'height', [ 'height' ] ] ]
+                                });
+                            var summernoteDescContattiElement = $('descContatti');
 
                 if(${dettaglio.pubblicato} === true) {
                     $('input[name="pubblicato"]').iCheck('check');
@@ -1584,7 +1673,7 @@
 				{
 					setCheckModify('saveButton','cancelButton','deleteButton',
 							['pubblicato'],
-							['caratteristicheTecniche']);
+							['caratteristicheTecniche','descrizione','obiettivi_txt','descContatti']);
 				}
 
             });
@@ -1923,7 +2012,7 @@
                         
                         "<td>" + nomeFile + "</td> ";
                     if (descrizioneFile != null) {
-                        row += "<td>" + descrizioneFile + "</td> ";
+                        row += "<td id='descrizioneAllegato_" + id + "'>" + descrizioneFile + "</td> ";
                     } else {
                         row += "<td></td>";
                     }

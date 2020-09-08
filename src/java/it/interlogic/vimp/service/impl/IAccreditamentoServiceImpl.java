@@ -66,7 +66,7 @@ public class IAccreditamentoServiceImpl implements IAccreditamentoService
 
 	@Override
 	public PLFRichiestaAccreditamentoEntity salvaRichiesta(String codiceFiscaleRichiedente, String codiceFiscale, String partitaIva, String email, BigDecimal idStatoImpresa,
-			PLFImpresaEntity impresa, int statoRichiesta, int idControllo, boolean flagAccreditamento)
+			PLFImpresaEntity impresa, int statoRichiesta, int idControllo, boolean flagAccreditamento, String rappresentante, String incaricato)
 	{
 		PLFRichiestaAccreditamentoEntity entity = new PLFRichiestaAccreditamentoEntity();
 
@@ -93,6 +93,8 @@ public class IAccreditamentoServiceImpl implements IAccreditamentoService
 			
 
 			entity.setPartitaIva(impresa.getPartitaIva());
+			if (entity.getCodFiscale() == null || entity.getCodFiscale().trim().length()<=0 )
+				entity.setCodFiscale(impresa.getPartitaIva());
 
 			if (impresa.getIdPlfImpresa() != null && impresa.getIdPlfImpresa().intValue() > 0)
 			{
@@ -109,6 +111,8 @@ public class IAccreditamentoServiceImpl implements IAccreditamentoService
 			}
 			entity.setRagioneSociale(impresa.getImpresaTranslation().getDescImpresa());
 			entity.setTelContatto(impresa.getDescTelefono());
+			
+				
 		}
 		else
 		{
@@ -154,6 +158,14 @@ public class IAccreditamentoServiceImpl implements IAccreditamentoService
 			entity.setPartitaIva(partitaIva);
 		}
 			
+		
+		if ("S".equalsIgnoreCase(rappresentante))
+			entity.setRappresentante(true);
+		else entity.setRappresentante(false);
+		
+		if ("S".equalsIgnoreCase(incaricato))
+			entity.setIncaricato(true);
+		else entity.setIncaricato(false);
 		
 		return repository.save(entity);
 	}

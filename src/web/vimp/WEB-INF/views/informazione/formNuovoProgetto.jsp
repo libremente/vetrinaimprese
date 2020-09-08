@@ -201,20 +201,16 @@
                                                     <div class="form-group">
                                                         <label id="descrizioneLabel"><spring:message code="form.dettaglio.progetto.topic"/>
                                                             : <small>(<spring:message code="required"/>)</small></label>
-                                                        <textarea rows="4" id="descrizione"
-                                                                  name="progettiProdottiTranslation.descrizione"
-                                                                  class="form-control"
-                                                                  maxlength="3990">${dettaglio.progettiProdottiTranslation.descrizione}</textarea>
+                                                       <textarea name="progettiProdottiTranslation.descrizione" id="descrizione"
+                                                              class="form-control" maxlength="3990">${dettaglio.progettiProdottiTranslation.descrizione}</textarea>
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-6">
                                                     <div class="form-group" id="obiettivi">
                                                         <label><spring:message code="form.dettaglio.progetto.targets"
                                                                                text="Obiettivi"/> : </label>
-                                                        <textarea rows="4" id="obiettivi_txt"
-                                                                  name="progettiProdottiTranslation.obiettivi"
-                                                                  class="form-control"
-                                                                  maxlength="1000">${dettaglio.progettiProdottiTranslation.obiettivi}</textarea>
+                                                        <textarea name="progettiProdottiTranslation.obiettivi" id="obiettivi_txt"
+                                                              class="form-control" maxlength="990">${dettaglio.progettiProdottiTranslation.obiettivi}</textarea>
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-6">
@@ -362,9 +358,8 @@
                                             <div class="form-group">
                                                 <label><spring:message code="form.contatti.contacts_title"
                                                                        text="Contatti"/> :</label>
-                                                <textarea rows="4" name="progettiProdottiTranslation.descContatti"
-                                                          class="form-control"
-                                                          maxlength="1000">${dettaglio.progettiProdottiTranslation.descContatti}</textarea>
+                                                <textarea name="progettiProdottiTranslation.descContatti" id="descContatti" class="form-control"  
+                                                	maxlength="990">${dettaglio.progettiProdottiTranslation.descContatti}</textarea>
                                             </div>
 
                                         </div>
@@ -760,9 +755,88 @@
                         [ 'para', [ 'ul', 'ol', 'paragraph' ] ],
                         [ 'height', [ 'height' ] ] ]
                 });
-
             var summernoteCaratTecnicheElement = $('caratteristicheTecniche');
 
+
+            $('#descrizione').summernote(
+                    {
+                        onChange: function (contents, $editable) {
+                        	summernoteDescrizioneElement.val(summernoteDescrizioneElement.summernote('isEmpty') ? "" : contents);
+                            summernoteValidator.element(summernoteDescrizioneElement);
+                        },
+                        lang: '${env_locale}',
+                        placeholder : '<spring:message code="form.dettaglio.progetto.topic" javaScriptEscape="true"/>',
+                        tabsize : 2,
+                        height : 100,
+                        fontNames : [ 'Arial', 'Arial Black',
+                            'Comic Sans MS', 'Courier New' ],
+                        toolbar : [
+                            [
+                                'style',
+                                [ 'bold', 'italic', 'underline',
+                                    'clear' ] ],
+                            [ 'fontname', [ 'fontname' ] ],
+                            [ 'fontsize', [ 'fontsize' ] ],
+                            [ 'color', [ 'color' ] ],
+                            [ 'para', [ 'ul', 'ol', 'paragraph' ] ],
+                            [ 'height', [ 'height' ] ] ]
+                    });
+                var summernoteDescrizioneElement = $('descrizione');
+
+
+                $('#obiettivi_txt').summernote(
+                        {
+                            onChange: function (contents, $editable) {
+                            	summernoteObbiettiviElement.val(summernoteObbiettiviElement.summernote('isEmpty') ? "" : contents);
+                                summernoteValidator.element(summernoteObbiettiviElement);
+                            },
+                            lang: '${env_locale}',
+                            placeholder : '<spring:message code="form.dettaglio.progetto.targets" javaScriptEscape="true"/>',
+                            tabsize : 2,
+                            height : 100,
+                            fontNames : [ 'Arial', 'Arial Black',
+                                'Comic Sans MS', 'Courier New' ],
+                            toolbar : [
+                                [
+                                    'style',
+                                    [ 'bold', 'italic', 'underline',
+                                        'clear' ] ],
+                                [ 'fontname', [ 'fontname' ] ],
+                                [ 'fontsize', [ 'fontsize' ] ],
+                                [ 'color', [ 'color' ] ],
+                                [ 'para', [ 'ul', 'ol', 'paragraph' ] ],
+                                [ 'height', [ 'height' ] ] ]
+                        });
+                    var summernoteObbiettiviElement = $('obiettivi_txt');
+
+
+                    $('#descContatti').summernote(
+                            {
+                                onChange: function (contents, $editable) {
+                                	summernoteDescContattiElement.val(summernoteDescContattiElement.summernote('isEmpty') ? "" : contents);
+                                    summernoteValidator.element(summernoteDescContattiElement);
+                                },
+                                lang: '${env_locale}',
+                                placeholder : '<spring:message code="form.contatti.contacts_title" javaScriptEscape="true"/>',
+                                tabsize : 2,
+                                height : 100,
+                                fontNames : [ 'Arial', 'Arial Black',
+                                    'Comic Sans MS', 'Courier New' ],
+                                toolbar : [
+                                    [
+                                        'style',
+                                        [ 'bold', 'italic', 'underline',
+                                            'clear' ] ],
+                                    [ 'fontname', [ 'fontname' ] ],
+                                    [ 'fontsize', [ 'fontsize' ] ],
+                                    [ 'color', [ 'color' ] ],
+                                    [ 'para', [ 'ul', 'ol', 'paragraph' ] ],
+                                    [ 'height', [ 'height' ] ] ]
+                            });
+                        var summernoteDescContattiElement = $('descContatti');
+
+                    
+                    
             setValidation();
 
             setCheckInsert();
@@ -770,7 +844,8 @@
         });
 
     function setValidation() {
-        $('#frmDettaglio').validate({
+    	summernoteValidator = $('#frmDettaglio').validate({
+			ignore: ':hidden:not(.validate),hidden:not(.summernote),.note-editable.card-block',
             errorPlacement: function(error, element) {
                 if(element.parent('.input-group').length) {
                     error.insertAfter(element.parent());
@@ -781,12 +856,10 @@
             rules: {
                 'progettiProdottiTranslation.nomeProgettoProdotto': 'required',
                 'plfTTipoProgettiProdotti.id': 'required',
-                'progettiProdottiTranslation.descrizione' : 'required',
                 checkboxAccept: 'required'
             },
             messages: {
                 'progettiProdottiTranslation.nomeProgettoProdotto': '<spring:message code="progettoFormNuovoInserisciNome" javaScriptEscape="true" />',
-                'progettiProdottiTranslation.descrizione' : '<spring:message code="form.nuovo.progetto.insert_description" javaScriptEscape="true" />',
                 'plfTTipoProgettiProdotti.id': '<spring:message code="progettoFormNuovoInserisciTipo" javaScriptEscape="true" />',
                 checkboxAccept: '<spring:message code="perProcedereConRegistrazioneAccettareTermini" javaScriptEscape="true" />',
                 numDurata: '<spring:message code="form.progetti.prodotti.max_durata" javaScriptEscape="true"/> 99999999999999999'
@@ -866,7 +939,31 @@
 
 
     function validateSecondStep() {
-        return $('#frmDettaglio').valid();
+
+    	var test = $('#descrizione').val();
+
+		if(test.length < 1) {
+			$('#frmDettaglio').validate().showErrors({
+				'progettiProdottiTranslation.descrizione': '<spring:message code="form.nuovo.progetto.insert_description" javaScriptEscape="true" />'
+			});
+			return false;
+		}
+
+		$('#frmDettaglio').validate({
+			rules: {
+			},
+			messages: {
+			},
+			errorPlacement: function(error, element) {
+				error.insertAfter(element);
+			}
+		});
+
+		if (!$('#frmDettaglio').valid()) {
+			return false;
+		}
+		return true;
+		
     }
 
 

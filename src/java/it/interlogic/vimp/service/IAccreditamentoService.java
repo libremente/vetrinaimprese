@@ -46,5 +46,5 @@ public interface IAccreditamentoService
 	 * @return
 	 */
 	PLFRichiestaAccreditamentoEntity salvaRichiesta(String codiceFiscaleRichiedente, String codiceFiscale, String partitaIva, String email, BigDecimal idStatoImpresa,
-			PLFImpresaEntity impresa, int statoRichiesta, int idControllo, boolean flagAccreditamento);
+			PLFImpresaEntity impresa, int statoRichiesta, int idControllo, boolean flagAccreditamento, String rappresentante, String incaricato);
 }

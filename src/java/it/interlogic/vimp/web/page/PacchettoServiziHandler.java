@@ -169,13 +169,6 @@ public class PacchettoServiziHandler extends AbstractHandler
 			model.addAttribute("refreshRelativeUrl", "/pacchettoServizi/0");
 		}
 
-		if (dettaglio.getIdPacchettoServizi() == null || dettaglio.getIdPacchettoServizi().intValue() <= 0)
-		{
-
-			if (dettaglio.getDataInizio() == null)
-				dettaglio.setDataInizio(new Date());
-		}
-
 		if (!aggiornamento)
 		{
 			boolean aPagamento = false;

@@ -83,7 +83,7 @@
 		<div class="container">
 			<div class="row">
 				<div class="pull-left">
-					<span>V. <b>1.0.66</b> 2020-07-21 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(C) <a href="http://www.pro-logic.it">Interlogic
+					<span>V. <b>1.0.68</b> 2020-09-08 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(C) <a href="http://www.pro-logic.it">Interlogic
 							S.r.l.</a> , All rights reserved 2020
 					</span>
 				</div>

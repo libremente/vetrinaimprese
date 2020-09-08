@@ -24,6 +24,13 @@ Le principali cartelle usate dal repository sono
 * lib: librerie utilizzate
 * src: sorgenti e files di configurazione
 
+Documentazione allegata:
+
+* [Modello database applicativo Vetrina Imprese](./doc/ModelloDatabase.pdf)
+* [Modello database applicativo Vetrina Imprese](./doc/ModelloDatabase.pdf)
+* [Modello database applicativo Vetrina Imprese](./doc/ModelloDatabase.pdf)
+
+
 ## System requirements
 
 The application this project produces is designed to be run on JBoss Enterprise Application Platform - Version 6.2.0.GA.

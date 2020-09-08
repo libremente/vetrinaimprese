@@ -110,10 +110,7 @@
 
                                                 <div class="form-group">
                                                     <label><spring:message code="description"/> : <small>(<spring:message code="required"/>)</small></label>
-                                                    <input id="descrizione" name="pacchettoServiziTranslation.descrizione" type="text"
-                                                           class="form-control" placeholder=""
-                                                           value="${dettaglio.pacchettoServiziTranslation.descrizione}" path="descrizione"
-                                                           maxlength="3990">
+                                                    <textarea name="pacchettoServiziTranslation.descrizione" id="descrizione" class="form-control"  maxlength="3990">${dettaglio.pacchettoServiziTranslation.descrizione}</textarea>
                                                 </div>
 
                                                 <div class="form-group">
@@ -175,6 +172,38 @@
                                                                maxlength="400">
                                                     </div>
                                                 </div>
+                                                
+                                                
+                                                
+                                                <div class="col-sm-6">
+													<div class="form-group">
+														<label><spring:message code="date" text="Data"/> :<small>(<spring:message code="required" text="richiesto"/>)</small></label>
+														<fmt:formatDate value="${dettaglio.dataInizio}" type="date" pattern="dd/MM/yyyy" var="dataInizioFormatted" />
+														<div class="input-group date" data-provide="datepicker" data-date-language="${env_locale}"
+															 data-date-format="dd/mm/yyyy" >
+															<input name="dataInizio" type="text" class="form-control" id="dataInizio"
+																   value="${dataInizioFormatted}" path="dataInizio" autocomplete="off">
+															<div class="input-group-addon">
+																<span class="glyphicon glyphicon-th"></span>
+															</div>
+														</div>
+													</div>
+												</div>
+												<div class="col-sm-6">
+													<div class="form-group">
+														<label><spring:message code="end_date" text="Data fine"/> :</label>
+														<fmt:formatDate value="${dettaglio.dataFine}" type="date"
+																		pattern="dd/MM/yyyy" var="dataFineFormatted" />
+														<div class="input-group date" data-provide="datepicker" data-date-language="${env_locale}"
+															 data-date-format="dd/mm/yyyy">
+															<input name="dataFine" type="text" class="form-control" id="dataFine" autocomplete="off"
+																   value="${dataFineFormatted}" path="dataFine" >
+															<div class="input-group-addon">
+																<span class="glyphicon glyphicon-th"></span>
+															</div>
+														</div>
+													</div>
+												</div>
 
                                             </div>
                                         </div>
@@ -449,10 +478,16 @@
 <script src="${evn_urlRisorseStatiche}/vimp/assets/js/wizard.js"></script>
 <script src="${evn_urlRisorseStatiche}/vimp/assets/js/main.js"></script>
 
+<script type="text/javascript" src="${evn_urlRisorseStatiche}/vimp/assets/js/summernote-bs4.js"></script>
+<script type="text/javascript" src="${evn_urlRisorseStatiche}/vimp/assets/js/lang/summernote-it-IT.js"></script>
+
 <script src="${evn_urlRisorseStatiche}/vimp/assets/js/checkModify.js"></script>
 
 <script>
     var uploadImage = false;
+	var summernoteValidator;
+	var summernoteForm;
+	var summernoteElement;
     var checkServiziDuplicati = false;
     var serviziUtenteCollegati = [];
     var serviziGeneralCollegati = [];
@@ -470,6 +505,43 @@
             uploadImage = true;
         });
 
+        $('#descrizione').summernote({
+			onChange: function (contents, $editable) {
+				summernoteElement.val(summernoteElement.summernote('isEmpty') ? '' : contents);
+				summernoteValidator.element(summernoteElement);
+			},
+			lang: '${env_locale}',
+			placeholder: '<spring:message code="pacchettoFormNuovaTextPlaceholder" text="Descrizione" />',
+			tabsize: 2,
+			height: 150,
+			fontNames: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New'],
+			toolbar: [
+				['style', ['bold', 'italic', 'underline', 'clear']],
+				['fontname', ['fontname']],
+				['fontsize', ['fontsize']],
+				['color', ['color']],
+				['para', ['ul', 'ol', 'paragraph']],
+				['height', ['height']]
+			]
+		});
+
+		summernoteForm = $('#frmDettaglio');
+		summernoteElement = $('.summernote');
+
+        jQuery.validator.addMethod("checkDate", function(e) {
+			let valDataInizio = $('#dataInizio').val().split('/');
+			let dataInizio = new Date(valDataInizio[2], valDataInizio[1] - 1, valDataInizio[0]);
+
+			let valDataFine = $('#dataFine').val();
+
+			if(valDataFine) {
+				let arrDataFine = valDataFine.split("/");
+				let dataFine = new Date(arrDataFine[2], arrDataFine[1] - 1, arrDataFine[0]);
+				return dataFine > dataInizio;
+			}
+			return true;
+		});
+		
         $('#wizardInsert').bootstrapWizard({
             'tabClass': 'nav nav-pills',
             'nextSelector': '.btn-next',
@@ -577,33 +649,47 @@
     }
 
     function validateFirstStep() {
-        $('#frmDettaglio').validate({
 
-            ignore: ':hidden:not(.validate)',
-            errorPlacement: function(error, element) {
-                if(element.parent('.input-group').length) {
-                    error.insertAfter(element.parent());
-                } else {
-                    error.insertAfter(element);
-                }
-            },
+
+    	summernoteValidator = $('#frmDettaglio').validate({
+			ignore: ':hidden:not(.validate),hidden:not(.summernote),.note-editable.card-block',
+			errorPlacement: function(error, element) {
+				if(element.parent('.input-group').length) {
+					error.insertAfter(element.parent());
+				} else {
+					error.insertAfter(element);
+				}
+			},
             rules: {
                 'pacchettoServiziTranslation.titolo': 'required',
-                'pacchettoServiziTranslation.descrizione' : 'required',
                 'macroarea.id': 'required',
                 'luogoErogazione': 'required',
                 'contatti': 'required',
-                checkboxAccept: 'required'
+                checkboxAccept: 'required',
+                dataInizio: 'required',
+				dataFine: "checkDate"
             },
             messages: {
                 'pacchettoServiziTranslation.titolo' : '<spring:message code="pacchettoFormNuovoInserireNome" javaScriptEscape="true" />',
-                'pacchettoServiziTranslation.descrizione' : '<spring:message code="pacchettoFormNuovoInserireDescrizione" javaScriptEscape="true" />',
                 'macroarea.id': '<spring:message code="pacchettoFormNuovoSelectMacroarea" javaScriptEscape="true" />',
                 'luogoErogazione': '<spring:message code="pacchettoFormNuovoInserireLuogoErogazione" javaScriptEscape="true" />',
                 'contatti': '<spring:message code="pacchettoFormNuovoInserireContatti" javaScriptEscape="true" />',
-                checkboxAccept: '<spring:message code="perProcedereConRegistrazioneAccettareTermini" javaScriptEscape="true" />'
+                checkboxAccept: '<spring:message code="perProcedereConRegistrazioneAccettareTermini" javaScriptEscape="true" />',
+                dataInizio: '<spring:message code="pacchettoInserireLaData" javaScriptEscape="true" />',
+				dataFine: '<spring:message code="erroreDateNews" javaScriptEscape="true" />'
             }
         });
+
+
+
+    	var test = $('#descrizione').val();
+		if(test.length < 1) {
+			$('#frmDettaglio').validate().showErrors({
+				'pacchettoServiziTranslation.descrizione': '<spring:message code="pacchettoFormNuovoInserireDescrizione" javaScriptEscape="true" />'
+			});
+			return false;
+		}
+		
         if (!$('#frmDettaglio').valid()) {
             return false;
         }

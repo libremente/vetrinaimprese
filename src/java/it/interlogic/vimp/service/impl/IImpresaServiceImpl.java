@@ -236,6 +236,24 @@ public class IImpresaServiceImpl extends IAbstractServiceImpl implements IImpres
 		
 		return dettaglio;
 	}
+	
+	@Override
+	public List<PLFTUtenteEntity> getUtenti(BigDecimal idImpresa)
+	{
+		List<PLFTUtenteEntity> utenti = new ArrayList<PLFTUtenteEntity>();
+		
+		List<PLFRUtenteImpresaEntity> utenteImpresaList = utenteImpresaRepository.findByImpresa(idImpresa);
+		if (utenteImpresaList != null)
+		{
+			for (PLFRUtenteImpresaEntity utenteImpresa : utenteImpresaList)
+			{
+				PLFTUtenteEntity utente = utenteRepository.findOne(utenteImpresa.getIdUtente());
+				if (utente != null && utente.getIdUtente() != null && utente.getIdUtente().intValue()>0)
+					utenti.add(utente);
+			}
+		}
+		return utenti;
+	}
 
 	@Override
 	public PLFImpresaEntity restore(PLFImpresaEntity dettaglio)

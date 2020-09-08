@@ -61,7 +61,7 @@
 
 			<c:otherwise>
 
-				<c:if test="${empty parametriRicerca.textRicerca}">
+				<c:if test="${empty parametriRicerca.textRicerca && !widgetPaginazione}">
 					<div class="row">
 						<div class="col-md-10 col-md-offset-1 col-sm-12 text-center homemt">
 							<p class="homemt-content"><spring:message code="home.list.top_news"></spring:message></p>
@@ -408,17 +408,7 @@
 									<h5 class="count-label"><spring:message code="home.list.innovative_PMI" text="PMI innovative"/></h5>
 								</div>
 							</div>
-							<div class="col-sm-2 col-xs-5">
-								<div class="count-item">
-									<div class="count-item-circle counter-background-left">
-										<div class="chart" data-percent="0">
-											<h2 class="percent" id="counterProgetti">0</h2>
-										</div>
-										<%--<span><img src="${evn_urlRisorseStatiche}/vimp/assets/img/CERCHIO.png" height="100" width="100"></span>--%>
-									</div>
-									<h5 class="count-label"><spring:message code="home.list.research_projects" text="Progetti di ricerca"/></h5>
-								</div>
-							</div>
+							
 							
 							<div class="col-sm-2 col-xs-5">
 								<div class="count-item">
@@ -429,6 +419,18 @@
 										<%--<span><img src="${evn_urlRisorseStatiche}/vimp/assets/img/CERCHIO.png" height="100" width="100"></span>--%>
 									</div>
 									<h5 class="count-label"><spring:message code="home.list.spinoff" text="Spin off"/></h5>
+								</div>
+							</div>
+							
+							<div class="col-sm-2 col-xs-5">
+								<div class="count-item">
+									<div class="count-item-circle counter-background-left">
+										<div class="chart" data-percent="0">
+											<h2 class="percent" id="counterProgetti">0</h2>
+										</div>
+										<%--<span><img src="${evn_urlRisorseStatiche}/vimp/assets/img/CERCHIO.png" height="100" width="100"></span>--%>
+									</div>
+									<h5 class="count-label"><spring:message code="home.list.research_projects" text="Progetti di ricerca"/></h5>
 								</div>
 							</div>
 							
@@ -531,16 +533,16 @@ setTimeout(function () {
         $('#counterProdotti').text('0');
         $('#counterStartup').text('0');
         $('#counterPmi').text('0');
-        $('#counterProgetti').text('0');
         $('#counterSpinoff').text('0');
+        $('#counterProgetti').text('0');
         $('#counterGrandi').text('0');
         
         setInterval(function () {
             var curval = parseInt($('#counterProdotti').text());
             var curval1 = parseInt($('#counterStartup').text());
             var curval2 = parseInt($('#counterPmi').text());
-            var curval3 = parseInt($('#counterProgetti').text());
-            var curval4 = parseInt($('#counterSpinoff').text());
+            var curval3 = parseInt($('#counterSpinoff').text());
+            var curval4 = parseInt($('#counterProgetti').text());
             var curval5 = parseInt($('#counterGrandi').text());
             if (curval <= ${prodottiRegistrati} -1) {
                 $('#counterProdotti').text(curval + 1);
@@ -551,11 +553,11 @@ setTimeout(function () {
             if (curval2 <= ${pmiRegistrate}-1) {
                 $('#counterPmi').text(curval2 + 1);
             }
-            if (curval3 <= ${progettiRegistrati}-1) {
-                $('#counterProgetti').text(curval3 + 1);
+            if (curval3 <= ${spinoffRegistrati}-1) {
+                $('#counterSpinoff').text(curval3 + 1);
             }
-            if (curval4 <= ${spinoffRegistrati}-1) {
-                $('#counterSpinoff').text(curval4 + 1);
+            if (curval4 <= ${progettiRegistrati}-1) {
+                $('#counterProgetti').text(curval4 + 1);
             }
             if (curval5 <= ${grandiRegistrati}-1) {
                 $('#counterGrandi').text(curval5 + 1);

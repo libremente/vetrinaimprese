@@ -6,7 +6,9 @@ import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
+import it.interlogic.vimp.data.jpa.model.PLFTModalitaErogazioneServizioEntity;
 import it.interlogic.vimp.data.jpa.model.PLFTTipoErogazioneServizioEntity;
+
 import org.springframework.data.repository.query.Param;
 
 public interface PLFTTipoErogazioneServizioJpaRepository extends PagingAndSortingRepository<PLFTTipoErogazioneServizioEntity, BigDecimal> {
@@ -21,5 +23,10 @@ public interface PLFTTipoErogazioneServizioJpaRepository extends PagingAndSortin
 			"JOIN PLF_R_SERVIZI_TIPO_EROGAZIONE ASS ON ASS.ID_TIPO_EROGAZIONE = TES.ID " +
 			"WHERE ASS.ID_SERVIZI = :idServizio", nativeQuery = true)
 	List<PLFTTipoErogazioneServizioEntity> findByServizio(@Param("idServizio") BigDecimal idServizio);
+	
+	
+	
+	@Query(value = "SELECT tipo from PLFTTipoErogazioneServizioEntity tipo where UPPER(tipo.descrizione) like :descrizione")
+	public abstract List<PLFTTipoErogazioneServizioEntity> findTipiErogazioneServizioPerDescrizione(@Param("descrizione") String descrizione);
 
 }
