@@ -26,9 +26,10 @@ Le principali cartelle usate dal repository sono
 
 Documentazione allegata:
 
-* [Modello database applicativo Vetrina Imprese](./doc/ModelloDatabase.pdf)
-* [Modello database applicativo Vetrina Imprese](./doc/ModelloDatabase.pdf)
-* [Modello database applicativo Vetrina Imprese](./doc/ModelloDatabase.pdf)
+* [Modello database](./doc/ModelloDatabase.pdf)
+* [Manuale utente Amministratore](./doc/ManualeUtenteAmministratore.pdf)
+* [Manuale utente accreditato](./doc/ManualeUtenteAccreditati.pdf)
+* [Manuale utente accesso libero](./doc/ManualeUtenteAccessoLibero.pdf)
 
 
 ## System requirements
