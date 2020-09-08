@@ -123,4 +123,4 @@ Il soggetto detentore del software è il Comune di Genova
 ## Contatti
 
 * Amministrazione proprietaria: Comune di Genova
-* Contatto e-mail referente di progetto (per segnalazioni e richiesta informazioni): 
+* Contatto e-mail referente di progetto (per segnalazioni e richiesta informazioni): [gestionesistemi@comune.genova.it](mailto:gestionesistemi@comune.genova.it)
