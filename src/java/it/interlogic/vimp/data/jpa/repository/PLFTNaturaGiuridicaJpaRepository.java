@@ -15,7 +15,7 @@ public interface PLFTNaturaGiuridicaJpaRepository extends PagingAndSortingReposi
 	@Query(value = "SELECT * from PLF_T_NATURA_GIURIDICA tipo where tipo.DATA_FINE IS NULL", nativeQuery = true)
 	public abstract List<PLFTNaturaGiuridicaEntity> findNaturaGiuridica();
 
-	@Query(value = "SELECT tipo from PLFTNaturaGiuridicaEntity tipo where tipo.codice = :codice")
+	@Query(value = "SELECT tipo from PLFTNaturaGiuridicaEntity tipo where UPPER(tipo.codice) = :codice")
 	public abstract List<PLFTNaturaGiuridicaEntity> findNaturaGiuridicaPerCodice(@Param("codice") String codice);
 	
 	@Query(value = "SELECT tipo from PLFTNaturaGiuridicaEntity tipo where UPPER(tipo.descrizione) = :descrizione")

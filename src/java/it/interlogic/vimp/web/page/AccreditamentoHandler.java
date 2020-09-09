@@ -443,7 +443,7 @@ public class AccreditamentoHandler extends AbstractHandler
 
 	// =====================================================================================================
 	// =====================================================================================================
-	// ACCREDITAMENTO
+	// TODO ACCREDITAMENTO
 
 	/**
 	 * @param dettaglio
@@ -510,6 +510,9 @@ public class AccreditamentoHandler extends AbstractHandler
 
 			impresa.setCodFiscale(dettaglio.getCodFiscale());
 			impresa.setPartitaIva(dettaglio.getPartitaIva());
+			
+			if (impresa.getCodFiscale() == null ||  impresa.getCodFiscale().trim().length()<=0)
+				impresa.setCodFiscale(dettaglio.getPartitaIva());
 			
 			
 			impresa.setDescIndirizzo(dettaglio.getDescIndirizzo());
@@ -1113,13 +1116,16 @@ public class AccreditamentoHandler extends AbstractHandler
 							impresa.setDataIscrizioneRegistroImprese(dataIscrizioneRegistroImprese);
 					}
 
-					it.interlogic.vimp.service.ws.aris.uisearchall.ResultElement[] sedi = ul.getResultUnitaLocali();
-					if (sedi != null && sedi.length > 0)
+					if (impresa.getPlfTAteco() == null || impresa.getPlfTAteco().getIdAteco() == null || impresa.getPlfTAteco().getIdAteco().intValue()<=0)
 					{
-						String attivitaAteco = sedi[0].getC_ateco();
-						PLFTAtecoEntity ateco = getAtecoAris(attivitaAteco);
-						if (ateco != null && ateco.getIdAteco() != null && ateco.getIdAteco().intValue() > 0)
-							impresa.setPlfTAteco(ateco);
+						it.interlogic.vimp.service.ws.aris.uisearchall.ResultElement[] sedi = ul.getResultUnitaLocali();
+						if (sedi != null && sedi.length > 0)
+						{
+							String attivitaAteco = sedi[0].getC_ateco();
+							PLFTAtecoEntity ateco = getAtecoAris(attivitaAteco);
+							if (ateco != null && ateco.getIdAteco() != null && ateco.getIdAteco().intValue() > 0)
+								impresa.setPlfTAteco(ateco);
+						}
 					}
 				}
 			}

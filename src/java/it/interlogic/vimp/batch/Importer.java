@@ -86,7 +86,6 @@ public class Importer
 						impreseFile.put(codiceFiscalePartitaIva, TIPO_SCARICO_PMI);
 					impresa = addNecessaryField(impresa, IAbstractServiceImpl.STATO_IMPRESA_PMI_INNOVATIVA, IAbstractServiceImpl.TIPO_IMPRESA_PMI, Constants.PMI_DESC_FONTE);
 
-					impresa = addAtecoFromAris(impresa);
 					salvaImpresa(impresa, true);
 				}
 			}
@@ -111,7 +110,7 @@ public class Importer
 						impreseFile.put(codiceFiscalePartitaIva, TIPO_SCARICO_STARTUP);
 					impresa = addNecessaryField(impresa, IAbstractServiceImpl.STATO_IMPRESA_START_UP_INNOVATIVA, IAbstractServiceImpl.TIPO_IMPRESA_AZIENDA,
 							Constants.STARTUP_DESC_FONTE);
-					impresa = addAtecoFromAris(impresa);
+
 					salvaImpresa(impresa, false);
 				}
 			}
@@ -156,6 +155,8 @@ public class Importer
 					else
 					{
 						Debug.printInfo("Inserimento impresa. " + impresa.toStringIndentificativo(), Importer.class.getName());
+						
+						impresa = addAtecoFromAris(impresa);
 						impresa = persistent.getImpresaService().update(impresa);
 						impresa = persistent.getImpresaService().find(impresa.getIdPlfImpresa());
 						saveLog(impresa, IAbstractServiceImpl.LOG_IMPRESA_NUOVA, new Date());
@@ -203,6 +204,9 @@ public class Importer
 
 	private PLFImpresaEntity addAtecoFromAris(PLFImpresaEntity impresa)
 	{
+		if (impresa != null && impresa.getPlfTAteco() != null && impresa.getPlfTAteco().getIdAteco() != null && impresa.getPlfTAteco().getIdAteco().intValue()>0)
+			return impresa;
+		
 		String cfpi = getCodiceFiscalePartitaIva(impresa);
 		
 		Debug.printInfo("Ricerca ATECO su ARIS con partita iva : " + cfpi, Importer.class.getName());
@@ -765,6 +769,7 @@ public class Importer
 			}
 			else
 			{
+				db = addAtecoFromAris(db);
 				db = persistent.getImpresaService().updateImpresa(db);
 				db = persistent.getImpresaService().find(db.getIdPlfImpresa());
 			}
@@ -818,6 +823,7 @@ public class Importer
 				idMessagio = IAbstractServiceImpl.LOG_IMPRESA_STATO_NON_AGGIORNATO;
 
 			
+			
 			db = persistent.getImpresaService().updateImpresa(db);
 			db = persistent.getImpresaService().find(db.getIdPlfImpresa());
 			saveLog(db, idMessagio, new Date());
@@ -825,7 +831,7 @@ public class Importer
 		
 		
 		// AGGIORNAMENTO ATECO DA ARIS SEMPRE
-		db.setPlfTAteco(impresa.getPlfTAteco());
+		db = addAtecoFromAris(db);
 		db = persistent.getImpresaService().updateImpresa(db);
 		
 
@@ -918,6 +924,7 @@ public class Importer
 												impresa.getPlfTStatoImpresa().setId(new BigDecimal(newStato));
 												try
 												{
+													impresa = this.addAtecoFromAris(impresa);
 													persistent.getImpresaService().update(impresa);
 												}
 												catch (InformazioneDuplicataException e)
