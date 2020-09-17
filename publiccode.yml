@@ -9,7 +9,7 @@ landingURL: 'https://vetrinaimprese.comune.genova.it/vimp/home'
 releaseDate: '2020-09-09'
 softwareVersion: 1.0.68
 developmentStatus: stable
-softwareType: standalone/mobile
+softwareType: standalone/web
 platforms:
   - web
 categories:
@@ -23,11 +23,12 @@ maintenance:
       email: info@pro-logic.it
 legal:
   license: GPL-3.0-or-later
+intendedAudience:
+  countries:
+    - it
+    - us
 localisation:
   localisationReady: true
-  availableLanguages:
-    - it
-    - en
 it:
   piattaforme:
     spid: true
@@ -36,7 +37,7 @@ description:
     genericName: Vetrina Imprese
     shortDescription: Vetrina delle imprese del Comune di Genova
     longDescription: >
-      L’asse 1 “Agenda Digitale Metropolitano” del Piano Operativo della Città
+      L’asse 1 "Agenda Digitale Metropolitano" del Piano Operativo della Città
       di Genova (PON Metro Genova) ha svolto rilevanti interventi per avanzare
       l’intero processo di produzione di servizi a cittadini e imprese presenti
       sul territorio, tra le quali ritroviamo lo sviluppo della piattaforma
