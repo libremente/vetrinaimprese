@@ -32,9 +32,15 @@ localisation:
 it:
   piattaforme:
     spid: true
+  riuso:
+    codiceIPA: c_d969
+  conforme:
+    lineeGuidaDesign: true
+    gdpr: true
+    misureMinimeSicurezza: true
 description:
   it:
-    genericName: Vetrina Imprese
+    genericName: 'Vetrina Imprese '
     shortDescription: Vetrina delle imprese del Comune di Genova
     longDescription: >
       L’asse 1 "Agenda Digitale Metropolitano" del Piano Operativo della Città
