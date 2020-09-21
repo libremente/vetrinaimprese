@@ -29,6 +29,8 @@ intendedAudience:
     - us
 localisation:
   localisationReady: true
+  availableLanguages:
+    - it
 it:
   countryExtensionVersion: "0.2"
   riuso:
