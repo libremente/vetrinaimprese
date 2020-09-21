@@ -30,6 +30,9 @@ intendedAudience:
 localisation:
   localisationReady: true
 it:
+  countryExtensionVersion: "0.2"
+  riuso:
+    codiceIPA: c_d969
   piattaforme:
     spid: true
   riuso:
